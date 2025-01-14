@@ -1,57 +1,65 @@
 package com.example.starhub.entity;
 
+import com.example.starhub.entity.enums.RecruitmentType;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
-@Getter
 @Entity
-@AllArgsConstructor
+@Getter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class PostEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer postId; // 포스트 id
+    private Long id;  // 스터디 고유 식별자
 
-    @Column(nullable = false, length=20)
-    private String skill;
+    @Enumerated(EnumType.STRING)
+    private RecruitmentType recruitmentType;  // 모집 구분 (스터디 / 프로젝트)
 
-    @Column(nullable = false, length=50)
-    private String title;
+    private Integer maxParticipants;  // 모집 인원
 
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String content;
+    @Enumerated(EnumType.STRING)
+    private Duration duration;  // 진행 기간
 
-    @Column(nullable = false, length=20)
-    private String progress;
+    private LocalDate startDate;  // 진행 시작 날짜
 
-    @Column(nullable = false, length=10)
-    private String peopleNum;
+    @Column(length = 100)
+    private String location;  // 진행 장소
 
-    @Column(nullable = false, length=20)
-    private String deadline;
+    private BigDecimal latitude;  // 위도
 
-    @CreatedDate
-    private LocalDate createdAt;
+    private BigDecimal longitude;  // 경도
 
-    @Column(nullable = false, length=20)
-    private String type;
+    @Column(length = 100)
+    private String title;  // 스터디 제목
 
-    @Column(nullable = false, length=255)
-    private String place;
+    @Column(columnDefinition = "TEXT")
+    private String description;  // 스터디 소개
 
-    @Column(nullable = false)
-    private Float latitude;
+    @Column(columnDefinition = "TEXT")
+    private String goal;  // 스터디 목표
 
-    @Column(nullable = false)
-    private Float longitude;
+    @Column(columnDefinition = "TEXT")
+    private String otherInfo;  // 기타 정보
 
-    @Column
-    private Boolean done;
+    private LocalDateTime createdAt;  // 생성일
+
+    private LocalDateTime updatedAt;  // 수정일
+
+    private Boolean isConfirmed;  // 모임 확정 여부
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "creator_id", nullable = false)
+    private UserEntity creator;  // 작성자 정보 (유저와 연관)
 
 }
