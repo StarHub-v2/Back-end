@@ -1,18 +1,17 @@
 package com.example.starhub.entity;
 
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserEntity {
 
     @Id
@@ -52,4 +51,17 @@ public class UserEntity {
     private LocalDateTime updated_at; // 수정일
 
     private Boolean isProfileComplete; // 프로필 생성 여부
+
+    @PrePersist
+    private void prePersist() {
+        if (isProfileComplete == null) {
+            isProfileComplete = false;
+        }
+    }
+
+    @Builder
+    public UserEntity(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
 }
