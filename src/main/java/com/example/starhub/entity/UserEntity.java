@@ -1,52 +1,53 @@
 package com.example.starhub.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Setter
-@NoArgsConstructor
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class UserEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="user_id")
-    private int userId;
+    private Long id;
 
-    @Column(unique = true, nullable = false, length = 45)
-    private String loginId;
-
-    @Column(length=100, nullable = false)
-    private String password;
-
-    @Column(length=100, nullable = false)
-    private String name;
+    @Column(nullable = false, unique = true, length = 50)
+    private String username; // 사용자 아이디
 
     @Column(nullable = false)
-    private int age;
+    private String password;
 
-    @Column(length=100, nullable = false)
+    @Column(length = 255)
+    private String profileImage;
+
+    @Column(length = 50)
+    private String nickname;
+
+    @Column(length = 100)
+    private String name; // 사용자 이름
+
+    private Integer age;
+
+    @Column(length = 255)
+    private String bio;
+
+    @Column(length = 100)
     private String email;
 
-    @Column(length=100, nullable = false)
-    private String phoneNum;
+    @Column(length = 15)
+    private String phoneNumber;
 
-    @Column(length=20, nullable = false)
-    private String introduction;
+    private Boolean isProfileComplete;
 
-//    @Lob
-//    @Column(name = "image_data")
-//    private byte[] imageData;
+    private LocalDateTime created_at;
 
-
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY) // 양방향 관계 매핑된 것. 읽기 전용
-    @JsonIgnore
-    private List<PostEntity> posts = new ArrayList<>();
-
+    private LocalDateTime updated_at;
 }
