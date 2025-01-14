@@ -1,22 +1,18 @@
 package com.example.starhub.entity;
 
-import com.example.starhub.dto.post.PostRequestDto;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Getter
-@Setter
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
-public class PostEntity{
+public class PostEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -57,32 +53,5 @@ public class PostEntity{
 
     @Column
     private Boolean done;
-
-
-    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST) // 또는 CascadeType.PERSIST 설정 가능
-    @JsonIgnore
-    @JoinColumn(name = "userId")
-    private UserEntity user;
-
-//    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY) // 양방향 관계 매핑된 것. 읽기 전용
-//    @JsonIgnore
-//    private List<CommentEntity> comments = new ArrayList<>();
-
-    public PostEntity(UserEntity user, PostRequestDto requestDto) {
-        this.skill=requestDto.getSkill();
-        this.place=requestDto.getPlace();
-        this.longitude=requestDto.getLongitude();
-        this.latitude=requestDto.getLatitude();
-        this.progress=requestDto.getProgress();
-        this.peopleNum=requestDto.getPeopleNum();
-        this.deadline=requestDto.getDeadline();
-        this.type=requestDto.getType();
-        this.done=requestDto.getDone();
-        this.title = requestDto.getTitle();
-        this.content = requestDto.getContent();
-        this.createdAt=requestDto.getCreatedAt();
-        this.user = user;
-    }
-
 
 }
