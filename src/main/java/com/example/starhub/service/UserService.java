@@ -1,5 +1,6 @@
 package com.example.starhub.service;
 
+import com.example.starhub.dto.request.CreateProfileRequestDto;
 import com.example.starhub.dto.request.CreateUserRequestDto;
 import com.example.starhub.dto.request.UsernameCheckRequestDto;
 import com.example.starhub.dto.response.UserResponseDto;
@@ -30,7 +31,7 @@ public class UserService {
     public UserResponseDto registerUser(CreateUserRequestDto createUserRequestDto) {
 
         // 아아디 관련 작업
-        String username = createUserRequestDto.getId();
+        String username = createUserRequestDto.getUsername();
         if(userRepository.existsByUsername(username)) {
             throw new UsernameAlreadyExistsException(ErrorCode.USERNAME_ALREADY_EXISTS);
         }
@@ -57,8 +58,17 @@ public class UserService {
      * @return 아이디 중복 여부
      */
     public UsernameCheckResponseDto checkUsernameDuplicate(UsernameCheckRequestDto usernameCheckRequestDto) {
-        String username = usernameCheckRequestDto.getId();
+        String username = usernameCheckRequestDto.getUsername();
         boolean isAvailable = !userRepository.existsByUsername(username);
         return new UsernameCheckResponseDto(isAvailable);
+    }
+
+    /**
+     * 프로필 만들기(2차 회원가입)
+     * @param createProfileRequestDto 프로필 만들기 DTO
+     * @return 아이디 중복 여부
+     */
+    public void createUserProfile(CreateProfileRequestDto createProfileRequestDto) {
+
     }
 }

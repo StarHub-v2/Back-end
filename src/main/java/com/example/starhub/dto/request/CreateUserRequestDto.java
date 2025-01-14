@@ -5,6 +5,6 @@ import lombok.Getter;
 @Getter
 public class CreateUserRequestDto {
 
-    private String id;
+    private String username;
     private String password;
 }

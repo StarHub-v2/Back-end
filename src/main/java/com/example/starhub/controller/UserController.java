@@ -1,5 +1,6 @@
 package com.example.starhub.controller;
 
+import com.example.starhub.dto.request.CreateProfileRequestDto;
 import com.example.starhub.dto.request.CreateUserRequestDto;
 import com.example.starhub.dto.request.UsernameCheckRequestDto;
 import com.example.starhub.dto.response.UserResponseDto;
@@ -41,5 +42,16 @@ public class UserController {
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_CREATE_USER.getStatus().value())
                 .body(new ResponseDTO<>(ResponseCode.SUCCESS_CREATE_USER, res));
+    }
+
+    /**
+     * 프로필 만들기(2차 회원가입)
+     */
+    @PostMapping("/users/profile")
+    public ResponseEntity<ResponseDTO> createUserProfile(@RequestBody CreateProfileRequestDto createProfileRequestDto) {
+        userService.createUserProfile(createProfileRequestDto);
+        return ResponseEntity
+                .status(ResponseCode.SUCCESS_CREATE_USER.getStatus().value())
+                .body(new ResponseDTO<>(ResponseCode.SUCCESS_CREATE_USER, null));
     }
 }
