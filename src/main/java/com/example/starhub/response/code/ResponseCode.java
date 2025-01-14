@@ -9,14 +9,10 @@ import org.springframework.http.HttpStatus;
 public enum ResponseCode {
 
     /**
-     * status 200
-     */
-
-
-    /**
-     * status 201
+     * USER
      */
     SUCCESS_CREATE_USER(HttpStatus.CREATED, "사용자 회원가입을 성공했습니다."),
+    SUCCESS_CHECK_ID(HttpStatus.OK, "아이디 중복 확인이 완료되었습니다."),
     ;
 
     private final HttpStatus status;

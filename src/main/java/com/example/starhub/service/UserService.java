@@ -1,7 +1,9 @@
 package com.example.starhub.service;
 
 import com.example.starhub.dto.request.CreateUserRequestDto;
+import com.example.starhub.dto.request.UsernameCheckRequestDto;
 import com.example.starhub.dto.response.UserResponseDto;
+import com.example.starhub.dto.response.UsernameCheckResponseDto;
 import com.example.starhub.entity.UserEntity;
 import com.example.starhub.exception.UsernameAlreadyExistsException;
 import com.example.starhub.repository.UserRepository;
@@ -22,7 +24,8 @@ public class UserService {
     /**
      * 1차 회원가입
      * 아이디와 비밀번호를 DB에 저장합니다.
-     * @param createUserRequestDto 1차 회원가입용 DTO
+     * @param createUserRequestDto 1차 회원가입 요청 DTO
+     * @return UserResponseDto 1차 회원가입 응답 DTO
      */
     public UserResponseDto registerUser(CreateUserRequestDto createUserRequestDto) {
 
@@ -48,4 +51,14 @@ public class UserService {
                 .build();
     }
 
+    /**
+     * 아이디 중복 확인
+     * @param usernameCheckRequestDto 아이디 중복용 DTO
+     * @return 아이디 중복 여부
+     */
+    public UsernameCheckResponseDto checkUsernameDuplicate(UsernameCheckRequestDto usernameCheckRequestDto) {
+        String username = usernameCheckRequestDto.getId();
+        boolean isAvailable = !userRepository.existsByUsername(username);
+        return new UsernameCheckResponseDto(isAvailable);
+    }
 }
