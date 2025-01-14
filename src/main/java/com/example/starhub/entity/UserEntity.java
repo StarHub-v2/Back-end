@@ -64,4 +64,15 @@ public class UserEntity {
         this.username = username;
         this.password = password;
     }
+
+    public void updateProfile(String profileImage, String nickname, String name, Integer age, String bio, String email, String phoneNumber) {
+        this.profileImage = profileImage;
+        this.nickname = nickname;
+        this.name = name;
+        this.age = age;
+        this.bio = bio;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.isProfileComplete = true;
+    }
 }

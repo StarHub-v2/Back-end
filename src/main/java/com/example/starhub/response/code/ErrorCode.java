@@ -17,6 +17,7 @@ public enum ErrorCode {
     /*
      * 404 NOT_FOUND: 리소스를 찾을 수 없음
      */
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, ""),
 
     /*
      * 500 INTERNAL_SERVER_ERROR: 내부 서버 오류

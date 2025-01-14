@@ -3,9 +3,11 @@ package com.example.starhub.service;
 import com.example.starhub.dto.request.CreateProfileRequestDto;
 import com.example.starhub.dto.request.CreateUserRequestDto;
 import com.example.starhub.dto.request.UsernameCheckRequestDto;
+import com.example.starhub.dto.response.ProfileResponseDto;
 import com.example.starhub.dto.response.UserResponseDto;
 import com.example.starhub.dto.response.UsernameCheckResponseDto;
 import com.example.starhub.entity.UserEntity;
+import com.example.starhub.exception.UserNotFoundException;
 import com.example.starhub.exception.UsernameAlreadyExistsException;
 import com.example.starhub.repository.UserRepository;
 import com.example.starhub.response.code.ErrorCode;
@@ -54,8 +56,8 @@ public class UserService {
 
     /**
      * 아이디 중복 확인
-     * @param usernameCheckRequestDto 아이디 중복용 DTO
-     * @return 아이디 중복 여부
+     * @param usernameCheckRequestDto 아이디 중복 요청 DTO
+     * @return UsernameCheckResponseDto 아이디 중복 여부가 담긴 DTO
      */
     public UsernameCheckResponseDto checkUsernameDuplicate(UsernameCheckRequestDto usernameCheckRequestDto) {
         String username = usernameCheckRequestDto.getUsername();
@@ -64,11 +66,27 @@ public class UserService {
     }
 
     /**
-     * 프로필 만들기(2차 회원가입)
-     * @param createProfileRequestDto 프로필 만들기 DTO
-     * @return 아이디 중복 여부
+     * 프로필 생성하기(2차 회원가입)
+     * @param createProfileRequestDto 프로필 생성 요청 DTO
+     * @return ProfileResponseDto 프로필 생성 응답 DTO
      */
-    public void createUserProfile(CreateProfileRequestDto createProfileRequestDto) {
+    public ProfileResponseDto createUserProfile(Long userId, CreateProfileRequestDto createProfileRequestDto) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
 
+        user.updateProfile(
+                createProfileRequestDto.getProfileImage(),
+                createProfileRequestDto.getNickname(),
+                createProfileRequestDto.getName(),
+                createProfileRequestDto.getAge(),
+                createProfileRequestDto.getBio(),
+                createProfileRequestDto.getEmail(),
+                createProfileRequestDto.getPhoneNumber()
+        );
+
+        return ProfileResponseDto.builder()
+                .id(user.getId())
+                .nickname(user.getNickname())
+                .build();
     }
 }

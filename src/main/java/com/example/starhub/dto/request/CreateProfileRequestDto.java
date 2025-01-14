@@ -5,7 +5,6 @@ import lombok.Getter;
 @Getter
 public class CreateProfileRequestDto {
 
-    private Long id;
     private String profileImage;
     private String nickname;
     private String name;

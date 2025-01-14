@@ -3,6 +3,7 @@ package com.example.starhub.controller;
 import com.example.starhub.dto.request.CreateProfileRequestDto;
 import com.example.starhub.dto.request.CreateUserRequestDto;
 import com.example.starhub.dto.request.UsernameCheckRequestDto;
+import com.example.starhub.dto.response.ProfileResponseDto;
 import com.example.starhub.dto.response.UserResponseDto;
 import com.example.starhub.dto.response.UsernameCheckResponseDto;
 import com.example.starhub.response.code.ResponseCode;
@@ -10,10 +11,7 @@ import com.example.starhub.response.dto.ResponseDTO;
 import com.example.starhub.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -23,7 +21,7 @@ public class UserController {
     private final UserService userService;
 
     /**
-     * 자체 회원가입
+     * 1차 회원가입
      */
     @PostMapping("/register")
     public ResponseEntity<ResponseDTO> registerUser(@RequestBody CreateUserRequestDto createUserRequestDto) {
@@ -45,13 +43,14 @@ public class UserController {
     }
 
     /**
-     * 프로필 만들기(2차 회원가입)
+     * 프로필 생성하기(2차 회원가입)
      */
-    @PostMapping("/users/profile")
-    public ResponseEntity<ResponseDTO> createUserProfile(@RequestBody CreateProfileRequestDto createProfileRequestDto) {
-        userService.createUserProfile(createProfileRequestDto);
+    @PostMapping("/users/{userId}/profile")
+    public ResponseEntity<ResponseDTO> createUserProfile(@PathVariable Long userId,
+                                                         @RequestBody CreateProfileRequestDto createProfileRequestDto) {
+        ProfileResponseDto res = userService.createUserProfile(userId, createProfileRequestDto);
         return ResponseEntity
-                .status(ResponseCode.SUCCESS_CREATE_USER.getStatus().value())
-                .body(new ResponseDTO<>(ResponseCode.SUCCESS_CREATE_USER, null));
+                .status(ResponseCode.SUCCESS_CREATE_PROFILE.getStatus().value())
+                .body(new ResponseDTO<>(ResponseCode.SUCCESS_CREATE_PROFILE, res));
     }
 }
