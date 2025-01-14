@@ -17,7 +17,7 @@ public class UserPostEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id; // 조인 테이블의 고유 식별자
 
     @Enumerated(EnumType.STRING)
     private ApplicationStatus status; // 지원상태(지원, 확정)

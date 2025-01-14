@@ -28,9 +28,9 @@ public class ApplicantsEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity user;  // 작성자 (유저와 연관)
+    private UserEntity author;  // 사용자(작성자)
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
-    private PostEntity post;  // 관련 스터디 (스터디 및 프로젝트와 연관)
+    private PostEntity post;  // 스터디
 }

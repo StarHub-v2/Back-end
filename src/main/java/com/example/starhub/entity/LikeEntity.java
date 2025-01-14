@@ -16,16 +16,16 @@ public class LikeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;  // Key
+    private Long id;  // 좋아요 고유 식별자
 
     private LocalDateTime createdAt;  // 생성 시간
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity user;  // 사용자 (유저와 연관)
+    private UserEntity user;  // 사용자
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
-    private PostEntity post;  // 스터디 (스터디 및 프로젝트와 연관)
+    private PostEntity post;   // 스터디
 }
 

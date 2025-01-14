@@ -31,7 +31,7 @@ public class PostEntity {
     @Enumerated(EnumType.STRING)
     private Duration duration;  // 진행 기간
 
-    private LocalDate startDate;  // 진행 시작 날짜
+    private LocalDate endDate;  // 마감 날짜
 
     @Column(length = 100)
     private String location;  // 진행 장소
@@ -60,6 +60,6 @@ public class PostEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", nullable = false)
-    private UserEntity creator;  // 작성자 정보 (유저와 연관)
+    private UserEntity creator;  // 사용자(작성자)
 
 }

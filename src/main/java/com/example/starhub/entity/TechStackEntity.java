@@ -15,10 +15,10 @@ public class TechStackEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id; // 기술 스택 고유 식별자
 
     @Column(nullable = false, unique = true, length = 50)
-    private String name;
+    private String name; // 기술 스택 이름
 
     @Enumerated(EnumType.STRING)
     private TechCategory category;  // 카테고리
