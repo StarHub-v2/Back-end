@@ -67,6 +67,7 @@ public class UserService {
 
     /**
      * 프로필 생성하기(2차 회원가입)
+     * @param userId 유저 아이디
      * @param createProfileRequestDto 프로필 생성 요청 DTO
      * @return ProfileResponseDto 프로필 생성 응답 DTO
      */
