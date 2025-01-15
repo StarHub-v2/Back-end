@@ -23,6 +23,7 @@ public enum ErrorCode {
      * 500 INTERNAL_SERVER_ERROR: 내부 서버 오류
      */
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "내부 서버 오류입니다."),
+    INVALID_RESPONSE_CODE(HttpStatus.INTERNAL_SERVER_ERROR, "유효하지 않은 응답 코드입니다."),
     ;
 
     private final HttpStatus status;

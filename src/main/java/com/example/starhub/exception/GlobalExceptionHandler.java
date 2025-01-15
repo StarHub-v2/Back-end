@@ -31,6 +31,14 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponseDto(ErrorCode.BAD_REQUEST, builder.toString()));
     }
 
+    @ExceptionHandler(InvalidResponseCodeException.class)
+    protected ResponseEntity<ErrorResponseDto> handleInvalidResponseCodeException(final InvalidResponseCodeException e) {
+        log.error("handleInvalidResponseCodeException : {}", e.getErrorCode().getMessage());
+        return ResponseEntity
+                .status(ErrorCode.INVALID_RESPONSE_CODE.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.INVALID_RESPONSE_CODE));
+    }
+
     /**
      * User
      */
