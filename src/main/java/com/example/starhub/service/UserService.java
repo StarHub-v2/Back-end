@@ -51,6 +51,7 @@ public class UserService {
         return UserResponseDto.builder()
                 .id(user.getId())
                 .username(user.getUsername())
+                .isProfileComplete(user.getIsProfileComplete())
                 .build();
     }
 
@@ -62,7 +63,7 @@ public class UserService {
     public UsernameCheckResponseDto checkUsernameDuplicate(UsernameCheckRequestDto usernameCheckRequestDto) {
         String username = usernameCheckRequestDto.getUsername();
         boolean isAvailable = !userRepository.existsByUsername(username);
-        return new UsernameCheckResponseDto(isAvailable);
+        return new UsernameCheckResponseDto(username, isAvailable);
     }
 
     /**

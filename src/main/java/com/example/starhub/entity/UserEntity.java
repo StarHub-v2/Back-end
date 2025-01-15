@@ -4,7 +4,9 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -12,6 +14,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EntityListeners(AuditingEntityListener.class)
 public class UserEntity {
 
     @Id
@@ -44,9 +47,11 @@ public class UserEntity {
     @Column(length = 15)
     private String phoneNumber; // 전화번호
 
+    @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime created_at; // 생성일
 
+    @LastModifiedDate
     @Column(nullable = false)
     private LocalDateTime updated_at; // 수정일
 
