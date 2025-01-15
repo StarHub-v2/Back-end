@@ -11,15 +11,18 @@ public class CreateProfileRequestDto {
     private String profileImage;
 
     @NotBlank(message = "닉네임을 입력해주세요.")
+    @Size(min = 2, max = 50)
     private String nickname;
 
     @NotBlank(message = "이름을 입력해주세요.")
+    @Size(min = 2, max = 50)
     private String name;
 
     @Positive(message = "나이는 양수로 입력해주세요.")
     private Integer age;
 
     @NotBlank(message = "한 줄 소개를 입력해주세요.")
+    @Size(max = 255)
     private String bio;
 
     @NotBlank(message = "이메일을 입력해주세요.")
