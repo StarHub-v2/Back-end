@@ -38,8 +38,8 @@ public class UserController {
     public ResponseEntity<ResponseDTO> checkUsernameDuplicate(@RequestBody UsernameCheckRequestDto usernameCheckRequestDto) {
         UsernameCheckResponseDto res = userService.checkUsernameDuplicate(usernameCheckRequestDto);
         return ResponseEntity
-                .status(ResponseCode.SUCCESS_CREATE_USER.getStatus().value())
-                .body(new ResponseDTO<>(ResponseCode.SUCCESS_CREATE_USER, res));
+                .status(ResponseCode.SUCCESS_CHECK_ID.getStatus().value())
+                .body(new ResponseDTO<>(ResponseCode.SUCCESS_CHECK_ID, res));
     }
 
     /**
