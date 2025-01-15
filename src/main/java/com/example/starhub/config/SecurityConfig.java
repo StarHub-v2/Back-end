@@ -1,6 +1,6 @@
 package com.example.starhub.config;
 
-import com.example.starhub.service.security.LoginFilter;
+import com.example.starhub.service.filter.LoginFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

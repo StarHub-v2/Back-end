@@ -1,4 +1,4 @@
-package com.example.starhub.service.security;
+package com.example.starhub.service.filter;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;

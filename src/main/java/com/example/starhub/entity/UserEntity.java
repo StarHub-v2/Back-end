@@ -47,6 +47,8 @@ public class UserEntity {
     @Column(length = 15)
     private String phoneNumber; // 전화번호
 
+    private String role; // 역할
+
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime created_at; // 생성일
