@@ -6,7 +6,6 @@ import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.Map;
@@ -52,7 +51,6 @@ public class RedisService {
      * @param key 조회할 키
      * @return 해당 키의 값이 존재하면 값을 반환, 없으면 "false"를 반환
      */
-    @Transactional(readOnly = true)
     public String getValues(String key) {
         ValueOperations<String, Object> values = redisTemplate.opsForValue();
         if (values.get(key) == null) {
@@ -98,7 +96,6 @@ public class RedisService {
      * @param hashKey 해시 필드 키
      * @return 해당 필드의 값이 존재하면 값을 반환, 없으면 빈 문자열 반환
      */
-    @Transactional(readOnly = true)
     public String getHashOps(String key, String hashKey) {
         HashOperations<String, Object, Object> values = redisTemplate.opsForHash();
         return Boolean.TRUE.equals(values.hasKey(key, hashKey)) ?
