@@ -51,7 +51,7 @@ public class SecurityConfig {
         // 경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .antMatchers("/api/v1/register", "/api/v1/users/check", "/login").permitAll()
+                        .antMatchers("/api/v1/register", "/api/v1/users/check", "/api/v1/login", "/api/v1/reissue").permitAll()
                         .anyRequest().authenticated());
 
         // JWTFilter 등록

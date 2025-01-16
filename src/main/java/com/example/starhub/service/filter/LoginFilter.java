@@ -1,7 +1,10 @@
 package com.example.starhub.service.filter;
 
 import com.example.starhub.dto.request.CreateUserRequestDto;
+import com.example.starhub.dto.response.UserResponseDto;
 import com.example.starhub.dto.security.CustomUserDetails;
+import com.example.starhub.response.code.ResponseCode;
+import com.example.starhub.response.dto.ResponseDto;
 import com.example.starhub.util.JWTUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
@@ -33,7 +36,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
 
-        setFilterProcessesUrl("/api/auth/login");
+        setFilterProcessesUrl("/api/v1/login");
     }
 
     @Override
@@ -77,9 +80,17 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String access = jwtUtil.createJwt("access", username, role, 600000L);
         String refresh = jwtUtil.createJwt("refresh", username, role, 86400000L);
 
+        UserResponseDto userResponseDto = UserResponseDto.builder()
+                .username(username)
+                .isProfileComplete(customUserDetails.getIsProfileComplete())
+                .build();
+        ResponseDto<UserResponseDto> responseDto = new ResponseDto<>(ResponseCode.SUCCESS_LOGIN, userResponseDto);
+
         response.addHeader("Authorization", "Bearer " + access);
         response.addCookie(createCookie("refresh", refresh));
-        response.setStatus(HttpStatus.OK.value());
+        response.setContentType("application/json; charset=UTF-8");
+        response.setStatus(ResponseCode.SUCCESS_LOGIN.getStatus().value());
+        response.getWriter().write(new ObjectMapper().writeValueAsString(responseDto));
     }
 
     /**

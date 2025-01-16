@@ -29,6 +29,10 @@ public class CustomUserDetails implements UserDetails {
         return collection;
     }
 
+    public Boolean getIsProfileComplete() {
+        return userEntity.getIsProfileComplete();
+    }
+
     @Override
     public String getPassword() {
         return userEntity.getPassword();
