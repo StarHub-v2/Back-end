@@ -11,6 +11,7 @@ import com.example.starhub.response.dto.ResponseDto;
 import com.example.starhub.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;

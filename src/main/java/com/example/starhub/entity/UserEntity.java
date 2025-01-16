@@ -70,6 +70,7 @@ public class UserEntity {
     public UserEntity(String username, String password) {
         this.username = username;
         this.password = password;
+        this.role = "ROLE_USER";
     }
 
     public void updateProfile(String profileImage, String nickname, String name, Integer age, String bio, String email, String phoneNumber) {

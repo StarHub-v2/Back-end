@@ -1,6 +1,8 @@
 package com.example.starhub.config;
 
+import com.example.starhub.service.filter.JWTFilter;
 import com.example.starhub.service.filter.LoginFilter;
+import com.example.starhub.util.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +20,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final AuthenticationManager authenticationManager;
+    private final AuthenticationConfiguration authenticationConfiguration;
+    private final JWTUtil jwtUtil;
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -48,12 +51,16 @@ public class SecurityConfig {
         // 경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .antMatchers("//api/v1/register", "/api/v1/users/check").permitAll()
+                        .antMatchers("/api/v1/register", "/api/v1/users/check", "/login").permitAll()
                         .anyRequest().authenticated());
+
+        // JWTFilter 등록
+        http
+                .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
 
         // 커스텀 로그인 필터 추가
         http
-                .addFilterAt(new LoginFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class);
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
         // 세션 설정
         http
