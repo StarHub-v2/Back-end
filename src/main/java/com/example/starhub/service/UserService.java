@@ -100,6 +100,12 @@ public class UserService {
                 .build();
     }
 
+    public Long findUserIdByUsername(String username) {
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
+        return user.getId();
+    }
+
     /**
      * 토큰 재발급
      *

@@ -6,12 +6,14 @@ import com.example.starhub.dto.request.UsernameCheckRequestDto;
 import com.example.starhub.dto.response.ProfileResponseDto;
 import com.example.starhub.dto.response.UserResponseDto;
 import com.example.starhub.dto.response.UsernameCheckResponseDto;
+import com.example.starhub.dto.security.CustomUserDetails;
 import com.example.starhub.response.code.ResponseCode;
 import com.example.starhub.response.dto.ResponseDto;
 import com.example.starhub.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,9 +54,11 @@ public class UserController {
     /**
      * 프로필 생성하기(2차 회원가입)
      */
-    @PostMapping("/users/{userId}/profile")
-    public ResponseEntity<ResponseDto> createUserProfile(@PathVariable Long userId,
+    @PostMapping("/users/profile")
+    public ResponseEntity<ResponseDto> createUserProfile(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                                          @Valid @RequestBody CreateProfileRequestDto createProfileRequestDto) {
+        Long userId = userService.findUserIdByUsername(customUserDetails.getUsername());
+
         ProfileResponseDto res = userService.createUserProfile(userId, createProfileRequestDto);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_CREATE_PROFILE.getStatus().value())
