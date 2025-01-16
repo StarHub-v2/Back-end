@@ -7,6 +7,8 @@ import com.example.starhub.dto.response.ProfileResponseDto;
 import com.example.starhub.dto.response.UserResponseDto;
 import com.example.starhub.dto.response.UsernameCheckResponseDto;
 import com.example.starhub.dto.security.CustomUserDetails;
+import com.example.starhub.exception.BadRequestException;
+import com.example.starhub.response.code.ErrorCode;
 import com.example.starhub.response.code.ResponseCode;
 import com.example.starhub.response.dto.ResponseDto;
 import com.example.starhub.service.UserService;
@@ -79,6 +81,10 @@ public class UserController {
                     refreshToken = cookie.getValue();
                 }
             }
+        }
+
+        if (refreshToken == null) {
+            throw new BadRequestException(ErrorCode.BAD_REQUEST);
         }
 
         String tokens = userService.reissueToken(refreshToken);
