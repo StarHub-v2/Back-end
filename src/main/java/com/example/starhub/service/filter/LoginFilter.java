@@ -3,7 +3,7 @@ package com.example.starhub.service.filter;
 import com.example.starhub.service.RedisService;
 import com.example.starhub.dto.request.CreateUserRequestDto;
 import com.example.starhub.dto.response.UserResponseDto;
-import com.example.starhub.dto.response.util.ResponseUtil;
+import com.example.starhub.dto.response.util.ErrorResponseUtil;
 import com.example.starhub.dto.security.CustomUserDetails;
 import com.example.starhub.response.code.ErrorCode;
 import com.example.starhub.response.code.ResponseCode;
@@ -136,7 +136,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             errorCode = ErrorCode.UNAUTHORIZED;
         }
 
-        ResponseUtil.writeErrorResponse(response, errorCode);
+        ErrorResponseUtil.writeErrorResponse(response, errorCode);
     }
 
     /**

@@ -2,7 +2,6 @@ package com.example.starhub.dto.response.util;
 
 import com.example.starhub.response.code.ErrorCode;
 import com.example.starhub.response.dto.ErrorResponseDto;
-import com.example.starhub.response.dto.ResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -10,11 +9,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class ResponseUtil {
-
-    public static void writeSuccessResponse(HttpServletResponse response, ResponseDto<?> responseDto) throws IOException {
-
-    }
+public class ErrorResponseUtil {
 
     public static void writeErrorResponse(HttpServletResponse response, ErrorCode errorCode) throws IOException {
 
