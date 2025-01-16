@@ -122,10 +122,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         if (failed instanceof BadCredentialsException) {
             errorCode = ErrorCode.BAD_CREDENTIALS;
         }
-        // 사용자가 존재하지 않는 경우
-        else if (failed instanceof UsernameNotFoundException) {
-            errorCode = ErrorCode.USER_NOT_FOUND;
-        }
         // 그 외의 인증 실패
         else {
             errorCode = ErrorCode.UNAUTHORIZED;

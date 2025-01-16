@@ -37,6 +37,6 @@ public class CustomUserDetailsService implements UserDetailsService {
             return new CustomUserDetails(userData.get());
         }
 
-        return null;
+        throw new UsernameNotFoundException("사용자명을 찾을 수 없습니다");
     }
 }
