@@ -76,9 +76,7 @@ public class LogoutFilter extends GenericFilterBean {
         }
 
         // refresh 토큰 만료 확인
-        try {
-            jwtUtil.isExpired(refresh);
-        } catch (ExpiredJwtException e) {
+        if (jwtUtil.isExpired(refresh)) {
             ResponseUtil.writeErrorResponse(response, ErrorCode.TOKEN_EXPIRED);
             return;
         }

@@ -6,6 +6,7 @@ import com.example.starhub.dto.request.UsernameCheckRequestDto;
 import com.example.starhub.dto.response.ProfileResponseDto;
 import com.example.starhub.dto.response.UserResponseDto;
 import com.example.starhub.dto.response.UsernameCheckResponseDto;
+import com.example.starhub.dto.response.util.ResponseUtil;
 import com.example.starhub.entity.UserEntity;
 import com.example.starhub.exception.*;
 import com.example.starhub.repository.UserRepository;
@@ -113,10 +114,9 @@ public class UserService {
      * @return 새로운 Access 토큰과 Refresh 토큰을 콤마로 구분하여 반환
      */
     public String reissueToken(String refreshToken) {
-        try {
-            jwtUtil.isExpired(refreshToken);
-        } catch (ExpiredJwtException e) {
-            throw new TokenExpiredException(ErrorCode.TOKEN_EXPIRED);        }
+        if (jwtUtil.isExpired(refreshToken)) {
+            throw new TokenExpiredException(ErrorCode.TOKEN_EXPIRED);
+        }
 
         String category = jwtUtil.getCategory(refreshToken);
         if (!"refresh".equals(category)) {
