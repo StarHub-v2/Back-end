@@ -5,7 +5,6 @@ import com.example.starhub.dto.security.CustomUserDetails;
 import com.example.starhub.entity.UserEntity;
 import com.example.starhub.response.code.ErrorCode;
 import com.example.starhub.util.JWTUtil;
-import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -41,9 +40,7 @@ public class JWTFilter extends OncePerRequestFilter {
         }
 
         // 토큰 만료 확인 및 검증
-        try {
-            jwtUtil.isExpired(accessToken);
-        } catch (ExpiredJwtException e) {
+        if (jwtUtil.isExpired(accessToken)) {
             ResponseUtil.writeErrorResponse(response, ErrorCode.TOKEN_EXPIRED);
             return;
         }
