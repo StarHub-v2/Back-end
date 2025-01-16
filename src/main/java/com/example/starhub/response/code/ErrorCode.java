@@ -19,6 +19,12 @@ public enum ErrorCode {
      */
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "Authentication failed"),
     BAD_CREDENTIALS(HttpStatus.UNAUTHORIZED, "잘못된 사용자 이름 또는 비밀번호입니다."),
+    TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "액세스 토큰이 만료되었습니다."),
+    INVALID_TOKEN_CATEGORY(HttpStatus.UNAUTHORIZED, "잘못된 토큰 카테고리입니다."),
+
+    /**
+     * 403 FORBIDDEN: 접근 금지(권한이 없는 경우)
+     */
 
     /**
      * 404 NOT_FOUND: 리소스를 찾을 수 없음

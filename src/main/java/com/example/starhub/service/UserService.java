@@ -42,10 +42,7 @@ public class UserService {
         String password = bCryptPasswordEncoder.encode(createUserRequestDto.getPassword());
 
         // DB 저장
-        UserEntity user = UserEntity.builder()
-                .username(username)
-                .password(password)
-                .build();
+        UserEntity user = UserEntity.createUser(username, password);
         userRepository.save(user);
 
         return UserResponseDto.builder()

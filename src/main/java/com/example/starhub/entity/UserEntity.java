@@ -1,9 +1,6 @@
 package com.example.starhub.entity;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -66,11 +63,19 @@ public class UserEntity {
         }
     }
 
-    @Builder
-    public UserEntity(String username, String password) {
-        this.username = username;
-        this.password = password;
-        this.role = "ROLE_USER";
+    public static UserEntity createUser(String username, String password) {
+        UserEntity user = new UserEntity();
+        user.username = username;
+        user.password = password;
+        user.role = "ROLE_USER";
+        return user;
+    }
+
+    public static UserEntity createUserWithRole(String username, String role) {
+        UserEntity user = new UserEntity();
+        user.username = username;
+        user.role = role;
+        return user;
     }
 
     public void updateProfile(String profileImage, String nickname, String name, Integer age, String bio, String email, String phoneNumber) {
@@ -83,4 +88,5 @@ public class UserEntity {
         this.phoneNumber = phoneNumber;
         this.isProfileComplete = true;
     }
+
 }

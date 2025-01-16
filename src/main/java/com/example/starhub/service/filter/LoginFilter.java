@@ -2,16 +2,13 @@ package com.example.starhub.service.filter;
 
 import com.example.starhub.dto.request.CreateUserRequestDto;
 import com.example.starhub.dto.response.UserResponseDto;
+import com.example.starhub.dto.response.util.ResponseUtil;
 import com.example.starhub.dto.security.CustomUserDetails;
 import com.example.starhub.response.code.ErrorCode;
 import com.example.starhub.response.code.ResponseCode;
-import com.example.starhub.response.dto.ErrorResponseDto;
 import com.example.starhub.response.dto.ResponseDto;
 import com.example.starhub.util.JWTUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -102,32 +99,29 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     /**
      * 로그인 실패 시 실행하는 메서드
+     * 시큐리티에서 제공하는 여러 예외 중 서비스에서 사용이 될 것 같은 에외 가지고 예외처리
+     * BadCredentialsException: 잘못된 자격 증명(사용자명, 비밀번호)
+     * UsernameNotFoundException: 사용자가 존재하지 않는 경우
      */
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
 
-        ErrorResponseDto errorResponseDto;
+        ErrorCode errorCode;
 
         // 잘못된 자격 증명 (사용자명, 비밀번호)
         if (failed instanceof BadCredentialsException) {
-            errorResponseDto = new ErrorResponseDto(ErrorCode.BAD_CREDENTIALS);
+            errorCode = ErrorCode.BAD_CREDENTIALS;
         }
         // 사용자가 존재하지 않는 경우
         else if (failed instanceof UsernameNotFoundException) {
-            errorResponseDto = new ErrorResponseDto(ErrorCode.USER_NOT_FOUND);
+            errorCode = ErrorCode.USER_NOT_FOUND;
         }
         // 그 외의 예외는 일반적인 Unauthorized로 처리
         else {
-            errorResponseDto = new ErrorResponseDto(ErrorCode.UNAUTHORIZED, failed.getMessage());
+            errorCode = ErrorCode.UNAUTHORIZED;
         }
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-
-        response.setStatus(ErrorCode.UNAUTHORIZED.getStatus().value());
-        response.setContentType("application/json; charset=UTF-8");
-        response.getWriter().write(objectMapper.writeValueAsString(errorResponseDto));
+        ResponseUtil.writeErrorResponse(response, errorCode);
     }
 
     private Cookie createCookie(String key, String value) {
