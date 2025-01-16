@@ -1,5 +1,6 @@
 package com.example.starhub.service.filter;
 
+import com.example.starhub.common.redis.RedisService;
 import com.example.starhub.dto.request.CreateUserRequestDto;
 import com.example.starhub.dto.response.UserResponseDto;
 import com.example.starhub.dto.response.util.ResponseUtil;
@@ -27,17 +28,24 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.Iterator;
 
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
+    private static final String REFRESH_TOKEN_PREFIX = "refresh_token:";
+    private static final long ACCESS_TOKEN_EXPIRATION = 600000L;
+    private static final long REFRESH_TOKEN_EXPIRATION = 86400000L;
+
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
+    private final RedisService redisService;
 
-    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
+    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil, RedisService redisService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
+        this.redisService = redisService;
 
         setFilterProcessesUrl("/api/v1/login");
     }
@@ -80,8 +88,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String role = auth.getAuthority();
 
         // 토큰 생성
-        String access = jwtUtil.createJwt("access", username, role, 600000L);
-        String refresh = jwtUtil.createJwt("refresh", username, role, 86400000L);
+        String access = jwtUtil.createJwt("access", username, role, ACCESS_TOKEN_EXPIRATION);
+        String refresh = jwtUtil.createJwt("refresh", username, role, REFRESH_TOKEN_EXPIRATION);
+
+        // refresh 키 저장
+        String refreshTokenKey = REFRESH_TOKEN_PREFIX + username;
+        redisService.setValues(refreshTokenKey, refresh, Duration.ofMillis(REFRESH_TOKEN_EXPIRATION));
 
         UserResponseDto userResponseDto = UserResponseDto.builder()
                 .username(username)

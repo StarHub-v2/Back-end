@@ -1,5 +1,6 @@
 package com.example.starhub.service;
 
+import com.example.starhub.common.redis.RedisService;
 import com.example.starhub.dto.request.CreateProfileRequestDto;
 import com.example.starhub.dto.request.CreateUserRequestDto;
 import com.example.starhub.dto.request.UsernameCheckRequestDto;
@@ -7,22 +8,31 @@ import com.example.starhub.dto.response.ProfileResponseDto;
 import com.example.starhub.dto.response.UserResponseDto;
 import com.example.starhub.dto.response.UsernameCheckResponseDto;
 import com.example.starhub.entity.UserEntity;
-import com.example.starhub.exception.UserNotFoundException;
-import com.example.starhub.exception.UsernameAlreadyExistsException;
+import com.example.starhub.exception.*;
 import com.example.starhub.repository.UserRepository;
 import com.example.starhub.response.code.ErrorCode;
+import com.example.starhub.util.JWTUtil;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Duration;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class UserService {
 
+    private static final String REFRESH_TOKEN_PREFIX = "refresh_token:";
+    private static final long ACCESS_TOKEN_EXPIRATION = 600000L;
+    private static final long REFRESH_TOKEN_EXPIRATION = 86400000L;
+
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final JWTUtil jwtUtil;
+    private final RedisService redisService;
 
     /**
      * 1차 회원가입
@@ -87,4 +97,39 @@ public class UserService {
                 .nickname(user.getNickname())
                 .build();
     }
+
+    /**
+     * 토큰 재발급
+     */
+    public String reissueToken(String refreshToken) {
+        try {
+            jwtUtil.isExpired(refreshToken);
+        } catch (ExpiredJwtException e) {
+            throw new TokenExpiredException(ErrorCode.TOKEN_EXPIRED);        }
+
+        String category = jwtUtil.getCategory(refreshToken);
+        if (!"refresh".equals(category)) {
+            throw new InvalidTokenCategoryException(ErrorCode.INVALID_TOKEN_CATEGORY);
+        }
+
+        // 사용자 정보 가져오기
+        String username = jwtUtil.getUsername(refreshToken);
+        String role = jwtUtil.getRole(refreshToken);
+
+        // Redis에서 토큰 존재 확인
+        String refreshTokenKey = REFRESH_TOKEN_PREFIX + username;
+        if (!redisService.checkExistsValue(refreshTokenKey)) {
+            throw new TokenNotFoundInRedisException(ErrorCode.TOKEN_NOT_FOUND);
+        }
+
+        // 새로운 Access 및 Refresh 토큰 생성
+        String newAccessToken = jwtUtil.createJwt("access", username, role, ACCESS_TOKEN_EXPIRATION);
+        String newRefreshToken = jwtUtil.createJwt("refresh", username, role, REFRESH_TOKEN_EXPIRATION);
+
+        // 새 Refresh 토큰 Redis에 저장
+        redisService.setValues(refreshTokenKey, newRefreshToken, Duration.ofMillis(REFRESH_TOKEN_EXPIRATION));
+
+        return newAccessToken + "," + newRefreshToken;
+    }
+
 }

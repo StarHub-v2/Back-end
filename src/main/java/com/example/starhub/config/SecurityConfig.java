@@ -1,5 +1,6 @@
 package com.example.starhub.config;
 
+import com.example.starhub.common.redis.RedisService;
 import com.example.starhub.service.filter.JWTFilter;
 import com.example.starhub.service.filter.LoginFilter;
 import com.example.starhub.util.JWTUtil;
@@ -22,6 +23,7 @@ public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
+    private final RedisService redisService;
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -60,7 +62,7 @@ public class SecurityConfig {
 
         // 커스텀 로그인 필터 추가
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, redisService), UsernamePasswordAuthenticationFilter.class);
 
         // 세션 설정
         http

@@ -10,10 +10,14 @@ import com.example.starhub.response.code.ResponseCode;
 import com.example.starhub.response.dto.ResponseDto;
 import com.example.starhub.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 @RestController
@@ -55,5 +59,44 @@ public class UserController {
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_CREATE_PROFILE.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_CREATE_PROFILE, res));
+    }
+
+    /**
+     * Refresh 토큰 재발급
+     */
+    @PostMapping("/reissue")
+    public ResponseEntity<?> reissueToken(HttpServletRequest request, HttpServletResponse response) {
+        String refreshToken = null;
+
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("refresh".equals(cookie.getName())) {
+                    refreshToken = cookie.getValue();
+                }
+            }
+        }
+
+        String tokens = userService.reissueToken(refreshToken);
+        String[] tokenArray = tokens.split(",");
+
+        // 새로운 Access 및 Refresh 토큰 응답에 설정
+        response.addHeader("Authorization", "Bearer " + tokenArray[0]);
+        response.addCookie(createCookie("refresh", tokenArray[1]));
+
+        return ResponseEntity
+                .status(ResponseCode.SUCCESS_REISSUE_TOKEN.getStatus().value())
+                .body(new ResponseDto<>(ResponseCode.SUCCESS_REISSUE_TOKEN, null));
+    }
+
+    private Cookie createCookie(String key, String value) {
+
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(24*60*60);
+        //cookie.setSecure(true);
+        //cookie.setPath("/");
+        cookie.setHttpOnly(true);
+
+        return cookie;
     }
 }
