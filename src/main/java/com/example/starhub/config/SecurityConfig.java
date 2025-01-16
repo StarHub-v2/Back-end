@@ -3,6 +3,7 @@ package com.example.starhub.config;
 import com.example.starhub.service.RedisService;
 import com.example.starhub.service.filter.JWTFilter;
 import com.example.starhub.service.filter.LoginFilter;
+import com.example.starhub.service.filter.LogoutFilter;
 import com.example.starhub.util.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -56,11 +57,15 @@ public class SecurityConfig {
                         .antMatchers("/api/v1/register", "/api/v1/users/check", "/api/v1/login", "/api/v1/reissue").permitAll()
                         .anyRequest().authenticated());
 
+        // 로그아웃 필터 추가
+        http
+                .addFilterBefore(new LogoutFilter(jwtUtil, redisService), org.springframework.security.web.authentication.logout.LogoutFilter.class);
+
         // JWTFilter 등록
         http
                 .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
 
-        // 커스텀 로그인 필터 추가
+        // 로그인 필터 추가
         http
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, redisService), UsernamePasswordAuthenticationFilter.class);
 

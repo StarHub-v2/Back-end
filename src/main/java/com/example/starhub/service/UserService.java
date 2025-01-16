@@ -132,6 +132,7 @@ public class UserService {
         String newRefreshToken = jwtUtil.createJwt("refresh", username, role, REFRESH_TOKEN_EXPIRATION);
 
         // 새 Refresh 토큰 Redis에 저장
+        redisService.deleteValues(refreshTokenKey);
         redisService.setValues(refreshTokenKey, newRefreshToken, Duration.ofMillis(REFRESH_TOKEN_EXPIRATION));
 
         return newAccessToken + "," + newRefreshToken;

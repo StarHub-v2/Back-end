@@ -1,6 +1,6 @@
 package com.example.starhub.service.filter;
 
-import com.example.starhub.dto.response.util.ErrorResponseUtil;
+import com.example.starhub.dto.response.util.ResponseUtil;
 import com.example.starhub.dto.security.CustomUserDetails;
 import com.example.starhub.entity.UserEntity;
 import com.example.starhub.response.code.ErrorCode;
@@ -44,14 +44,14 @@ public class JWTFilter extends OncePerRequestFilter {
         try {
             jwtUtil.isExpired(accessToken);
         } catch (ExpiredJwtException e) {
-            ErrorResponseUtil.writeErrorResponse(response, ErrorCode.TOKEN_EXPIRED);
+            ResponseUtil.writeErrorResponse(response, ErrorCode.TOKEN_EXPIRED);
             return;
         }
 
         // 토큰 카테고리 검증 (access 토큰이어야 함)
         String category = jwtUtil.getCategory(accessToken);
         if (!category.equals("access")) {
-            ErrorResponseUtil.writeErrorResponse(response, ErrorCode.INVALID_TOKEN_CATEGORY);
+            ResponseUtil.writeErrorResponse(response, ErrorCode.INVALID_TOKEN_CATEGORY);
             return;
         }
 

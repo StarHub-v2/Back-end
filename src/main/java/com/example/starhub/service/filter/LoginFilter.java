@@ -3,7 +3,7 @@ package com.example.starhub.service.filter;
 import com.example.starhub.service.RedisService;
 import com.example.starhub.dto.request.CreateUserRequestDto;
 import com.example.starhub.dto.response.UserResponseDto;
-import com.example.starhub.dto.response.util.ErrorResponseUtil;
+import com.example.starhub.dto.response.util.ResponseUtil;
 import com.example.starhub.dto.security.CustomUserDetails;
 import com.example.starhub.response.code.ErrorCode;
 import com.example.starhub.response.code.ResponseCode;
@@ -102,16 +102,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                 .username(username)
                 .isProfileComplete(customUserDetails.getIsProfileComplete())
                 .build();
-        ResponseDto<UserResponseDto> responseDto = new ResponseDto<>(ResponseCode.SUCCESS_LOGIN, userResponseDto);
 
         // 응답 헤더와 쿠키에 토큰 포함
         response.addHeader("Authorization", "Bearer " + access);
         response.addCookie(createCookie("refresh", refresh));
-
-        // 성공 응답 반환
-        response.setStatus(ResponseCode.SUCCESS_LOGIN.getStatus().value());
-        response.setContentType("application/json; charset=UTF-8");
-        response.getWriter().write(new ObjectMapper().writeValueAsString(responseDto));
+        ResponseUtil.writeSuccessResponse(response, ResponseCode.SUCCESS_LOGIN, userResponseDto);
     }
 
     /**
@@ -136,7 +131,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             errorCode = ErrorCode.UNAUTHORIZED;
         }
 
-        ErrorResponseUtil.writeErrorResponse(response, errorCode);
+        ResponseUtil.writeErrorResponse(response, errorCode);
     }
 
     /**
