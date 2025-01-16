@@ -3,16 +3,22 @@ package com.example.starhub.service.filter;
 import com.example.starhub.dto.request.CreateUserRequestDto;
 import com.example.starhub.dto.response.UserResponseDto;
 import com.example.starhub.dto.security.CustomUserDetails;
+import com.example.starhub.response.code.ErrorCode;
 import com.example.starhub.response.code.ResponseCode;
+import com.example.starhub.response.dto.ErrorResponseDto;
 import com.example.starhub.response.dto.ResponseDto;
 import com.example.starhub.util.JWTUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.util.StreamUtils;
 
@@ -88,8 +94,9 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         response.addHeader("Authorization", "Bearer " + access);
         response.addCookie(createCookie("refresh", refresh));
-        response.setContentType("application/json; charset=UTF-8");
+
         response.setStatus(ResponseCode.SUCCESS_LOGIN.getStatus().value());
+        response.setContentType("application/json; charset=UTF-8");
         response.getWriter().write(new ObjectMapper().writeValueAsString(responseDto));
     }
 
@@ -98,8 +105,29 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
      */
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
-        response.setStatus(401);
 
+        ErrorResponseDto errorResponseDto;
+
+        // 잘못된 자격 증명 (사용자명, 비밀번호)
+        if (failed instanceof BadCredentialsException) {
+            errorResponseDto = new ErrorResponseDto(ErrorCode.BAD_CREDENTIALS);
+        }
+        // 사용자가 존재하지 않는 경우
+        else if (failed instanceof UsernameNotFoundException) {
+            errorResponseDto = new ErrorResponseDto(ErrorCode.USER_NOT_FOUND);
+        }
+        // 그 외의 예외는 일반적인 Unauthorized로 처리
+        else {
+            errorResponseDto = new ErrorResponseDto(ErrorCode.UNAUTHORIZED, failed.getMessage());
+        }
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+
+        response.setStatus(ErrorCode.UNAUTHORIZED.getStatus().value());
+        response.setContentType("application/json; charset=UTF-8");
+        response.getWriter().write(objectMapper.writeValueAsString(errorResponseDto));
     }
 
     private Cookie createCookie(String key, String value) {
