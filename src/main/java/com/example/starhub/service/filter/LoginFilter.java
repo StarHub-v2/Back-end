@@ -1,7 +1,9 @@
 package com.example.starhub.service.filter;
 
+import com.example.starhub.dto.request.CreateUserRequestDto;
 import com.example.starhub.dto.security.CustomUserDetails;
 import com.example.starhub.util.JWTUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -9,13 +11,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.util.StreamUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -34,9 +39,19 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
 
-        // 요청에서 아이디와 비밀번호 추출
-        String username = obtainUsername(request);
-        String password = obtainPassword(request);
+        CreateUserRequestDto createUserRequestDto = new CreateUserRequestDto();
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            ServletInputStream inputStream = request.getInputStream();
+            String messageBody = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
+
+            createUserRequestDto = objectMapper.readValue(messageBody, CreateUserRequestDto.class);
+        } catch (IOException e) {
+
+        }
+
+        String username = createUserRequestDto.getUsername();
+        String password = createUserRequestDto.getPassword();
 
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password, null);
 
