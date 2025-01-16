@@ -32,11 +32,15 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.Iterator;
 
+/**
+ * 로그인 요청을 처리하는 필터
+ * - 사용자 인증을 처리하고, 성공 및 실패 시 응답을 정의합니다.
+ */
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private static final String REFRESH_TOKEN_PREFIX = "refresh_token:";
-    private static final long ACCESS_TOKEN_EXPIRATION = 600000L;
-    private static final long REFRESH_TOKEN_EXPIRATION = 86400000L;
+    private static final long ACCESS_TOKEN_EXPIRATION = 600000L; // Access 토큰 만료 시간 (10분)
+    private static final long REFRESH_TOKEN_EXPIRATION = 86400000L; // Refresh 토큰 만료 시간 (24시간)
 
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
@@ -47,9 +51,14 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         this.jwtUtil = jwtUtil;
         this.redisService = redisService;
 
+        // 로그인 요청 URI
         setFilterProcessesUrl("/api/v1/login");
     }
 
+    /**
+     * 인증 요철 처리
+     * - 클라이언트으로부터 사용자명과 비밀번호를 받아 인증을 시도합니다.
+     */
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         // 요청에서 사용자 인증 정보를 추출
@@ -67,6 +76,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     /**
      * 로그인 성공 시 실행하는 메서드
+     * - Access 및 Refresh 토큰을 생성하고 응답으에 포함합니다.
      */
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
@@ -77,43 +87,43 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         Collection<? extends GrantedAuthority> authorities = authResult.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth = iterator.next();
-
         String role = auth.getAuthority();
 
-        // 토큰 생성
+        // JWT 토큰 생성
         String access = jwtUtil.createJwt("access", username, role, ACCESS_TOKEN_EXPIRATION);
         String refresh = jwtUtil.createJwt("refresh", username, role, REFRESH_TOKEN_EXPIRATION);
 
-        // refresh 키 저장
+        // Redis에 Refresh 키 저장
         String refreshTokenKey = REFRESH_TOKEN_PREFIX + username;
         redisService.setValues(refreshTokenKey, refresh, Duration.ofMillis(REFRESH_TOKEN_EXPIRATION));
 
+        // 사용자 응답 DTO 생성
         UserResponseDto userResponseDto = UserResponseDto.builder()
                 .username(username)
                 .isProfileComplete(customUserDetails.getIsProfileComplete())
                 .build();
         ResponseDto<UserResponseDto> responseDto = new ResponseDto<>(ResponseCode.SUCCESS_LOGIN, userResponseDto);
 
+        // 응답 헤더와 쿠키에 토큰 포함
         response.addHeader("Authorization", "Bearer " + access);
         response.addCookie(createCookie("refresh", refresh));
 
+        // 성공 응답 반환
         response.setStatus(ResponseCode.SUCCESS_LOGIN.getStatus().value());
         response.setContentType("application/json; charset=UTF-8");
         response.getWriter().write(new ObjectMapper().writeValueAsString(responseDto));
     }
 
     /**
-     * 로그인 실패 시 실행하는 메서드
-     * 시큐리티에서 제공하는 여러 예외 중 서비스에서 사용이 될 것 같은 에외 가지고 예외처리
-     * BadCredentialsException: 잘못된 자격 증명(사용자명, 비밀번호)
-     * UsernameNotFoundException: 사용자가 존재하지 않는 경우
+     * 로그인 실패 시 실행되는 메서드
+     * - 발생한 예외에 따라 적절한 에러 응답을 반환합니다.
      */
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
 
         ErrorCode errorCode;
 
-        // 잘못된 자격 증명 (사용자명, 비밀번호)
+        // 잘못된 자격 증명 (사용자명, 비밀번호 오류)
         if (failed instanceof BadCredentialsException) {
             errorCode = ErrorCode.BAD_CREDENTIALS;
         }
@@ -121,7 +131,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         else if (failed instanceof UsernameNotFoundException) {
             errorCode = ErrorCode.USER_NOT_FOUND;
         }
-        // 그 외의 예외는 일반적인 Unauthorized로 처리
+        // 그 외의 인증 실패
         else {
             errorCode = ErrorCode.UNAUTHORIZED;
         }
@@ -130,7 +140,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     }
 
     /**
-     * JSON 요청에서 사용자명과 비밀번호 추출
+     * JSON 요청에서 사용자명과 비밀번호를 추출하는 메서드
+     * - 요청 데이터를 DTO로 변환합니다.
      */
     private CreateUserRequestDto parseRequest(HttpServletRequest request) {
         try {
@@ -145,7 +156,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     }
 
     /**
-     * 쿠키 생성 메서드
+     * HTTP 쿠키 생성 메서드
+     * - 쿠키에 값을 설정하고 기본 속성을 적용합니다.
      */
     private Cookie createCookie(String key, String value) {
 

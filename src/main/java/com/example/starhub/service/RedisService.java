@@ -12,6 +12,10 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Redis와 상호작용하기 위한 서비스 클래스.
+ * RedisTemplate을 이용해 Redis에 데이터를 저장하거나 조회, 삭제하는 다양한 메서드를 제공합니다.
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -20,7 +24,8 @@ public class RedisService {
     private final RedisTemplate<String, Object> redisTemplate;
 
     /**
-     * 키-값 쌍을 Redis에 저장
+     * Redis에 키-값 쌍을 저장하는 메서드.
+     *
      * @param key 저장할 키
      * @param data 저장할 값
      */
@@ -30,10 +35,11 @@ public class RedisService {
     }
 
     /**
-     * 지정된 기간 동안 키-값 쌍을 Redis에 저장
+     * Redis에 키-값 쌍을 지정된 유효 기간과 함께 저장하는 메서드.
+     *
      * @param key 저장할 키
      * @param data 저장할 값
-     * @param duration 유효 기간
+     * @param duration 키-값 쌍의 유효 기간
      */
     public void setValues(String key, String data, Duration duration) {
         ValueOperations<String, Object> values = redisTemplate.opsForValue();
@@ -41,9 +47,10 @@ public class RedisService {
     }
 
     /**
-     * Redis에서 키에 해당하는 값을 가져옴
-     * @param key 가져올 키
-     * @return 키에 해당하는 값, 없다면 "false" 반환
+     * Redis에서 특정 키에 해당하는 값을 조회하는 메서드.
+     *
+     * @param key 조회할 키
+     * @return 해당 키의 값이 존재하면 값을 반환, 없으면 "false"를 반환
      */
     @Transactional(readOnly = true)
     public String getValues(String key) {
@@ -55,7 +62,8 @@ public class RedisService {
     }
 
     /**
-     * Redis에서 키-값 쌍을 삭제
+     * Redis에서 특정 키-값 쌍을 삭제하는 메서드.
+     *
      * @param key 삭제할 키
      */
     public void deleteValues(String key) {
@@ -63,8 +71,9 @@ public class RedisService {
     }
 
     /**
-     * 키의 유효 기간을 설정
-     * @param key 유효기간을 설정할 키
+     * Redis에서 특정 키의 유효 기간을 설정하는 메서드.
+     *
+     * @param key 유효 기간을 설정할 키
      * @param timeout 유효 기간(밀리초 단위)
      */
     public void expireValues(String key, int timeout) {
@@ -72,9 +81,10 @@ public class RedisService {
     }
 
     /**
-     * 해시 데이터를 Redis에 저장
+     * Redis에 해시(Hash) 데이터를 저장하는 메서드.
+     *
      * @param key 저장할 해시 키
-     * @param data 저장할 해시 데이터
+     * @param data 저장할 해시 데이터 (Map 형태)
      */
     public void setHashOps(String key, Map<String, String> data) {
         HashOperations<String, Object, Object> values = redisTemplate.opsForHash();
@@ -82,22 +92,23 @@ public class RedisService {
     }
 
     /**
-     * Redis에서 해시 키에 해당하는 해시 값을 가져옵니다.
+     * Redis에서 특정 해시 키와 해시 필드 키에 해당하는 값을 조회하는 메서드.
      *
-     * @param key     해시 키
+     * @param key 해시 키
      * @param hashKey 해시 필드 키
-     * @return 해시 필드 키에 해당하는 값, 없으면 빈 문자열 반환
+     * @return 해당 필드의 값이 존재하면 값을 반환, 없으면 빈 문자열 반환
      */
     @Transactional(readOnly = true)
     public String getHashOps(String key, String hashKey) {
         HashOperations<String, Object, Object> values = redisTemplate.opsForHash();
-        return Boolean.TRUE.equals(values.hasKey(key, hashKey)) ? (String) redisTemplate.opsForHash().get(key, hashKey) : "";
+        return Boolean.TRUE.equals(values.hasKey(key, hashKey)) ?
+                (String) redisTemplate.opsForHash().get(key, hashKey) : "";
     }
 
     /**
-     * Redis에서 해시 키-값 쌍을 삭제합니다.
+     * Redis에서 특정 해시 키와 해시 필드 키에 해당하는 데이터를 삭제하는 메서드.
      *
-     * @param key     해시 키
+     * @param key 해시 키
      * @param hashKey 삭제할 해시 필드 키
      */
     public void deleteHashOps(String key, String hashKey) {
@@ -106,10 +117,10 @@ public class RedisService {
     }
 
     /**
-     * 값이 존재하는지 확인합니다.
+     * 특정 값이 존재하는지 확인하는 메서드.
      *
      * @param value 확인할 값
-     * @return 값이 존재하면 true, 그렇지 않으면 false
+     * @return 값이 존재하면 true, 존재하지 않으면 false
      */
     public boolean checkExistsValue(String value) {
         return !value.equals("false");

@@ -35,7 +35,8 @@ public class UserService {
 
     /**
      * 1차 회원가입
-     * 아이디와 비밀번호를 DB에 저장합니다.
+     * - 아이디와 비밀번호를 DB에 저장합니다.
+     *
      * @param createUserRequestDto 1차 회원가입 요청 DTO
      * @return UserResponseDto 1차 회원가입 응답 DTO
      */
@@ -62,6 +63,7 @@ public class UserService {
 
     /**
      * 아이디 중복 확인
+     *
      * @param usernameCheckRequestDto 아이디 중복 요청 DTO
      * @return UsernameCheckResponseDto 아이디 중복 여부가 담긴 DTO
      */
@@ -73,6 +75,7 @@ public class UserService {
 
     /**
      * 프로필 생성하기(2차 회원가입)
+     *
      * @param userId 유저 아이디
      * @param createProfileRequestDto 프로필 생성 요청 DTO
      * @return ProfileResponseDto 프로필 생성 응답 DTO
@@ -99,6 +102,9 @@ public class UserService {
 
     /**
      * 토큰 재발급
+     *
+     * @param refreshToken 재발급을 요청한 기존의 Refresh 토큰
+     * @return 새로운 Access 토큰과 Refresh 토큰을 콤마로 구분하여 반환
      */
     public String reissueToken(String refreshToken) {
         try {
