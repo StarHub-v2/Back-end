@@ -58,5 +58,28 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponseDto(ErrorCode.USER_NOT_FOUND));
     }
 
+    @ExceptionHandler(TokenExpiredException.class)
+    protected ResponseEntity<ErrorResponseDto> handleTokenExpiredException(final InvalidTokenCategoryException e) {
+        log.error("handleTokenExpiredException : {}", e.getErrorCode().getMessage());
+        return ResponseEntity
+                .status(ErrorCode.TOKEN_EXPIRED.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.TOKEN_EXPIRED));
+    }
+
+    @ExceptionHandler(InvalidTokenCategoryException.class)
+    protected ResponseEntity<ErrorResponseDto> handleInvalidTokenCategoryException(final InvalidTokenCategoryException e) {
+        log.error("handleInvalidTokenCategoryException : {}", e.getErrorCode().getMessage());
+        return ResponseEntity
+                .status(ErrorCode.INVALID_TOKEN_CATEGORY.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.INVALID_TOKEN_CATEGORY));
+    }
+
+    @ExceptionHandler(TokenNotFoundInRedisException.class)
+    protected ResponseEntity<ErrorResponseDto> handleTokenNotFoundInRedisException(final TokenNotFoundInRedisException e) {
+        log.error("handleTokenNotFoundInRedisException : {}", e.getErrorCode().getMessage());
+        return ResponseEntity
+                .status(ErrorCode.TOKEN_NOT_FOUND.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.TOKEN_NOT_FOUND));
+    }
 
 }

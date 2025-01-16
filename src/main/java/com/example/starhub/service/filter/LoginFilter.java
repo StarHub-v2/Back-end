@@ -1,6 +1,6 @@
 package com.example.starhub.service.filter;
 
-import com.example.starhub.common.redis.RedisService;
+import com.example.starhub.service.RedisService;
 import com.example.starhub.dto.request.CreateUserRequestDto;
 import com.example.starhub.dto.response.UserResponseDto;
 import com.example.starhub.dto.response.util.ResponseUtil;
@@ -52,23 +52,16 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-
-        CreateUserRequestDto createUserRequestDto = new CreateUserRequestDto();
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            ServletInputStream inputStream = request.getInputStream();
-            String messageBody = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
-
-            createUserRequestDto = objectMapper.readValue(messageBody, CreateUserRequestDto.class);
-        } catch (IOException e) {
-
-        }
+        // 요청에서 사용자 인증 정보를 추출
+        CreateUserRequestDto createUserRequestDto = parseRequest(request);
 
         String username = createUserRequestDto.getUsername();
         String password = createUserRequestDto.getPassword();
 
+        // 인증 토큰 생성
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password, null);
 
+        // 인증 매니저를 통해 인증 수행
         return authenticationManager.authenticate(authToken);
     }
 
@@ -136,6 +129,24 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         ResponseUtil.writeErrorResponse(response, errorCode);
     }
 
+    /**
+     * JSON 요청에서 사용자명과 비밀번호 추출
+     */
+    private CreateUserRequestDto parseRequest(HttpServletRequest request) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            ServletInputStream inputStream = request.getInputStream();
+            String messageBody = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
+
+            return objectMapper.readValue(messageBody, CreateUserRequestDto.class);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("요청 데이터를 처리하는 중 오류가 발생했습니다.", e);
+        }
+    }
+
+    /**
+     * 쿠키 생성 메서드
+     */
     private Cookie createCookie(String key, String value) {
 
         Cookie cookie = new Cookie(key, value);

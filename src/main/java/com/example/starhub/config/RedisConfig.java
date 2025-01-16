@@ -1,4 +1,4 @@
-package com.example.starhub.common.redis.config;
+package com.example.starhub.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

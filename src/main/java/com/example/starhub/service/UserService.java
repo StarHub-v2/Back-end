@@ -1,6 +1,5 @@
 package com.example.starhub.service;
 
-import com.example.starhub.common.redis.RedisService;
 import com.example.starhub.dto.request.CreateProfileRequestDto;
 import com.example.starhub.dto.request.CreateUserRequestDto;
 import com.example.starhub.dto.request.UsernameCheckRequestDto;

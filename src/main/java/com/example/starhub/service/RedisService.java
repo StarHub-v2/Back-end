@@ -1,4 +1,4 @@
-package com.example.starhub.common.redis;
+package com.example.starhub.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
