@@ -17,7 +17,7 @@ public enum ErrorCode {
     /**
      * 401 UNAUTHORIZED
      */
-    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "Authentication failed"),
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증에 실패했습니다."),
     BAD_CREDENTIALS(HttpStatus.UNAUTHORIZED, "잘못된 사용자 이름 또는 비밀번호입니다."),
     TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "토큰이 만료되었습니다."),
     INVALID_TOKEN_CATEGORY(HttpStatus.UNAUTHORIZED, "잘못된 토큰 카테고리입니다."),
