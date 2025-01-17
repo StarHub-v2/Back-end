@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -51,12 +52,10 @@ public class RedisService {
      * @param key 조회할 키
      * @return 해당 키의 값이 존재하면 값을 반환, 없으면 "false"를 반환
      */
-    public String getValues(String key) {
+    public Optional<String> getValues(String key) {
         ValueOperations<String, Object> values = redisTemplate.opsForValue();
-        if (values.get(key) == null) {
-            return "false";
-        }
-        return (String) values.get(key);
+        Object value = values.get(key);
+        return Optional.ofNullable(value).map(String::valueOf);
     }
 
     /**
