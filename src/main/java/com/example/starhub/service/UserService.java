@@ -124,7 +124,6 @@ public class UserService {
         // Redis에서 토큰의 블랙리스트 상태 확인
         String refreshTokenKey = validateRedisToken(refreshToken, username);
 
-
         // 새로운 Access 및 Refresh 토큰 생성
         String newAccessToken = jwtUtil.createJwt("access", username, role, ACCESS_TOKEN_EXPIRATION);
         String newRefreshToken = jwtUtil.createJwt("refresh", username, role, REFRESH_TOKEN_EXPIRATION);

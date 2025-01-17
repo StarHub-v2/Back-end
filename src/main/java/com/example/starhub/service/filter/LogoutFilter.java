@@ -78,8 +78,9 @@ public class LogoutFilter extends GenericFilterBean {
 
         if (validateRefreshToken(response, refresh)) return;
 
-        String refreshTokenKey = validateRedisToken(response, refresh);
-
+        String refreshTokenKey = REFRESH_TOKEN_PREFIX + jwtUtil.getUsername(refresh);
+        if (validateRedisToken(response, refreshTokenKey, refresh)) return;
+        
         // 로그아웃 진행
         // Redis에서 해당 refresh 토큰 제거
         redisService.deleteValues(refreshTokenKey);
@@ -93,19 +94,19 @@ public class LogoutFilter extends GenericFilterBean {
         ResponseUtil.writeSuccessResponse(response, ResponseCode.SUCCESS_LOGOUT, null);
     }
 
-    private String validateRedisToken(HttpServletResponse response, String refresh) throws IOException {
-        // Redis에 저장된 refresh 토큰이 존재하는지 확인
-        String refreshTokenKey = REFRESH_TOKEN_PREFIX + jwtUtil.getUsername(refresh);
+    private boolean validateRedisToken(HttpServletResponse response, String refreshTokenKey, String refresh) {
         Optional<String> storedTokenOptional = redisService.getValues(refreshTokenKey);
 
         if (storedTokenOptional.isEmpty()) {
             ResponseUtil.writeErrorResponse(response, ErrorCode.TOKEN_NOT_FOUND);
+            return true;
         }
 
-        if (storedTokenOptional.get().equals(refresh)) {
+        if (!storedTokenOptional.get().equals(refresh)) {
             ResponseUtil.writeErrorResponse(response, ErrorCode.INVALID_TOKEN);
+            return true;
         }
-        return refreshTokenKey;
+        return false;
     }
 
     private boolean validateRefreshToken(HttpServletResponse response, String refresh) throws IOException {
