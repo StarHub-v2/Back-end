@@ -17,6 +17,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.security.MessageDigest;
 import java.util.Optional;
 
 /**
@@ -80,7 +81,7 @@ public class LogoutFilter extends GenericFilterBean {
 
         String refreshTokenKey = REFRESH_TOKEN_PREFIX + jwtUtil.getUsername(refresh);
         if (validateRedisToken(response, refreshTokenKey, refresh)) return;
-        
+
         // 로그아웃 진행
         // Redis에서 해당 refresh 토큰 제거
         redisService.deleteValues(refreshTokenKey);
@@ -102,7 +103,7 @@ public class LogoutFilter extends GenericFilterBean {
             return true;
         }
 
-        if (!storedTokenOptional.get().equals(refresh)) {
+        if (!MessageDigest.isEqual(refresh.getBytes(), storedTokenOptional.get().getBytes())) {
             ResponseUtil.writeErrorResponse(response, ErrorCode.INVALID_TOKEN);
             return true;
         }

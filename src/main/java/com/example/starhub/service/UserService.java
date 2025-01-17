@@ -18,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.MessageDigest;
 import java.time.Duration;
 import java.util.Optional;
 
@@ -145,7 +146,7 @@ public class UserService {
         );
 
         // 값이 다른 경우 예외 처리
-        if (!refreshToken.equals(storedToken)) {
+        if (!MessageDigest.isEqual(refreshToken.getBytes(), storedToken.getBytes())) {
             throw new InvalidTokenException(ErrorCode.INVALID_TOKEN);
         }
         return refreshTokenKey;
