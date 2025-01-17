@@ -13,6 +13,8 @@ import java.io.IOException;
 
 public class ResponseUtil {
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     /**
      * 성공적인 응답을 처리하는 메서드
      */
@@ -32,7 +34,6 @@ public class ResponseUtil {
         ErrorResponseDto errorResponseDto = new ErrorResponseDto(errorCode);
 
         // 에러 응답 DTO의 timestamp
-        ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 
