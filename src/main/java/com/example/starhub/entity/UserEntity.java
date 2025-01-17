@@ -1,10 +1,9 @@
 package com.example.starhub.entity;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
+import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -12,6 +11,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EntityListeners(AuditingEntityListener.class)
 public class UserEntity {
 
     @Id
@@ -44,9 +44,13 @@ public class UserEntity {
     @Column(length = 15)
     private String phoneNumber; // 전화번호
 
+    private String role; // 역할
+
+    @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime created_at; // 생성일
 
+    @LastModifiedDate
     @Column(nullable = false)
     private LocalDateTime updated_at; // 수정일
 
@@ -59,10 +63,19 @@ public class UserEntity {
         }
     }
 
-    @Builder
-    public UserEntity(String username, String password) {
-        this.username = username;
-        this.password = password;
+    public static UserEntity createUser(String username, String password) {
+        UserEntity user = new UserEntity();
+        user.username = username;
+        user.password = password;
+        user.role = "ROLE_USER";
+        return user;
+    }
+
+    public static UserEntity createUserWithRole(String username, String role) {
+        UserEntity user = new UserEntity();
+        user.username = username;
+        user.role = role;
+        return user;
     }
 
     public void updateProfile(String profileImage, String nickname, String name, Integer age, String bio, String email, String phoneNumber) {
@@ -75,4 +88,5 @@ public class UserEntity {
         this.phoneNumber = phoneNumber;
         this.isProfileComplete = true;
     }
+
 }

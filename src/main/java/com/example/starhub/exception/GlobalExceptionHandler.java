@@ -39,6 +39,14 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponseDto(ErrorCode.INVALID_RESPONSE_CODE));
     }
 
+    @ExceptionHandler(BadRequestException.class)
+    protected ResponseEntity<ErrorResponseDto> handleBadRequestException(final BadRequestException e) {
+        log.error("handleBadRequestException : {}", e.getErrorCode().getMessage());
+        return ResponseEntity
+                .status(ErrorCode.BAD_REQUEST.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.BAD_REQUEST));
+    }
+
     /**
      * User
      */
@@ -58,5 +66,36 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponseDto(ErrorCode.USER_NOT_FOUND));
     }
 
+    @ExceptionHandler(TokenExpiredException.class)
+    protected ResponseEntity<ErrorResponseDto> handleTokenExpiredException(final TokenExpiredException e) {
+        log.error("handleTokenExpiredException : {}", e.getErrorCode().getMessage());
+        return ResponseEntity
+                .status(ErrorCode.TOKEN_EXPIRED.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.TOKEN_EXPIRED));
+    }
+
+    @ExceptionHandler(InvalidTokenCategoryException.class)
+    protected ResponseEntity<ErrorResponseDto> handleInvalidTokenCategoryException(final InvalidTokenCategoryException e) {
+        log.error("handleInvalidTokenCategoryException : {}", e.getErrorCode().getMessage());
+        return ResponseEntity
+                .status(ErrorCode.INVALID_TOKEN_CATEGORY.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.INVALID_TOKEN_CATEGORY));
+    }
+
+    @ExceptionHandler(TokenNotFoundInRedisException.class)
+    protected ResponseEntity<ErrorResponseDto> handleTokenNotFoundInRedisException(final TokenNotFoundInRedisException e) {
+        log.error("handleTokenNotFoundInRedisException : {}", e.getErrorCode().getMessage());
+        return ResponseEntity
+                .status(ErrorCode.TOKEN_NOT_FOUND.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.TOKEN_NOT_FOUND));
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    protected ResponseEntity<ErrorResponseDto> handleInvalidTokenException(final InvalidTokenException e) {
+        log.error("handleInvalidTokenException : {}", e.getErrorCode().getMessage());
+        return ResponseEntity
+                .status(ErrorCode.INVALID_TOKEN.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.INVALID_TOKEN));
+    }
 
 }

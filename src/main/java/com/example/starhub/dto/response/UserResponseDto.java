@@ -7,6 +7,6 @@ import lombok.Getter;
 @Builder
 public class UserResponseDto {
 
-    private Long id;
     private String username;
+    private Boolean isProfileComplete;
 }
