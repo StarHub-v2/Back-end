@@ -39,18 +39,7 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
 
-        // 토큰 만료 확인 및 검증
-        if (jwtUtil.isExpired(accessToken)) {
-            ResponseUtil.writeErrorResponse(response, ErrorCode.TOKEN_EXPIRED);
-            return;
-        }
-
-        // 토큰 카테고리 검증 (access 토큰이어야 함)
-        String category = jwtUtil.getCategory(accessToken);
-        if (!category.equals("access")) {
-            ResponseUtil.writeErrorResponse(response, ErrorCode.INVALID_TOKEN_CATEGORY);
-            return;
-        }
+        if (validateRefreshToken(response, accessToken)) return;
 
         // 토큰에서 사용자 정보 추출 및 인증 객체 생성
         String username = jwtUtil.getUsername(accessToken);
@@ -67,6 +56,22 @@ public class JWTFilter extends OncePerRequestFilter {
 
         // 요청 처리 계속 진행
         filterChain.doFilter(request, response);
+    }
+
+    private boolean validateRefreshToken(HttpServletResponse response, String accessToken) throws IOException {
+        // 토큰 만료 확인 및 검증
+        if (jwtUtil.isExpired(accessToken)) {
+            ResponseUtil.writeErrorResponse(response, ErrorCode.TOKEN_EXPIRED);
+            return true;
+        }
+
+        // 토큰 카테고리 검증 (access 토큰이어야 함)
+        String category = jwtUtil.getCategory(accessToken);
+        if (!category.equals("access")) {
+            ResponseUtil.writeErrorResponse(response, ErrorCode.INVALID_TOKEN_CATEGORY);
+            return true;
+        }
+        return false;
     }
 
     /**

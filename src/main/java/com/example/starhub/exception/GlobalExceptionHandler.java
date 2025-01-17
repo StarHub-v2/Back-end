@@ -90,4 +90,12 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponseDto(ErrorCode.TOKEN_NOT_FOUND));
     }
 
+    @ExceptionHandler(InvalidTokenException.class)
+    protected ResponseEntity<ErrorResponseDto> handleInvalidTokenException(final InvalidTokenException e) {
+        log.error("handleInvalidTokenException : {}", e.getErrorCode().getMessage());
+        return ResponseEntity
+                .status(ErrorCode.INVALID_TOKEN.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.INVALID_TOKEN));
+    }
+
 }

@@ -17,6 +17,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  * 로그아웃을 처리하는 필터
@@ -75,24 +76,9 @@ public class LogoutFilter extends GenericFilterBean {
             return;
         }
 
-        // refresh 토큰 만료 확인
-        if (jwtUtil.isExpired(refresh)) {
-            ResponseUtil.writeErrorResponse(response, ErrorCode.TOKEN_EXPIRED);
-            return;
-        }
+        if (validateRefreshToken(response, refresh)) return;
 
-        // 토큰이 refresh 토큰인지 확인 (페이로드에 "refresh"로 지정된 값)
-        String category = jwtUtil.getCategory(refresh);
-        if (!category.equals("refresh")) {
-            ResponseUtil.writeErrorResponse(response, ErrorCode.INVALID_TOKEN_CATEGORY);
-            return;
-        }
-
-        // Redis에 저장된 refresh 토큰이 존재하는지 확인
-        String refreshTokenKey = REFRESH_TOKEN_PREFIX + jwtUtil.getUsername(refresh);
-        if (!redisService.checkExistsValue(refreshTokenKey)) {
-            ResponseUtil.writeErrorResponse(response, ErrorCode.TOKEN_NOT_FOUND);
-        }
+        String refreshTokenKey = validateRedisToken(response, refresh);
 
         // 로그아웃 진행
         // Redis에서 해당 refresh 토큰 제거
@@ -105,5 +91,36 @@ public class LogoutFilter extends GenericFilterBean {
         response.addCookie(cookie);
 
         ResponseUtil.writeSuccessResponse(response, ResponseCode.SUCCESS_LOGOUT, null);
+    }
+
+    private String validateRedisToken(HttpServletResponse response, String refresh) throws IOException {
+        // Redis에 저장된 refresh 토큰이 존재하는지 확인
+        String refreshTokenKey = REFRESH_TOKEN_PREFIX + jwtUtil.getUsername(refresh);
+        Optional<String> storedTokenOptional = redisService.getValues(refreshTokenKey);
+
+        if (storedTokenOptional.isEmpty()) {
+            ResponseUtil.writeErrorResponse(response, ErrorCode.TOKEN_NOT_FOUND);
+        }
+
+        if (storedTokenOptional.get().equals(refresh)) {
+            ResponseUtil.writeErrorResponse(response, ErrorCode.INVALID_TOKEN);
+        }
+        return refreshTokenKey;
+    }
+
+    private boolean validateRefreshToken(HttpServletResponse response, String refresh) throws IOException {
+        // refresh 토큰 만료 확인
+        if (jwtUtil.isExpired(refresh)) {
+            ResponseUtil.writeErrorResponse(response, ErrorCode.TOKEN_EXPIRED);
+            return true;
+        }
+
+        // 토큰이 refresh 토큰인지 확인 (페이로드에 "refresh"로 지정된 값)
+        String category = jwtUtil.getCategory(refresh);
+        if (!category.equals("refresh")) {
+            ResponseUtil.writeErrorResponse(response, ErrorCode.INVALID_TOKEN_CATEGORY);
+            return true;
+        }
+        return false;
     }
 }

@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -114,24 +115,15 @@ public class UserService {
      * @return 새로운 Access 토큰과 Refresh 토큰을 콤마로 구분하여 반환
      */
     public String reissueToken(String refreshToken) {
-        if (jwtUtil.isExpired(refreshToken)) {
-            throw new TokenExpiredException(ErrorCode.TOKEN_EXPIRED);
-        }
-
-        String category = jwtUtil.getCategory(refreshToken);
-        if (!"refresh".equals(category)) {
-            throw new InvalidTokenCategoryException(ErrorCode.INVALID_TOKEN_CATEGORY);
-        }
+        validateRefreshToken(refreshToken);
 
         // 사용자 정보 가져오기
         String username = jwtUtil.getUsername(refreshToken);
         String role = jwtUtil.getRole(refreshToken);
 
-        // Redis에서 토큰 존재 확인
-        String refreshTokenKey = REFRESH_TOKEN_PREFIX + username;
-        if (!redisService.checkExistsValue(refreshTokenKey)) {
-            throw new TokenNotFoundInRedisException(ErrorCode.TOKEN_NOT_FOUND);
-        }
+        // Redis에서 토큰의 블랙리스트 상태 확인
+        String refreshTokenKey = validateRedisToken(refreshToken, username);
+
 
         // 새로운 Access 및 Refresh 토큰 생성
         String newAccessToken = jwtUtil.createJwt("access", username, role, ACCESS_TOKEN_EXPIRATION);
@@ -142,6 +134,33 @@ public class UserService {
         redisService.setValues(refreshTokenKey, newRefreshToken, Duration.ofMillis(REFRESH_TOKEN_EXPIRATION));
 
         return newAccessToken + "," + newRefreshToken;
+    }
+
+    private String validateRedisToken(String refreshToken, String username) {
+        String refreshTokenKey = REFRESH_TOKEN_PREFIX + username;
+        Optional<String> storedTokenOptional = redisService.getValues(refreshTokenKey);
+
+        // 값이 없는 경우 예외 처리
+        String storedToken = storedTokenOptional.orElseThrow(() ->
+                new TokenNotFoundInRedisException(ErrorCode.TOKEN_NOT_FOUND)
+        );
+
+        // 값이 다른 경우 예외 처리
+        if (!refreshToken.equals(storedToken)) {
+            throw new InvalidTokenException(ErrorCode.INVALID_TOKEN);
+        }
+        return refreshTokenKey;
+    }
+
+    private void validateRefreshToken(String refreshToken) {
+        if (jwtUtil.isExpired(refreshToken)) {
+            throw new TokenExpiredException(ErrorCode.TOKEN_EXPIRED);
+        }
+
+        String category = jwtUtil.getCategory(refreshToken);
+        if (!"refresh".equals(category)) {
+            throw new InvalidTokenCategoryException(ErrorCode.INVALID_TOKEN_CATEGORY);
+        }
     }
 
 }
