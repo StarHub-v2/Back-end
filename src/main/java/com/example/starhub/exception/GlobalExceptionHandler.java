@@ -67,7 +67,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(TokenExpiredException.class)
-    protected ResponseEntity<ErrorResponseDto> handleTokenExpiredException(final InvalidTokenCategoryException e) {
+    protected ResponseEntity<ErrorResponseDto> handleTokenExpiredException(final TokenExpiredException e) {
         log.error("handleTokenExpiredException : {}", e.getErrorCode().getMessage());
         return ResponseEntity
                 .status(ErrorCode.TOKEN_EXPIRED.getStatus().value())
