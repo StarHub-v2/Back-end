@@ -21,10 +21,23 @@ public class RedisConfig {
     @Value("${spring.redis.port}")
     private int redisPort;
 
-    // yaml에 저장한 host, post를 연결
+    @Value("${spring.redis.ssl:false}")
+    private boolean useSsl;
+
+    @Value("${spring.redis.timeout}")
+    private int timeout;
+
+    @Value("${spring.redis.pool.max-active}")
+    private int maxActive;
+
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        return new LettuceConnectionFactory(redisHost, redisPort);
+        LettuceConnectionFactory factory = new LettuceConnectionFactory();
+        factory.setHostName(redisHost);
+        factory.setPort(redisPort);
+        factory.setUseSsl(useSsl);
+        factory.setTimeout(timeout);
+        return factory;
     }
 
     @Bean
