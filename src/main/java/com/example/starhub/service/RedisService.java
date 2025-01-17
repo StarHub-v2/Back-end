@@ -115,10 +115,10 @@ public class RedisService {
     /**
      * 특정 값이 존재하는지 확인하는 메서드.
      *
-     * @param value 확인할 값
+     * @param key 확인할 키 값
      * @return 값이 존재하면 true, 존재하지 않으면 false
      */
-    public boolean checkExistsValue(String value) {
-        return !value.equals("false");
+    public boolean checkExistsValue(String key) {
+        return redisTemplate.hasKey(key);
     }
 }
