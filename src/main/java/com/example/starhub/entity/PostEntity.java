@@ -2,10 +2,10 @@ package com.example.starhub.entity;
 
 import com.example.starhub.entity.enums.Duration;
 import com.example.starhub.entity.enums.RecruitmentType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -15,8 +15,9 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Builder
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class PostEntity {
 
     @Id
@@ -52,11 +53,23 @@ public class PostEntity {
     @Column(columnDefinition = "TEXT")
     private String otherInfo;  // 기타 정보
 
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;  // 생성일
 
+    @LastModifiedDate
+    @Column(nullable = false)
     private LocalDateTime updatedAt;  // 수정일
 
     private Boolean isConfirmed;  // 모임 확정 여부
+
+
+    @PrePersist
+    private void prePersist() {
+        if (isConfirmed == null) {
+            isConfirmed = false;
+        }
+    }
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", nullable = false)

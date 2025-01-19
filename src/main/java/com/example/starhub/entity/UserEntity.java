@@ -48,11 +48,11 @@ public class UserEntity {
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
-    private LocalDateTime created_at; // 생성일
+    private LocalDateTime createdAt; // 생성일
 
     @LastModifiedDate
     @Column(nullable = false)
-    private LocalDateTime updated_at; // 수정일
+    private LocalDateTime updatedAt; // 수정일
 
     private Boolean isProfileComplete; // 프로필 생성 여부
 
