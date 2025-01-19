@@ -98,4 +98,12 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponseDto(ErrorCode.INVALID_TOKEN));
     }
 
+    @ExceptionHandler(UserProfileAlreadyExistsException.class)
+    protected ResponseEntity<ErrorResponseDto> handleUserProfileAlreadyExistsException(final UserProfileAlreadyExistsException e) {
+        log.error("handleUserProfileAlreadyExistsException : {}", e.getErrorCode().getMessage());
+        return ResponseEntity
+                .status(ErrorCode.USER_PROFILE_ALREADY_EXISTS.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.USER_PROFILE_ALREADY_EXISTS));
+    }
+
 }

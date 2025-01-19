@@ -78,13 +78,17 @@ public class UserService {
     /**
      * 프로필 생성하기(2차 회원가입)
      *
-     * @param userId 유저 아이디
+     * @param username 사용자명
      * @param createProfileRequestDto 프로필 생성 요청 DTO
      * @return ProfileResponseDto 프로필 생성 응답 DTO
      */
-    public ProfileResponseDto createUserProfile(Long userId, CreateProfileRequestDto createProfileRequestDto) {
-        UserEntity user = userRepository.findById(userId)
+    public ProfileResponseDto createUserProfile(String username, CreateProfileRequestDto createProfileRequestDto) {
+        UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
+
+        if(user.getIsProfileComplete()) {
+            throw new UserProfileAlreadyExistsException(ErrorCode.USER_PROFILE_ALREADY_EXISTS);
+        }
 
         user.updateProfile(
                 createProfileRequestDto.getProfileImage(),
@@ -100,13 +104,6 @@ public class UserService {
                 .id(user.getId())
                 .nickname(user.getNickname())
                 .build();
-    }
-
-    @Transactional(readOnly = true)
-    public Long findUserIdByUsername(String username) {
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
-        return user.getId();
     }
 
     /**

@@ -63,14 +63,6 @@ public class PostEntity {
 
     private Boolean isConfirmed;  // 모임 확정 여부
 
-
-    @PrePersist
-    private void prePersist() {
-        if (isConfirmed == null) {
-            isConfirmed = false;
-        }
-    }
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", nullable = false)
     private UserEntity creator;  // 사용자(작성자)

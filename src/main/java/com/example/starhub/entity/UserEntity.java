@@ -56,18 +56,12 @@ public class UserEntity {
 
     private Boolean isProfileComplete; // 프로필 생성 여부
 
-    @PrePersist
-    private void prePersist() {
-        if (isProfileComplete == null) {
-            isProfileComplete = false;
-        }
-    }
-
     public static UserEntity createUser(String username, String password) {
         UserEntity user = new UserEntity();
         user.username = username;
         user.password = password;
         user.role = "ROLE_USER";
+        user.isProfileComplete = false;
         return user;
     }
 

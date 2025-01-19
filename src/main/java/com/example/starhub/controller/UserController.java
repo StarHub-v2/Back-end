@@ -60,10 +60,8 @@ public class UserController implements UserControllerDocs {
      */
     @PostMapping("/users/profile")
     public ResponseEntity<ResponseDto<ProfileResponseDto>> createUserProfile(@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                                         @Valid @RequestBody CreateProfileRequestDto createProfileRequestDto) {
-        Long userId = userService.findUserIdByUsername(customUserDetails.getUsername());
-
-        ProfileResponseDto res = userService.createUserProfile(userId, createProfileRequestDto);
+                                                                             @Valid @RequestBody CreateProfileRequestDto createProfileRequestDto) {
+        ProfileResponseDto res = userService.createUserProfile(customUserDetails.getUsername(), createProfileRequestDto);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_CREATE_PROFILE.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_CREATE_PROFILE, res));

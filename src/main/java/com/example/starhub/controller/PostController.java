@@ -1,11 +1,17 @@
 package com.example.starhub.controller;
 
+import com.example.starhub.dto.request.CreatePostRequestDto;
+import com.example.starhub.dto.security.CustomUserDetails;
 import com.example.starhub.response.code.ResponseCode;
 import com.example.starhub.response.dto.ResponseDto;
 import com.example.starhub.service.PostService;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -18,7 +24,9 @@ public class PostController {
      * 포스트(스터디 및 프로젝트) 업로드
      */
     @PostMapping("/posts")
-    public ResponseEntity<ResponseDto> createPost() {
+    public ResponseEntity<ResponseDto> createPost(@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                                  @Valid @RequestBody CreatePostRequestDto createPostRequestDto) {
+        postService.createPost(customUserDetails.getUsername(), createPostRequestDto);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_CREATE_POST.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_CREATE_POST, null));
