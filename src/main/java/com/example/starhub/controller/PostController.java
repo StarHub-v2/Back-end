@@ -1,5 +1,6 @@
 package com.example.starhub.controller;
 
+import com.example.starhub.controller.docs.PostControllerDocs;
 import com.example.starhub.dto.request.CreatePostRequestDto;
 import com.example.starhub.dto.response.PostResponseDto;
 import com.example.starhub.dto.security.CustomUserDetails;
@@ -17,7 +18,7 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
-public class PostController {
+public class PostController implements PostControllerDocs {
 
     private final PostService postService;
 
@@ -25,7 +26,7 @@ public class PostController {
      * 포스트(스터디 및 프로젝트) 업로드
      */
     @PostMapping("/posts")
-    public ResponseEntity<ResponseDto> createPost(@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+    public ResponseEntity<ResponseDto<PostResponseDto>> createPost(@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
                                                   @Valid @RequestBody CreatePostRequestDto createPostRequestDto) {
         PostResponseDto res = postService.createPost(customUserDetails.getUsername(), createPostRequestDto);
         return ResponseEntity
