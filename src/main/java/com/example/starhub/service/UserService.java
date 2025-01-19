@@ -6,13 +6,11 @@ import com.example.starhub.dto.request.UsernameCheckRequestDto;
 import com.example.starhub.dto.response.ProfileResponseDto;
 import com.example.starhub.dto.response.UserResponseDto;
 import com.example.starhub.dto.response.UsernameCheckResponseDto;
-import com.example.starhub.dto.response.util.ResponseUtil;
 import com.example.starhub.entity.UserEntity;
 import com.example.starhub.exception.*;
 import com.example.starhub.repository.UserRepository;
 import com.example.starhub.response.code.ErrorCode;
 import com.example.starhub.util.JWTUtil;
-import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -70,6 +68,7 @@ public class UserService {
      * @param usernameCheckRequestDto 사용자명 중복 요청 DTO
      * @return UsernameCheckResponseDto 사용자명 중복 여부가 담긴 DTO
      */
+    @Transactional(readOnly = true)
     public UsernameCheckResponseDto checkUsernameDuplicate(UsernameCheckRequestDto usernameCheckRequestDto) {
         String username = usernameCheckRequestDto.getUsername();
         boolean isAvailable = !userRepository.existsByUsername(username);
@@ -103,6 +102,7 @@ public class UserService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public Long findUserIdByUsername(String username) {
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
