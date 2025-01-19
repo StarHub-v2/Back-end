@@ -1,6 +1,7 @@
 package com.example.starhub.controller;
 
 import com.example.starhub.dto.request.CreatePostRequestDto;
+import com.example.starhub.dto.response.PostResponseDto;
 import com.example.starhub.dto.security.CustomUserDetails;
 import com.example.starhub.response.code.ResponseCode;
 import com.example.starhub.response.dto.ResponseDto;
@@ -26,10 +27,10 @@ public class PostController {
     @PostMapping("/posts")
     public ResponseEntity<ResponseDto> createPost(@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
                                                   @Valid @RequestBody CreatePostRequestDto createPostRequestDto) {
-        postService.createPost(customUserDetails.getUsername(), createPostRequestDto);
+        PostResponseDto res = postService.createPost(customUserDetails.getUsername(), createPostRequestDto);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_CREATE_POST.getStatus().value())
-                .body(new ResponseDto<>(ResponseCode.SUCCESS_CREATE_POST, null));
+                .body(new ResponseDto<>(ResponseCode.SUCCESS_CREATE_POST, res));
     }
 
     /**
