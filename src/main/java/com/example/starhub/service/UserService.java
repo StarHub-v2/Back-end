@@ -38,7 +38,7 @@ public class UserService {
 
     /**
      * 1차 회원가입
-     * - 아이디와 비밀번호를 DB에 저장합니다.
+     * - 사용자명과 비밀번호를 DB에 저장합니다.
      *
      * @param createUserRequestDto 1차 회원가입 요청 DTO
      * @return UserResponseDto 1차 회원가입 응답 DTO
@@ -65,10 +65,10 @@ public class UserService {
     }
 
     /**
-     * 아이디 중복 확인
+     * 사용자명 중복 확인
      *
-     * @param usernameCheckRequestDto 아이디 중복 요청 DTO
-     * @return UsernameCheckResponseDto 아이디 중복 여부가 담긴 DTO
+     * @param usernameCheckRequestDto 사용자명 중복 요청 DTO
+     * @return UsernameCheckResponseDto 사용자명 중복 여부가 담긴 DTO
      */
     public UsernameCheckResponseDto checkUsernameDuplicate(UsernameCheckRequestDto usernameCheckRequestDto) {
         String username = usernameCheckRequestDto.getUsername();
