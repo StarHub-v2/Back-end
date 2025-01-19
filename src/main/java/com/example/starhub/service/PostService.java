@@ -1,23 +1,26 @@
 package com.example.starhub.service;
 
 import com.example.starhub.dto.request.CreatePostRequestDto;
+import com.example.starhub.dto.response.LikeDto;
 import com.example.starhub.dto.response.PostResponseDto;
+import com.example.starhub.dto.response.PostSummaryResponseDto;
 import com.example.starhub.entity.PostEntity;
 import com.example.starhub.entity.PostTechStackEntity;
 import com.example.starhub.entity.TechStackEntity;
 import com.example.starhub.entity.UserEntity;
 import com.example.starhub.entity.enums.TechCategory;
 import com.example.starhub.exception.UserNotFoundException;
-import com.example.starhub.repository.PostRepository;
-import com.example.starhub.repository.PostTechStackRepository;
-import com.example.starhub.repository.TechStackRepository;
-import com.example.starhub.repository.UserRepository;
+import com.example.starhub.repository.*;
 import com.example.starhub.response.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -28,6 +31,7 @@ public class PostService {
     private final UserRepository userRepository;
     private final TechStackRepository techStackRepository;
     private final PostTechStackRepository postTechStackRepository;
+    private final LikeRepository likeRepository;
 
     /**
      * 새로운 포스트(스터디/프로젝트)를 생성하는 메서드
@@ -53,6 +57,43 @@ public class PostService {
                 .toList();
 
         return PostResponseDto.fromEntity(savedPost, techStackNames);
+    }
+
+    /**
+     * 포스트 목록 불러오기 (메인 화면에 쓰일 API)
+     * - 포스트 요약 정보가 담긴 목록으로 제공
+     * - 페이지네이션을 적용하고, 생성일 기준 내림차순으로 정렬
+     *
+     * @param username JWT를 통해 인증된 사용자명
+     * @param page 페이지 번호
+     * @param size 페이지 크기
+     * @return 포스트 목록 응답 DTO
+     */
+    public Page<PostSummaryResponseDto> getPostList(String username, int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Order.desc("createdAt")));
+        Page<PostEntity> postPage = postRepository.findAll(pageRequest);
+
+        return postPage.map(postEntity -> {
+            List<String> techStacks = postTechStackRepository.findByPost(postEntity).stream()
+                    .map(postTechStack -> postTechStack.getTechStack().getName())
+                    .collect(Collectors.toList());
+
+            // 총 좋아요 수
+            Long likeCount = likeRepository.countByPost(postEntity);
+
+            // 내가 좋아요를 눌렀는지 여부
+            Boolean isLiked = likeRepository.existsByPostAndUserUsername(postEntity, username);
+
+            // LikeDto 생성
+            LikeDto likeDto = LikeDto.builder()
+                    .likeCount(likeCount)
+                    .isLiked(isLiked)
+                    .build();
+
+            // PostSummaryResponseDto 반환
+            return PostSummaryResponseDto.fromEntity(postEntity, techStacks, likeDto);
+        });
+
     }
 
     /**
