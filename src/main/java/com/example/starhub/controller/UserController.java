@@ -1,5 +1,6 @@
 package com.example.starhub.controller;
 
+import com.example.starhub.controller.docs.UserControllerDocs;
 import com.example.starhub.dto.request.CreateProfileRequestDto;
 import com.example.starhub.dto.request.CreateUserRequestDto;
 import com.example.starhub.dto.request.UsernameCheckRequestDto;
@@ -12,6 +13,7 @@ import com.example.starhub.response.code.ErrorCode;
 import com.example.starhub.response.code.ResponseCode;
 import com.example.starhub.response.dto.ResponseDto;
 import com.example.starhub.service.UserService;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +29,7 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
-public class UserController {
+public class UserController implements UserControllerDocs {
 
     private final UserService userService;
 
@@ -35,7 +37,7 @@ public class UserController {
      * 1차 회원가입
      */
     @PostMapping("/register")
-    public ResponseEntity<ResponseDto> registerUser(@Valid @RequestBody CreateUserRequestDto createUserRequestDto) {
+    public ResponseEntity<ResponseDto<UserResponseDto>> registerUser(@Valid @RequestBody CreateUserRequestDto createUserRequestDto) {
         UserResponseDto res = userService.registerUser(createUserRequestDto);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_CREATE_USER.getStatus().value())
@@ -43,10 +45,10 @@ public class UserController {
     }
 
     /**
-     * 아이디 중복 확인
+     * 사용자명 중복 확인
      */
     @PostMapping("/users/check")
-    public ResponseEntity<ResponseDto> checkUsernameDuplicate(@Valid @RequestBody UsernameCheckRequestDto usernameCheckRequestDto) {
+    public ResponseEntity<ResponseDto<UsernameCheckResponseDto>> checkUsernameDuplicate(@Valid @RequestBody UsernameCheckRequestDto usernameCheckRequestDto) {
         UsernameCheckResponseDto res = userService.checkUsernameDuplicate(usernameCheckRequestDto);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_CHECK_ID.getStatus().value())
@@ -57,7 +59,7 @@ public class UserController {
      * 프로필 생성하기(2차 회원가입)
      */
     @PostMapping("/users/profile")
-    public ResponseEntity<ResponseDto> createUserProfile(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+    public ResponseEntity<ResponseDto<ProfileResponseDto>> createUserProfile(@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
                                                          @Valid @RequestBody CreateProfileRequestDto createProfileRequestDto) {
         Long userId = userService.findUserIdByUsername(customUserDetails.getUsername());
 
@@ -68,10 +70,10 @@ public class UserController {
     }
 
     /**
-     * Refresh 토큰 재발급
+     * 토큰 재발급
      */
     @PostMapping("/reissue")
-    public ResponseEntity<?> reissueToken(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<ResponseDto> reissueToken(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = null;
 
         Cookie[] cookies = request.getCookies();
