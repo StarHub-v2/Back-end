@@ -59,4 +59,14 @@ public interface PostControllerDocs {
             @PathVariable Long id,
             @RequestBody PostUpdateRequestDto postUpdateRequestDto);
 
+    /**
+     * 포스트 삭제하기
+     */
+    @Operation(
+            summary = "포스트 삭제하기",
+            description = "포스트 삭제하기를 진행합니다. 개설자만 이 포스트를 삭제할 권한이 있습니다."
+    )
+    ResponseEntity<ResponseDto> deletePost(
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long id);
 }

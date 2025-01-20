@@ -85,8 +85,8 @@ public class PostController implements PostControllerDocs {
     @DeleteMapping("/posts/{id}")
     public ResponseEntity<ResponseDto> deletePost(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable Long id
-    ) {
+            @PathVariable Long id) {
+
         postService.deletePost(customUserDetails.getUsername(), id);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_DELETE_POST.getStatus().value())
