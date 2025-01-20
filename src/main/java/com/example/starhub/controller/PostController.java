@@ -2,6 +2,7 @@ package com.example.starhub.controller;
 
 import com.example.starhub.controller.docs.PostControllerDocs;
 import com.example.starhub.dto.request.CreatePostRequestDto;
+import com.example.starhub.dto.request.PostUpdateRequestDto;
 import com.example.starhub.dto.response.PostResponseDto;
 import com.example.starhub.dto.response.PostSummaryResponseDto;
 import com.example.starhub.dto.security.CustomUserDetails;
@@ -31,6 +32,7 @@ public class PostController implements PostControllerDocs {
     public ResponseEntity<ResponseDto<PostResponseDto>> createPost(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Valid @RequestBody CreatePostRequestDto createPostRequestDto) {
+
         PostResponseDto res = postService.createPost(customUserDetails.getUsername(), createPostRequestDto);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_CREATE_POST.getStatus().value())
@@ -44,8 +46,8 @@ public class PostController implements PostControllerDocs {
     public ResponseEntity<ResponseDto> getPostList(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "4") int size)
-    {
+            @RequestParam(defaultValue = "4") int size) {
+
         Page<PostSummaryResponseDto> res = postService.getPostList(customUserDetails.getUsername(), page, size);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_GET_POST_LIST.getStatus().value())
@@ -66,10 +68,15 @@ public class PostController implements PostControllerDocs {
      * 포스트 수정하기
      */
     @PatchMapping("/posts/{id}")
-    public ResponseEntity<ResponseDto> updatePost() {
+    public ResponseEntity<ResponseDto<PostResponseDto>> updatePost(
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long id,
+            @RequestBody PostUpdateRequestDto postUpdateRequestDto) {
+
+        PostResponseDto res = postService.updatePost(customUserDetails.getUsername(), id, postUpdateRequestDto);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_UPDATE_POST.getStatus().value())
-                .body(new ResponseDto<>(ResponseCode.SUCCESS_UPDATE_POST, null));
+                .body(new ResponseDto<>(ResponseCode.SUCCESS_UPDATE_POST, res));
     }
 
     /**

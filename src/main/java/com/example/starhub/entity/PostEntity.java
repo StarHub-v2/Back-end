@@ -1,5 +1,6 @@
 package com.example.starhub.entity;
 
+import com.example.starhub.dto.request.PostUpdateRequestDto;
 import com.example.starhub.entity.enums.Duration;
 import com.example.starhub.entity.enums.RecruitmentType;
 import lombok.*;
@@ -66,5 +67,20 @@ public class PostEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", nullable = false)
     private UserEntity creator;  // 사용자(작성자)
+
+    public void updatePost(PostUpdateRequestDto postUpdateRequestDto) {
+        this.recruitmentType = postUpdateRequestDto.getRecruitmentType() != null ? postUpdateRequestDto.getRecruitmentType() : this.recruitmentType;
+        this.maxParticipants = postUpdateRequestDto.getMaxParticipants() != null ? postUpdateRequestDto.getMaxParticipants() : this.maxParticipants;
+        this.duration = postUpdateRequestDto.getDuration() != null ? postUpdateRequestDto.getDuration() : this.duration;
+        this.endDate = postUpdateRequestDto.getEndDate() != null ? postUpdateRequestDto.getEndDate() : this.endDate;
+        this.location = postUpdateRequestDto.getLocation() != null ? postUpdateRequestDto.getLocation() : this.location;
+        this.latitude = postUpdateRequestDto.getLatitude() != null ? postUpdateRequestDto.getLatitude() : this.latitude;
+        this.longitude = postUpdateRequestDto.getLongitude() != null ? postUpdateRequestDto.getLongitude() : this.longitude;
+        this.title = postUpdateRequestDto.getTitle() != null ? postUpdateRequestDto.getTitle() : this.title;
+        this.description = postUpdateRequestDto.getDescription() != null ? postUpdateRequestDto.getDescription() : this.description;
+        this.goal = postUpdateRequestDto.getGoal() != null ? postUpdateRequestDto.getGoal() : this.goal;
+        this.otherInfo = postUpdateRequestDto.getOtherInfo() != null ? postUpdateRequestDto.getOtherInfo() : this.otherInfo;
+    }
+
 
 }

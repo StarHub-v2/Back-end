@@ -106,4 +106,23 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponseDto(ErrorCode.USER_PROFILE_ALREADY_EXISTS));
     }
 
+    /**
+     * POST
+     */
+    @ExceptionHandler(PostNotFoundException.class)
+    protected ResponseEntity<ErrorResponseDto> handlePostNotFoundException(final PostNotFoundException e) {
+        log.error("handlePostNotFoundException : {}", e.getErrorCode().getMessage());
+        return ResponseEntity
+                .status(ErrorCode.POST_NOT_FOUND.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.POST_NOT_FOUND));
+    }
+
+    @ExceptionHandler(PostCreatorAuthorizationException.class)
+    protected ResponseEntity<ErrorResponseDto> handlePostCreatorAuthorizationException(final PostCreatorAuthorizationException e) {
+        log.error("handlePostCreatorAuthorizationException : {}", e.getErrorCode().getMessage());
+        return ResponseEntity
+                .status(ErrorCode.POST_MODIFY_FORBIDDEN.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.POST_MODIFY_FORBIDDEN));
+    }
+
 }

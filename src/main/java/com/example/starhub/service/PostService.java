@@ -1,6 +1,7 @@
 package com.example.starhub.service;
 
 import com.example.starhub.dto.request.CreatePostRequestDto;
+import com.example.starhub.dto.request.PostUpdateRequestDto;
 import com.example.starhub.dto.response.LikeDto;
 import com.example.starhub.dto.response.PostResponseDto;
 import com.example.starhub.dto.response.PostSummaryResponseDto;
@@ -9,10 +10,14 @@ import com.example.starhub.entity.PostTechStackEntity;
 import com.example.starhub.entity.TechStackEntity;
 import com.example.starhub.entity.UserEntity;
 import com.example.starhub.entity.enums.TechCategory;
+import com.example.starhub.exception.PostCreatorAuthorizationException;
+import com.example.starhub.exception.PostNotFoundException;
 import com.example.starhub.exception.UserNotFoundException;
 import com.example.starhub.repository.*;
 import com.example.starhub.response.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -27,6 +32,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PostService {
 
+    private static final Logger log = LoggerFactory.getLogger(PostService.class);
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final TechStackRepository techStackRepository;
@@ -38,7 +44,7 @@ public class PostService {
      *
      * @param username JWT를 통해 인증된 사용자명
      * @param createPostRequestDto 포스트 생성에 필요한 데이터를 담고 있는 요청 DTO
-     * @return 생성된 포스트에 대한 응답 DTO
+     * @return 포스트에 대한 응답 DTO
      */
     public PostResponseDto createPost(String username, CreatePostRequestDto createPostRequestDto) {
 
@@ -93,6 +99,38 @@ public class PostService {
             // PostSummaryResponseDto 반환
             return PostSummaryResponseDto.fromEntity(postEntity, techStacks, likeDto);
         });
+
+    }
+
+    /**
+     * 포스트 업데이트
+     *
+     * @param username JWT를 통해 인증된 사용자명
+     * @param id 포스트 아이디
+     * @param postUpdateRequestDto 업데이트할 포스트 정보가 담긴 DTO
+     * @return 포스트에 대한 응답 DTO
+     */
+    public PostResponseDto updatePost(String username, Long id, PostUpdateRequestDto postUpdateRequestDto) {
+
+        PostEntity postEntity = postRepository.findById(id)
+                .orElseThrow(() -> new PostNotFoundException(ErrorCode.POST_NOT_FOUND));
+
+        // 개설자가 아닌 경우 예외 처리
+        if(!postEntity.getCreator().getUsername().equals(username)) {
+            throw new PostCreatorAuthorizationException(ErrorCode.POST_MODIFY_FORBIDDEN);
+        }
+
+        postEntity.updatePost(postUpdateRequestDto);
+
+        // 기술 스택 업데이트
+        updatePostTechStacks(postEntity, postUpdateRequestDto);
+
+        // 저장된 포스트에 연결된 기술 스택 이름들을 리스트로 반환
+        List<String> techStackNames = postTechStackRepository.findByPost(postEntity).stream()
+                .map(postTechStack -> postTechStack.getTechStack().getName())
+                .toList();
+
+        return PostResponseDto.fromEntity(postEntity, techStackNames);
 
     }
 
@@ -152,6 +190,46 @@ public class PostService {
                         ));
 
                 // 포스트와 기술 스택을 연결하여 저장
+                postTechStackRepository.save(
+                        PostTechStackEntity.builder()
+                                .post(postEntity)
+                                .techStack(techStack)
+                                .build()
+                );
+            });
+        }
+    }
+
+    /**
+     * 포스트에 연결된 기술 스택을 업데이트하는 메서드
+     *
+     * @param postEntity 포스트 엔티티
+     * @param postUpdateRequestDto 업데이트할 포스트 정보가 담긴 DTO
+     */
+    private void updatePostTechStacks(PostEntity postEntity, PostUpdateRequestDto postUpdateRequestDto) {
+        if (postUpdateRequestDto.getTechStackIds() != null || postUpdateRequestDto.getOtherTechStacks() != null) {
+            postTechStackRepository.deleteByPost(postEntity);
+        }
+
+        if (postUpdateRequestDto.getTechStackIds() != null) {
+            List<TechStackEntity> techStacks = techStackRepository.findAllById(postUpdateRequestDto.getTechStackIds());
+            techStacks.forEach(techStack -> postTechStackRepository.save(
+                    PostTechStackEntity.builder()
+                            .post(postEntity)
+                            .techStack(techStack)
+                            .build()
+            ));
+        }
+
+        if (postUpdateRequestDto.getOtherTechStacks() != null) {
+            postUpdateRequestDto.getOtherTechStacks().forEach(otherTech -> {
+                TechStackEntity techStack = techStackRepository.findByName(otherTech)
+                        .orElseGet(() -> techStackRepository.save(
+                                TechStackEntity.builder()
+                                        .name(otherTech)
+                                        .category(TechCategory.OTHER)
+                                        .build()
+                        ));
                 postTechStackRepository.save(
                         PostTechStackEntity.builder()
                                 .post(postEntity)

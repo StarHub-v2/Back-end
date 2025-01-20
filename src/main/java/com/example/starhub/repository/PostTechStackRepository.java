@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface PostTechStackRepository extends JpaRepository<PostTechStackEntity, Long> {
     List<PostTechStackEntity> findByPost(PostEntity post);
+    void deleteByPost(PostEntity post);
 }
