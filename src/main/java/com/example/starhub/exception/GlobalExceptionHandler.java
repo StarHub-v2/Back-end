@@ -78,24 +78,24 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<ErrorResponseDto> handleInvalidTokenCategoryException(final InvalidTokenCategoryException e) {
         log.error("handleInvalidTokenCategoryException : {}", e.getErrorCode().getMessage());
         return ResponseEntity
-                .status(ErrorCode.INVALID_TOKEN_CATEGORY.getStatus().value())
-                .body(new ErrorResponseDto(ErrorCode.INVALID_TOKEN_CATEGORY));
+                .status(ErrorCode.UNAUTHORIZED.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.UNAUTHORIZED));
     }
 
     @ExceptionHandler(TokenNotFoundInRedisException.class)
     protected ResponseEntity<ErrorResponseDto> handleTokenNotFoundInRedisException(final TokenNotFoundInRedisException e) {
         log.error("handleTokenNotFoundInRedisException : {}", e.getErrorCode().getMessage());
         return ResponseEntity
-                .status(ErrorCode.TOKEN_NOT_FOUND.getStatus().value())
-                .body(new ErrorResponseDto(ErrorCode.TOKEN_NOT_FOUND));
+                .status(ErrorCode.UNAUTHORIZED.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.UNAUTHORIZED));
     }
 
     @ExceptionHandler(InvalidTokenException.class)
     protected ResponseEntity<ErrorResponseDto> handleInvalidTokenException(final InvalidTokenException e) {
         log.error("handleInvalidTokenException : {}", e.getErrorCode().getMessage());
         return ResponseEntity
-                .status(ErrorCode.INVALID_TOKEN.getStatus().value())
-                .body(new ErrorResponseDto(ErrorCode.INVALID_TOKEN));
+                .status(ErrorCode.UNAUTHORIZED.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.UNAUTHORIZED));
     }
 
     @ExceptionHandler(UserProfileAlreadyExistsException.class)

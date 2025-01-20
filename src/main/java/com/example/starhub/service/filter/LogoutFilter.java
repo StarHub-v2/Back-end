@@ -7,6 +7,7 @@ import com.example.starhub.service.RedisService;
 import com.example.starhub.util.JWTUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.filter.GenericFilterBean;
 
 import javax.servlet.FilterChain;
@@ -24,6 +25,7 @@ import java.util.Optional;
  * 로그아웃을 처리하는 필터
  * - 사용자의 로그아웃 요청을 처리하고, 해당 사용자의 refresh 토큰을 검증 및 삭제합니다.
  */
+@Slf4j
 @RequiredArgsConstructor
 public class LogoutFilter extends GenericFilterBean {
 
@@ -99,12 +101,14 @@ public class LogoutFilter extends GenericFilterBean {
         Optional<String> storedTokenOptional = redisService.getValues(refreshTokenKey);
 
         if (storedTokenOptional.isEmpty()) {
-            ResponseUtil.writeErrorResponse(response, ErrorCode.TOKEN_NOT_FOUND);
+            log.error("Token not found in Redis: {}", refreshTokenKey);
+            ResponseUtil.writeErrorResponse(response, ErrorCode.UNAUTHORIZED);
             return true;
         }
 
         if (!MessageDigest.isEqual(refresh.getBytes(), storedTokenOptional.get().getBytes())) {
-            ResponseUtil.writeErrorResponse(response, ErrorCode.INVALID_TOKEN);
+            log.error("Invalid refresh token: {} does not match stored token.", refresh);
+            ResponseUtil.writeErrorResponse(response, ErrorCode.UNAUTHORIZED);
             return true;
         }
         return false;
@@ -113,14 +117,16 @@ public class LogoutFilter extends GenericFilterBean {
     private boolean validateRefreshToken(HttpServletResponse response, String refresh) throws IOException {
         // refresh 토큰 만료 확인
         if (jwtUtil.isExpired(refresh)) {
-            ResponseUtil.writeErrorResponse(response, ErrorCode.TOKEN_EXPIRED);
+            log.error("Token expired: refresh token: {}", refresh);
+            ResponseUtil.writeErrorResponse(response, ErrorCode.UNAUTHORIZED);
             return true;
         }
 
         // 토큰이 refresh 토큰인지 확인 (페이로드에 "refresh"로 지정된 값)
         String category = jwtUtil.getCategory(refresh);
         if (!category.equals("refresh")) {
-            ResponseUtil.writeErrorResponse(response, ErrorCode.INVALID_TOKEN_CATEGORY);
+            log.error("Invalid token category: {}", refresh);
+            ResponseUtil.writeErrorResponse(response, ErrorCode.UNAUTHORIZED);
             return true;
         }
         return false;

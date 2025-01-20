@@ -12,7 +12,7 @@ public enum ErrorCode {
      * 400 BAD_REQUEST: 잘못된 요청
      */
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
-    USERNAME_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 사용 중인 아이디입니다."),
+    USERNAME_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 사용 중인 사용자명입니다."),
 
     /**
      * 401 UNAUTHORIZED

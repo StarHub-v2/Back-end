@@ -6,6 +6,7 @@ import com.example.starhub.entity.UserEntity;
 import com.example.starhub.response.code.ErrorCode;
 import com.example.starhub.util.JWTUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,6 +25,7 @@ import java.io.IOException;
  * 유효한 JWT가 확인된 경우, SecurityContext에 인증 정보를 설정합니다.
  * 유효하지 않은 JWT 또는 만료된 경우, 적절한 에러 응답을 반환하고 필터 체인을 종료합니다.
  */
+@Slf4j
 @RequiredArgsConstructor
 public class JWTFilter extends OncePerRequestFilter {
 
@@ -61,14 +63,16 @@ public class JWTFilter extends OncePerRequestFilter {
     private boolean validateRefreshToken(HttpServletResponse response, String accessToken) throws IOException {
         // 토큰 만료 확인 및 검증
         if (jwtUtil.isExpired(accessToken)) {
-            ResponseUtil.writeErrorResponse(response, ErrorCode.TOKEN_EXPIRED);
+            log.error("Token expired: refresh token: {}", accessToken);
+            ResponseUtil.writeErrorResponse(response, ErrorCode.UNAUTHORIZED);
             return true;
         }
 
         // 토큰 카테고리 검증 (access 토큰이어야 함)
         String category = jwtUtil.getCategory(accessToken);
         if (!category.equals("access")) {
-            ResponseUtil.writeErrorResponse(response, ErrorCode.INVALID_TOKEN_CATEGORY);
+            log.error("Invalid token category: {}", accessToken);
+            ResponseUtil.writeErrorResponse(response, ErrorCode.UNAUTHORIZED);
             return true;
         }
         return false;
