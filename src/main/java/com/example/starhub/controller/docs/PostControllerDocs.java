@@ -1,9 +1,6 @@
 package com.example.starhub.controller.docs;
 
-import com.example.starhub.dto.request.CreatePostRequestDto;
-import com.example.starhub.dto.request.CreateProfileRequestDto;
-import com.example.starhub.dto.request.CreateUserRequestDto;
-import com.example.starhub.dto.request.UsernameCheckRequestDto;
+import com.example.starhub.dto.request.*;
 import com.example.starhub.dto.response.PostResponseDto;
 import com.example.starhub.dto.response.ProfileResponseDto;
 import com.example.starhub.dto.response.UserResponseDto;
@@ -15,6 +12,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -48,5 +46,17 @@ public interface PostControllerDocs {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "4") int size
     );
+
+    /**
+     * 포스트 수정하기
+     */
+    @Operation(
+            summary = "포스트 수정하기",
+            description = "포스트 수정하기를 진행합니다. 개설자만 이 포스트를 수정할 권한이 있습니다."
+    )
+    ResponseEntity<ResponseDto<PostResponseDto>> updatePost(
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long id,
+            @RequestBody PostUpdateRequestDto postUpdateRequestDto);
 
 }
