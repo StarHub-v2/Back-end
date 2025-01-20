@@ -90,8 +90,8 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponseDto(ErrorCode.UNAUTHORIZED));
     }
 
-    @ExceptionHandler(InvalidTokenException.class)
-    protected ResponseEntity<ErrorResponseDto> handleInvalidTokenException(final InvalidTokenException e) {
+    @ExceptionHandler(InvalidTokenMismatchException.class)
+    protected ResponseEntity<ErrorResponseDto> handleInvalidTokenException(final InvalidTokenMismatchException e) {
         log.error("handleInvalidTokenException : {}", e.getErrorCode().getMessage());
         return ResponseEntity
                 .status(ErrorCode.UNAUTHORIZED.getStatus().value())

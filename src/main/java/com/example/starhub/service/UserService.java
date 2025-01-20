@@ -133,6 +133,13 @@ public class UserService {
         return newAccessToken + "," + newRefreshToken;
     }
 
+    /**
+     * Redis에 저장된 Refresh Token과 비교하여 유효성 검증
+     *
+     * @param refreshToken Refresh Token
+     * @param username 사용자명
+     * @return Redis에 저장된 Refresh Token Key (유효성 검증 성공 시 반환)
+     */
     private String validateRedisToken(String refreshToken, String username) {
         String refreshTokenKey = REFRESH_TOKEN_PREFIX + username;
         Optional<String> storedTokenOptional = redisService.getValues(refreshTokenKey);
@@ -144,11 +151,16 @@ public class UserService {
 
         // 값이 다른 경우 예외 처리
         if (!MessageDigest.isEqual(refreshToken.getBytes(), storedToken.getBytes())) {
-            throw new InvalidTokenException(ErrorCode.INVALID_TOKEN);
+            throw new InvalidTokenMismatchException(ErrorCode.INVALID_TOKEN_MISMATCH);
         }
         return refreshTokenKey;
     }
 
+    /**
+     * Refresh Token이 만료되었거나 잘못된 경우를 검증
+     *
+     * @param refreshToken Refresh Token
+     */
     private void validateRefreshToken(String refreshToken) {
         if (jwtUtil.isExpired(refreshToken)) {
             throw new TokenExpiredException(ErrorCode.TOKEN_EXPIRED);
