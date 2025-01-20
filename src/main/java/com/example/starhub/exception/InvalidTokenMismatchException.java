@@ -6,6 +6,6 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class InvalidTokenException extends RuntimeException {
+public class InvalidTokenMismatchException extends RuntimeException {
     private final ErrorCode errorCode;
 }

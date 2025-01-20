@@ -12,7 +12,7 @@ public enum ErrorCode {
      * 400 BAD_REQUEST: 잘못된 요청
      */
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
-    USERNAME_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 사용 중인 아이디입니다."),
+    USERNAME_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 사용 중인 사용자명입니다."),
 
     /**
      * 401 UNAUTHORIZED
@@ -22,7 +22,7 @@ public enum ErrorCode {
     TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "토큰이 만료되었습니다."),
     INVALID_TOKEN_CATEGORY(HttpStatus.UNAUTHORIZED, "잘못된 토큰 카테고리입니다."),
     TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "Redis에 토큰이 존재하지 않습니다."),
-    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "잘못된 토큰의 형식입니다."),
+    INVALID_TOKEN_MISMATCH(HttpStatus.UNAUTHORIZED, "요청된 토큰이 서버에 저장된 값과 일치하지 않습니다."),
 
     /**
      * 403 FORBIDDEN: 접근 금지(권한이 없는 경우)

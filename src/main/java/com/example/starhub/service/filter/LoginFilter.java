@@ -1,13 +1,12 @@
 package com.example.starhub.service.filter;
 
-import com.example.starhub.service.RedisService;
 import com.example.starhub.dto.request.CreateUserRequestDto;
 import com.example.starhub.dto.response.UserResponseDto;
 import com.example.starhub.dto.response.util.ResponseUtil;
 import com.example.starhub.dto.security.CustomUserDetails;
 import com.example.starhub.response.code.ErrorCode;
 import com.example.starhub.response.code.ResponseCode;
-import com.example.starhub.response.dto.ResponseDto;
+import com.example.starhub.service.RedisService;
 import com.example.starhub.util.JWTUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,12 +15,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.util.StreamUtils;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -29,8 +26,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.Collection;
-import java.util.Iterator;
 
 /**
  * 로그인 요청을 처리하는 필터
@@ -79,34 +74,20 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
      * - Access 및 Refresh 토큰을 생성하고 응답으에 포함합니다.
      */
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) {
         CustomUserDetails customUserDetails = (CustomUserDetails) authResult.getPrincipal();
-
         String username = customUserDetails.getUsername();
-
-        Collection<? extends GrantedAuthority> authorities = authResult.getAuthorities();
-        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
-        GrantedAuthority auth = iterator.next();
-        String role = auth.getAuthority();
+        String role = extractUserRole(authResult);
 
         // JWT 토큰 생성
         String access = jwtUtil.createJwt("access", username, role, ACCESS_TOKEN_EXPIRATION);
         String refresh = jwtUtil.createJwt("refresh", username, role, REFRESH_TOKEN_EXPIRATION);
 
         // Redis에 Refresh 키 저장
-        String refreshTokenKey = REFRESH_TOKEN_PREFIX + username;
-        redisService.setValues(refreshTokenKey, refresh, Duration.ofMillis(REFRESH_TOKEN_EXPIRATION));
+        storeRefreshTokenInRedis(username, refresh);
 
-        // 사용자 응답 DTO 생성
-        UserResponseDto userResponseDto = UserResponseDto.builder()
-                .username(username)
-                .isProfileComplete(customUserDetails.getIsProfileComplete())
-                .build();
-
-        // 응답 헤더와 쿠키에 토큰 포함
-        response.addHeader("Authorization", "Bearer " + access);
-        response.addCookie(createCookie("refresh", refresh));
-        ResponseUtil.writeSuccessResponse(response, ResponseCode.SUCCESS_LOGIN, userResponseDto);
+        // 응답 작성
+        sendSuccessResponse(response, access, refresh, customUserDetails);
     }
 
     /**
@@ -114,7 +95,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
      * - 발생한 예외에 따라 적절한 에러 응답을 반환합니다.
      */
     @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
 
         ErrorCode errorCode;
 
@@ -144,6 +125,38 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         } catch (IOException e) {
             throw new IllegalArgumentException("요청 데이터를 처리하는 중 오류가 발생했습니다.", e);
         }
+    }
+
+    /**
+     * 인증 결과에서 사용자 역할을 추출하는 메서드
+     */
+    private String extractUserRole(Authentication authResult) {
+        return authResult.getAuthorities().stream().findFirst()
+                .map(GrantedAuthority::getAuthority)
+                .orElseThrow(() -> new IllegalStateException("User role not found."));
+    }
+
+    /**
+     * Redis에 Refresh Token을 저장하는 메서드
+     */
+    private void storeRefreshTokenInRedis(String username, String refreshToken) {
+        String refreshTokenKey = REFRESH_TOKEN_PREFIX + username;
+        redisService.setValues(refreshTokenKey, refreshToken, Duration.ofMillis(REFRESH_TOKEN_EXPIRATION));
+    }
+
+    /**
+     * 로그인 성공 시 클라이언트로 성공 응답을 전송하는 메서드.
+     */
+    private void sendSuccessResponse(HttpServletResponse response, String accessToken, String refreshToken, CustomUserDetails customUserDetails) {
+        response.addHeader("Authorization", "Bearer " + accessToken);
+        response.addCookie(createCookie("refresh", refreshToken));
+
+        UserResponseDto userResponseDto = UserResponseDto.builder()
+                .username(customUserDetails.getUsername())
+                .isProfileComplete(customUserDetails.getIsProfileComplete())
+                .build();
+
+        ResponseUtil.writeSuccessResponse(response, ResponseCode.SUCCESS_LOGIN, userResponseDto);
     }
 
     /**
