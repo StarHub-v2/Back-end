@@ -103,10 +103,11 @@ public class PostService {
     }
 
     /**
-     * 포스트 업데이트
+     * 포스트 수정하기
+     * - 개설자만 포스트 정보를 수정할 수 있음
      *
      * @param username JWT를 통해 인증된 사용자명
-     * @param id 포스트 아이디
+     * @param id 수정할 포스트 아이디
      * @param postUpdateRequestDto 업데이트할 포스트 정보가 담긴 DTO
      * @return 포스트에 대한 응답 DTO
      */
@@ -132,6 +133,29 @@ public class PostService {
 
         return PostResponseDto.fromEntity(postEntity, techStackNames);
 
+    }
+
+    /**
+     * 포스트 삭제하기
+     * - 개설자만 포스트 삭제할 수 있음
+     *
+     * @param username JWT를 통해 인증된 사용자명
+     * @param postId 삭제할 포스트 아이디
+     */
+    public void deletePost(String username, Long postId) {
+        PostEntity postEntity = postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException(ErrorCode.POST_NOT_FOUND));
+
+        // 개설자가 아닌 경우 예외 처리
+        if(!postEntity.getCreator().getUsername().equals(username)) {
+            throw new PostCreatorAuthorizationException(ErrorCode.POST_MODIFY_FORBIDDEN);
+        }
+
+        postTechStackRepository.deleteByPost(postEntity);
+
+        likeRepository.deleteByPost(postEntity);
+
+        postRepository.delete(postEntity);
     }
 
     /**

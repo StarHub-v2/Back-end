@@ -7,4 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface LikeRepository extends JpaRepository<LikeEntity, Long> {
     Long countByPost(PostEntity postEntity);
     Boolean existsByPostAndUserUsername(PostEntity postEntity, String username);
+    void deleteByPost(PostEntity postEntity);
 }

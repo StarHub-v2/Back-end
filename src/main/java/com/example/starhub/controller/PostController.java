@@ -83,7 +83,11 @@ public class PostController implements PostControllerDocs {
      * 포스트 삭제하기
      */
     @DeleteMapping("/posts/{id}")
-    public ResponseEntity<ResponseDto> deletePost() {
+    public ResponseEntity<ResponseDto> deletePost(
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long id
+    ) {
+        postService.deletePost(customUserDetails.getUsername(), id);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_DELETE_POST.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_DELETE_POST, null));
