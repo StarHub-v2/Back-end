@@ -1,15 +1,14 @@
 package com.example.starhub.dto.response;
 
 import com.example.starhub.entity.PostEntity;
+import com.example.starhub.entity.UserEntity;
 import com.example.starhub.entity.enums.Duration;
 import com.example.starhub.entity.enums.RecruitmentType;
-import com.example.starhub.entity.UserEntity;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter

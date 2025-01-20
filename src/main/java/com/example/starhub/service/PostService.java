@@ -3,6 +3,7 @@ package com.example.starhub.service;
 import com.example.starhub.dto.request.CreatePostRequestDto;
 import com.example.starhub.dto.request.PostUpdateRequestDto;
 import com.example.starhub.dto.response.LikeDto;
+import com.example.starhub.dto.response.PostDetailResponseDto;
 import com.example.starhub.dto.response.PostResponseDto;
 import com.example.starhub.dto.response.PostSummaryResponseDto;
 import com.example.starhub.entity.PostEntity;
@@ -32,12 +33,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PostService {
 
-    private static final Logger log = LoggerFactory.getLogger(PostService.class);
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final TechStackRepository techStackRepository;
     private final PostTechStackRepository postTechStackRepository;
     private final LikeRepository likeRepository;
+    private final ApplicantsRepository applicantsRepository;
 
     /**
      * 새로운 포스트(스터디/프로젝트)를 생성하는 메서드
@@ -75,31 +76,39 @@ public class PostService {
      * @param size 페이지 크기
      * @return 포스트 목록 응답 DTO
      */
+    @Transactional(readOnly = true)
     public Page<PostSummaryResponseDto> getPostList(String username, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Order.desc("createdAt")));
         Page<PostEntity> postPage = postRepository.findAll(pageRequest);
 
         return postPage.map(postEntity -> {
-            List<String> techStacks = postTechStackRepository.findByPost(postEntity).stream()
-                    .map(postTechStack -> postTechStack.getTechStack().getName())
-                    .collect(Collectors.toList());
+            List<String> techStacks = getTechStacksForPost(postEntity);
+            LikeDto likeDto = getLikeDtoForPost(postEntity, username);
 
-            // 총 좋아요 수
-            Long likeCount = likeRepository.countByPost(postEntity);
-
-            // 내가 좋아요를 눌렀는지 여부
-            Boolean isLiked = likeRepository.existsByPostAndUserUsername(postEntity, username);
-
-            // LikeDto 생성
-            LikeDto likeDto = LikeDto.builder()
-                    .likeCount(likeCount)
-                    .isLiked(isLiked)
-                    .build();
-
-            // PostSummaryResponseDto 반환
             return PostSummaryResponseDto.fromEntity(postEntity, techStacks, likeDto);
         });
+    }
 
+    /**
+     * 특정 포스트의 상세 정보를 가져옵니다.
+     * - 포스트의 생성자인지 확인하고, 지원 상태, 기술 스택, 좋아요 정보를 포함한 상세 정보를 반환합니다.
+     *
+     * @param username 포스트 상세 정보를 요청한 사용자의 사용자명
+     * @param id 포스트의 고유 ID
+     * @return 포스트의 상세 정보 DTO (PostDetailResponseDto)
+     */
+    @Transactional(readOnly = true)
+    public PostDetailResponseDto getPostDetail(String username, Long id) {
+        PostEntity postEntity = postRepository.findById(id)
+                .orElseThrow(() -> new PostNotFoundException(ErrorCode.POST_NOT_FOUND));
+
+        Boolean isCreator = postEntity.getCreator().getUsername().equals(username);
+        Boolean applicationStatus = isCreator ? null : getApplicationStatus(username, postEntity);
+
+        List<String> techStacks = getTechStacksForPost(postEntity);
+        LikeDto likeDto = getLikeDtoForPost(postEntity, username);
+
+        return PostDetailResponseDto.fromEntity(isCreator, applicationStatus, postEntity, techStacks, likeDto);
     }
 
     /**
@@ -262,5 +271,48 @@ public class PostService {
                 );
             });
         }
+    }
+
+    /**
+     * 포스트에 연결된 기술 스택을 반환하는 메서드
+     *
+     * @param postEntity 포스트 엔티티
+     * @return 기술 스택 이름 리스트
+     */
+    private List<String> getTechStacksForPost(PostEntity postEntity) {
+        return postTechStackRepository.findByPost(postEntity).stream()
+                .map(postTechStack -> postTechStack.getTechStack().getName())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 포스트에 대한 좋아요 정보 및 내가 좋아요를 눌렀는지 여부를 반환하는 메서드
+     *
+     * @param postEntity 포스트 엔티티
+     * @param username   사용자명
+     * @return 좋아요 DTO
+     */
+    private LikeDto getLikeDtoForPost(PostEntity postEntity, String username) {
+        Long likeCount = likeRepository.countByPost(postEntity);
+        Boolean isLiked = likeRepository.existsByPostAndUserUsername(postEntity, username);
+
+        return LikeDto.builder()
+                .likeCount(likeCount)
+                .isLiked(isLiked)
+                .build();
+    }
+
+    /**
+     * 사용자가 해당 포스트에 지원했는지 여부를 반환하는 메서드
+     *
+     * @param username   사용자명
+     * @param postEntity 포스트 엔티티
+     * @return 지원 여부
+     */
+    private Boolean getApplicationStatus(String username, PostEntity postEntity) {
+        UserEntity userEntity = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
+
+        return applicantsRepository.existsByPostAndAuthor(postEntity, userEntity);
     }
 }

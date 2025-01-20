@@ -3,6 +3,7 @@ package com.example.starhub.controller;
 import com.example.starhub.controller.docs.PostControllerDocs;
 import com.example.starhub.dto.request.CreatePostRequestDto;
 import com.example.starhub.dto.request.PostUpdateRequestDto;
+import com.example.starhub.dto.response.PostDetailResponseDto;
 import com.example.starhub.dto.response.PostResponseDto;
 import com.example.starhub.dto.response.PostSummaryResponseDto;
 import com.example.starhub.dto.security.CustomUserDetails;
@@ -57,11 +58,15 @@ public class PostController implements PostControllerDocs {
     /**
      * 포스트 상세 불러오기
      */
-    @PostMapping("/posts/{id}")
-    public ResponseEntity<ResponseDto> getPostDetail() {
+    @GetMapping("/posts/{id}")
+    public ResponseEntity<ResponseDto<PostDetailResponseDto>> getPostDetail(
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long id) {
+
+        PostDetailResponseDto res = postService.getPostDetail(customUserDetails.getUsername(), id);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_GET_POST_DETAIL.getStatus().value())
-                .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_POST_DETAIL, null));
+                .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_POST_DETAIL, res));
     }
 
     /**
