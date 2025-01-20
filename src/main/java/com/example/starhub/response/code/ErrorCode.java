@@ -27,11 +27,18 @@ public enum ErrorCode {
     /**
      * 403 FORBIDDEN: 접근 금지(권한이 없는 경우)
      */
+    POST_MODIFY_FORBIDDEN(HttpStatus.FORBIDDEN, "게시글 수정 또는 삭제 권한이 없습니다."),
 
     /**
      * 404 NOT_FOUND: 리소스를 찾을 수 없음
      */
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 사용자를 찾을 수 없습니다."),
+    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 포스트를 찾을 수 없습니다."),
+
+    /**
+     * 409 CONFLICT: 리소스 충돌 (이미 존재하는 경우)
+     */
+    USER_PROFILE_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 프로필이 생성되었습니다."),
 
     /**
      * 500 INTERNAL_SERVER_ERROR: 내부 서버 오류

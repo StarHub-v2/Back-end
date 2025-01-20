@@ -48,26 +48,20 @@ public class UserEntity {
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
-    private LocalDateTime created_at; // 생성일
+    private LocalDateTime createdAt; // 생성일
 
     @LastModifiedDate
     @Column(nullable = false)
-    private LocalDateTime updated_at; // 수정일
+    private LocalDateTime updatedAt; // 수정일
 
     private Boolean isProfileComplete; // 프로필 생성 여부
-
-    @PrePersist
-    private void prePersist() {
-        if (isProfileComplete == null) {
-            isProfileComplete = false;
-        }
-    }
 
     public static UserEntity createUser(String username, String password) {
         UserEntity user = new UserEntity();
         user.username = username;
         user.password = password;
         user.role = "ROLE_USER";
+        user.isProfileComplete = false;
         return user;
     }
 

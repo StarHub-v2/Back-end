@@ -6,13 +6,11 @@ import com.example.starhub.dto.request.UsernameCheckRequestDto;
 import com.example.starhub.dto.response.ProfileResponseDto;
 import com.example.starhub.dto.response.UserResponseDto;
 import com.example.starhub.dto.response.UsernameCheckResponseDto;
-import com.example.starhub.dto.response.util.ResponseUtil;
 import com.example.starhub.entity.UserEntity;
 import com.example.starhub.exception.*;
 import com.example.starhub.repository.UserRepository;
 import com.example.starhub.response.code.ErrorCode;
 import com.example.starhub.util.JWTUtil;
-import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -70,6 +68,7 @@ public class UserService {
      * @param usernameCheckRequestDto 사용자명 중복 요청 DTO
      * @return UsernameCheckResponseDto 사용자명 중복 여부가 담긴 DTO
      */
+    @Transactional(readOnly = true)
     public UsernameCheckResponseDto checkUsernameDuplicate(UsernameCheckRequestDto usernameCheckRequestDto) {
         String username = usernameCheckRequestDto.getUsername();
         boolean isAvailable = !userRepository.existsByUsername(username);
@@ -79,13 +78,17 @@ public class UserService {
     /**
      * 프로필 생성하기(2차 회원가입)
      *
-     * @param userId 유저 아이디
+     * @param username 사용자명
      * @param createProfileRequestDto 프로필 생성 요청 DTO
      * @return ProfileResponseDto 프로필 생성 응답 DTO
      */
-    public ProfileResponseDto createUserProfile(Long userId, CreateProfileRequestDto createProfileRequestDto) {
-        UserEntity user = userRepository.findById(userId)
+    public ProfileResponseDto createUserProfile(String username, CreateProfileRequestDto createProfileRequestDto) {
+        UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
+
+        if(user.getIsProfileComplete()) {
+            throw new UserProfileAlreadyExistsException(ErrorCode.USER_PROFILE_ALREADY_EXISTS);
+        }
 
         user.updateProfile(
                 createProfileRequestDto.getProfileImage(),
@@ -101,12 +104,6 @@ public class UserService {
                 .id(user.getId())
                 .nickname(user.getNickname())
                 .build();
-    }
-
-    public Long findUserIdByUsername(String username) {
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
-        return user.getId();
     }
 
     /**
