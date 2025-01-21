@@ -25,11 +25,11 @@ public class ApplicationService {
     private final PostRepository postRepository;
     private final ApplicationRepository applicationRepository;
 
-    public ApplicationResponseDto createApplication(String username, CreateApplicationRequestDto createApplicationRequestDto) {
+    public ApplicationResponseDto createApplication(String username, Long postId, CreateApplicationRequestDto createApplicationRequestDto) {
         UserEntity userEntity = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
 
-        PostEntity postEntity = postRepository.findById(createApplicationRequestDto.getPostId())
+        PostEntity postEntity = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(ErrorCode.POST_NOT_FOUND));
 
         // 개설자일 경우 409 예외 처리

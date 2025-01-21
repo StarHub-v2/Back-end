@@ -13,7 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/posts/{postId}")
 @RequiredArgsConstructor
 public class ApplicationController {
 
@@ -25,10 +25,10 @@ public class ApplicationController {
     @PostMapping("/applications")
     public ResponseEntity<ResponseDto> createApplication(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestBody CreateApplicationRequestDto createApplicationRequestDto
-    ) {
+            @PathVariable Long postId,
+            @RequestBody CreateApplicationRequestDto createApplicationRequestDto) {
 
-        ApplicationResponseDto res = applicationService.createApplication(customUserDetails.getUsername(), createApplicationRequestDto);
+        ApplicationResponseDto res = applicationService.createApplication(customUserDetails.getUsername(), postId, createApplicationRequestDto);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_CREATE_APPLICANT.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_CREATE_APPLICANT, res));
