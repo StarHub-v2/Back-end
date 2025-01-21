@@ -11,7 +11,7 @@ import com.example.starhub.entity.PostTechStackEntity;
 import com.example.starhub.entity.TechStackEntity;
 import com.example.starhub.entity.UserEntity;
 import com.example.starhub.entity.enums.TechCategory;
-import com.example.starhub.exception.PostCreatorAuthorizationException;
+import com.example.starhub.exception.CreatorAuthorizationException;
 import com.example.starhub.exception.PostNotFoundException;
 import com.example.starhub.exception.UserNotFoundException;
 import com.example.starhub.repository.*;
@@ -125,7 +125,7 @@ public class PostService {
 
         // 개설자가 아닌 경우 예외 처리
         if(!postEntity.getCreator().getUsername().equals(username)) {
-            throw new PostCreatorAuthorizationException(ErrorCode.POST_MODIFY_FORBIDDEN);
+            throw new CreatorAuthorizationException(ErrorCode.POST_MODIFY_FORBIDDEN);
         }
 
         postEntity.updatePost(postUpdateRequestDto);
@@ -155,7 +155,7 @@ public class PostService {
 
         // 개설자가 아닌 경우 예외 처리
         if(!postEntity.getCreator().getUsername().equals(username)) {
-            throw new PostCreatorAuthorizationException(ErrorCode.POST_MODIFY_FORBIDDEN);
+            throw new CreatorAuthorizationException(ErrorCode.POST_MODIFY_FORBIDDEN);
         }
 
         postTechStackRepository.deleteByPost(postEntity);

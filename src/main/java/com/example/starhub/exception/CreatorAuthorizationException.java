@@ -6,6 +6,6 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class PostCreatorAuthorizationException extends RuntimeException {
+public class CreatorAuthorizationException extends RuntimeException {
     private final ErrorCode errorCode;
 }

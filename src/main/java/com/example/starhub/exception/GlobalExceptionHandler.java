@@ -117,8 +117,8 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponseDto(ErrorCode.POST_NOT_FOUND));
     }
 
-    @ExceptionHandler(PostCreatorAuthorizationException.class)
-    protected ResponseEntity<ErrorResponseDto> handlePostCreatorAuthorizationException(final PostCreatorAuthorizationException e) {
+    @ExceptionHandler(CreatorAuthorizationException.class)
+    protected ResponseEntity<ErrorResponseDto> handlePostCreatorAuthorizationException(final CreatorAuthorizationException e) {
         log.error("handlePostCreatorAuthorizationException : {}", e.getErrorCode().getMessage());
         return ResponseEntity
                 .status(ErrorCode.POST_MODIFY_FORBIDDEN.getStatus().value())
@@ -126,7 +126,7 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * APPLICANT
+     * APPLICATION
      */
     @ExceptionHandler(PostCreatorCannotApplyException.class)
     protected ResponseEntity<ErrorResponseDto> handlePostCreatorCannotApplyException(final PostCreatorCannotApplyException e) {
@@ -134,6 +134,22 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(ErrorCode.POST_CREATOR_CANNOT_APPLY.getStatus().value())
                 .body(new ErrorResponseDto(ErrorCode.POST_CREATOR_CANNOT_APPLY));
+    }
+
+    @ExceptionHandler(ApplicationNotFoundException.class)
+    protected ResponseEntity<ErrorResponseDto> handleApplicationNotFoundException(final ApplicationNotFoundException e) {
+        log.error("handleApplicationNotFoundException : {}", e.getErrorCode().getMessage());
+        return ResponseEntity
+                .status(ErrorCode.APPLICATION_NOT_FOUND.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.APPLICATION_NOT_FOUND));
+    }
+
+    @ExceptionHandler(ApplicantAuthorizationException.class)
+    protected ResponseEntity<ErrorResponseDto> handleApplicantAuthorizationException(final ApplicantAuthorizationException e) {
+        log.error("handleApplicantAuthorizationException : {}", e.getErrorCode().getMessage());
+        return ResponseEntity
+                .status(ErrorCode.APPLICATION_VIEW_FORBIDDEN.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.APPLICATION_VIEW_FORBIDDEN));
     }
 
 

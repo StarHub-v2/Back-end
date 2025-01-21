@@ -55,10 +55,15 @@ public class ApplicationController {
      * 지원서 상세 불러오기
      */
     @GetMapping("/applications/{applicationId}")
-    public ResponseEntity<ResponseDto> getApplicationDetail() {
+    public ResponseEntity<ResponseDto> getApplicationDetail(
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long postId,
+            @PathVariable Long applicationId) {
+
+        ApplicationResponseDto res = applicationService.getApplicationDetail(customUserDetails.getUsername(), postId, applicationId);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_GET_APPLICANT_DETAIL.getStatus().value())
-                .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_APPLICANT_DETAIL, null));
+                .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_APPLICANT_DETAIL, res));
     }
 
     /**

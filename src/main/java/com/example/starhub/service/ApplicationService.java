@@ -5,10 +5,7 @@ import com.example.starhub.dto.response.ApplicationResponseDto;
 import com.example.starhub.entity.ApplicationEntity;
 import com.example.starhub.entity.PostEntity;
 import com.example.starhub.entity.UserEntity;
-import com.example.starhub.exception.PostCreatorAuthorizationException;
-import com.example.starhub.exception.PostCreatorCannotApplyException;
-import com.example.starhub.exception.PostNotFoundException;
-import com.example.starhub.exception.UserNotFoundException;
+import com.example.starhub.exception.*;
 import com.example.starhub.repository.ApplicationRepository;
 import com.example.starhub.repository.PostRepository;
 import com.example.starhub.repository.UserRepository;
@@ -77,7 +74,7 @@ public class ApplicationService {
 
         // 개설자가 아닌 경우 예외 처리
         if(!postEntity.getCreator().getUsername().equals(username)) {
-            throw new PostCreatorAuthorizationException(ErrorCode.POST_MODIFY_FORBIDDEN);
+            throw new CreatorAuthorizationException(ErrorCode.POST_MODIFY_FORBIDDEN);
         }
 
         List<ApplicationEntity> applicantEntities = applicationRepository.findByPost(postEntity);
@@ -85,6 +82,28 @@ public class ApplicationService {
         return applicantEntities.stream()
                 .map(applicant -> ApplicationResponseDto.fromEntity(applicant))
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public ApplicationResponseDto getApplicationDetail(String username, Long postId, Long applicationId) {
+        if (!postRepository.existsById(postId)) {
+            throw new PostNotFoundException(ErrorCode.POST_NOT_FOUND);
+        }
+
+        ApplicationEntity applicationEntity = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ApplicationNotFoundException(ErrorCode.APPLICATION_NOT_FOUND));
+
+        // 해당 지원서가 포스트에 포함되는지 확인
+        if (!applicationEntity.getPost().getId().equals(postId)) {
+            throw new PostNotFoundException(ErrorCode.POST_NOT_FOUND);
+        }
+
+        if (!applicationEntity.getApplicant().getUsername().equals(username)) {
+            throw new ApplicantAuthorizationException(ErrorCode.APPLICATION_VIEW_FORBIDDEN);
+        }
+
+        // 지원서 상세 정보 반환
+        return ApplicationResponseDto.fromEntity(applicationEntity);
     }
 
 }
