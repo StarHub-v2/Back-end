@@ -48,7 +48,7 @@ public class ApplicationController {
     /**
      * 지원서 상세 불러오기
      */
-    @GetMapping("/applications/{id}")
+    @GetMapping("/applications/{applicationId}")
     public ResponseEntity<ResponseDto> getApplicationDetail() {
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_GET_APPLICANT_DETAIL.getStatus().value())
@@ -58,7 +58,7 @@ public class ApplicationController {
     /**
      * 지원서 수정하기
      */
-    @PatchMapping("/applications/{id}")
+    @PatchMapping("/applications/{applicationId}")
     public ResponseEntity<ResponseDto> updateApplication() {
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_UPDATE_APPLICANT.getStatus().value())
@@ -68,7 +68,7 @@ public class ApplicationController {
     /**
      * 지원서 삭제하기
      */
-    @DeleteMapping("/applications/{id}")
+    @DeleteMapping("/applications/{applicationId}")
     public ResponseEntity<ResponseDto> deleteApplication() {
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_DELETE_APPLICANT.getStatus().value())
