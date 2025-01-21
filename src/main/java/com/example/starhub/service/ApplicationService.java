@@ -27,6 +27,46 @@ public class ApplicationService {
     private final ApplicationRepository applicationRepository;
 
     /**
+     * 공통 검증 로직: 게시글 가져오기 및 상태 확인
+     */
+    private PostEntity validateAndGetPost(Long postId) {
+        PostEntity postEntity = postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException(ErrorCode.POST_NOT_FOUND));
+
+        if (postEntity.getIsConfirmed()) {
+            throw new StudyConfirmedException(ErrorCode.STUDY_CONFIRMED);
+        }
+
+        return postEntity;
+    }
+
+    /**
+     * 공통 검증 로직: 사용자가 게시글의 개설자인지 확인
+     */
+    private void validatePostCreator(PostEntity postEntity, String username) {
+        if (!postEntity.getCreator().getUsername().equals(username)) {
+            throw new CreatorAuthorizationException(ErrorCode.POST_FORBIDDEN);
+        }
+    }
+
+    /**
+     * 공통 검증 로직: 사용자가 지원자인지 확인
+     */
+    private void validateApplicant(ApplicationEntity applicationEntity, String username) {
+        if (!applicationEntity.getApplicant().getUsername().equals(username)) {
+            throw new ApplicantAuthorizationException(ErrorCode.APPLICATION_FORBIDDEN);
+        }
+    }
+
+    /**
+     * 공통 검증 로직: 사용자 가져오기
+     */
+    private UserEntity validateAndGetUser(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    /**
      * 지원서 작성하기
      * - 개설자는 지원서를 작성하지 못합니다
      *
@@ -36,11 +76,9 @@ public class ApplicationService {
      * @return 지원서 응답에 대한 DTO
      */
     public ApplicationResponseDto createApplication(String username, Long postId, ApplicationRequestDto applicationRequestDto) {
-        UserEntity userEntity = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
 
-        PostEntity postEntity = postRepository.findById(postId)
-                .orElseThrow(() -> new PostNotFoundException(ErrorCode.POST_NOT_FOUND));
+        UserEntity userEntity = validateAndGetUser(username);
+        PostEntity postEntity = validateAndGetPost(postId);
 
         // 개설자일 경우 409 예외 처리
         if(postEntity.getCreator().getUsername().equals(username)) {
@@ -69,13 +107,10 @@ public class ApplicationService {
     @Transactional(readOnly = true)
     public List<ApplicationResponseDto> getApplicationList(String username, Long postId) {
 
-        PostEntity postEntity = postRepository.findById(postId)
-                .orElseThrow(() -> new PostNotFoundException(ErrorCode.POST_NOT_FOUND));
+        PostEntity postEntity = validateAndGetPost(postId);
 
         // 개설자가 아닌 경우 예외 처리
-        if(!postEntity.getCreator().getUsername().equals(username)) {
-            throw new CreatorAuthorizationException(ErrorCode.POST_FORBIDDEN);
-        }
+        validatePostCreator(postEntity, username);
 
         List<ApplicationEntity> applicantEntities = applicationRepository.findByPost(postEntity);
 
@@ -95,9 +130,8 @@ public class ApplicationService {
      */
     @Transactional(readOnly = true)
     public ApplicationResponseDto getApplicationDetail(String username, Long postId, Long applicationId) {
-        if (!postRepository.existsById(postId)) {
-            throw new PostNotFoundException(ErrorCode.POST_NOT_FOUND);
-        }
+
+        validateAndGetPost(postId);
 
         ApplicationEntity applicationEntity = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new ApplicationNotFoundException(ErrorCode.APPLICATION_NOT_FOUND));
@@ -107,9 +141,8 @@ public class ApplicationService {
             throw new PostNotFoundException(ErrorCode.POST_NOT_FOUND);
         }
 
-        if (!applicationEntity.getApplicant().getUsername().equals(username)) {
-            throw new ApplicantAuthorizationException(ErrorCode.APPLICATION_FORBIDDEN);
-        }
+        // 지원자인지 확인
+        validateApplicant(applicationEntity, username);
 
         // 지원서 상세 정보 반환
         return ApplicationResponseDto.fromEntity(applicationEntity);
@@ -127,16 +160,13 @@ public class ApplicationService {
      */
     public ApplicationResponseDto updateApplication(String username, Long postId, Long applicationId, ApplicationRequestDto applicationRequestDto) {
 
-        if (!postRepository.existsById(postId)) {
-            throw new PostNotFoundException(ErrorCode.POST_NOT_FOUND);
-        }
+        validateAndGetPost(postId);
 
         ApplicationEntity applicationEntity = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new ApplicationNotFoundException(ErrorCode.APPLICATION_NOT_FOUND));
 
-        if (!applicationEntity.getApplicant().getUsername().equals(username)) {
-            throw new ApplicantAuthorizationException(ErrorCode.APPLICATION_FORBIDDEN);
-        }
+        // 지원자인지 확인
+        validateApplicant(applicationEntity, username);
 
         applicationEntity.updateContent(applicationRequestDto.getContent());
 

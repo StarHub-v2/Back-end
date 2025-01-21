@@ -152,5 +152,12 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponseDto(ErrorCode.APPLICATION_FORBIDDEN));
     }
 
+    @ExceptionHandler(StudyConfirmedException.class)
+    protected ResponseEntity<ErrorResponseDto> handleStudyConfirmedException(final StudyConfirmedException e) {
+        log.error("StudyConfirmedException : {}", e.getErrorCode().getMessage());
+        return ResponseEntity
+                .status(ErrorCode.STUDY_CONFIRMED.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.STUDY_CONFIRMED));
+    }
 
 }
