@@ -11,14 +11,12 @@ import com.example.starhub.entity.PostTechStackEntity;
 import com.example.starhub.entity.TechStackEntity;
 import com.example.starhub.entity.UserEntity;
 import com.example.starhub.entity.enums.TechCategory;
-import com.example.starhub.exception.PostCreatorAuthorizationException;
+import com.example.starhub.exception.CreatorAuthorizationException;
 import com.example.starhub.exception.PostNotFoundException;
 import com.example.starhub.exception.UserNotFoundException;
 import com.example.starhub.repository.*;
 import com.example.starhub.response.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -38,10 +36,10 @@ public class PostService {
     private final TechStackRepository techStackRepository;
     private final PostTechStackRepository postTechStackRepository;
     private final LikeRepository likeRepository;
-    private final ApplicantsRepository applicantsRepository;
+    private final ApplicationRepository applicationRepository;
 
     /**
-     * 새로운 포스트(스터디/프로젝트)를 생성하는 메서드
+     * 새로운 포스트(스터디/프로젝트)를 생성하기
      *
      * @param username JWT를 통해 인증된 사용자명
      * @param createPostRequestDto 포스트 생성에 필요한 데이터를 담고 있는 요청 DTO
@@ -94,12 +92,12 @@ public class PostService {
      * - 포스트의 생성자인지 확인하고, 지원 상태, 기술 스택, 좋아요 정보를 포함한 상세 정보를 반환합니다.
      *
      * @param username 포스트 상세 정보를 요청한 사용자의 사용자명
-     * @param id 포스트의 고유 ID
+     * @param postId 포스트의 고유 ID
      * @return 포스트의 상세 정보 DTO (PostDetailResponseDto)
      */
     @Transactional(readOnly = true)
-    public PostDetailResponseDto getPostDetail(String username, Long id) {
-        PostEntity postEntity = postRepository.findById(id)
+    public PostDetailResponseDto getPostDetail(String username, Long postId) {
+        PostEntity postEntity = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(ErrorCode.POST_NOT_FOUND));
 
         Boolean isCreator = postEntity.getCreator().getUsername().equals(username);
@@ -116,18 +114,18 @@ public class PostService {
      * - 개설자만 포스트 정보를 수정할 수 있음
      *
      * @param username JWT를 통해 인증된 사용자명
-     * @param id 수정할 포스트 아이디
+     * @param postId 수정할 포스트 아이디
      * @param postUpdateRequestDto 업데이트할 포스트 정보가 담긴 DTO
      * @return 포스트에 대한 응답 DTO
      */
-    public PostResponseDto updatePost(String username, Long id, PostUpdateRequestDto postUpdateRequestDto) {
+    public PostResponseDto updatePost(String username, Long postId, PostUpdateRequestDto postUpdateRequestDto) {
 
-        PostEntity postEntity = postRepository.findById(id)
+        PostEntity postEntity = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(ErrorCode.POST_NOT_FOUND));
 
         // 개설자가 아닌 경우 예외 처리
         if(!postEntity.getCreator().getUsername().equals(username)) {
-            throw new PostCreatorAuthorizationException(ErrorCode.POST_MODIFY_FORBIDDEN);
+            throw new CreatorAuthorizationException(ErrorCode.POST_FORBIDDEN);
         }
 
         postEntity.updatePost(postUpdateRequestDto);
@@ -157,7 +155,7 @@ public class PostService {
 
         // 개설자가 아닌 경우 예외 처리
         if(!postEntity.getCreator().getUsername().equals(username)) {
-            throw new PostCreatorAuthorizationException(ErrorCode.POST_MODIFY_FORBIDDEN);
+            throw new CreatorAuthorizationException(ErrorCode.POST_FORBIDDEN);
         }
 
         postTechStackRepository.deleteByPost(postEntity);
@@ -313,6 +311,6 @@ public class PostService {
         UserEntity userEntity = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
 
-        return applicantsRepository.existsByPostAndAuthor(postEntity, userEntity);
+        return applicationRepository.existsByPostAndApplicant(postEntity, userEntity);
     }
 }

@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/posts")
 @RequiredArgsConstructor
 public class PostController implements PostControllerDocs {
 
@@ -29,7 +29,7 @@ public class PostController implements PostControllerDocs {
     /**
      * 포스트(스터디 및 프로젝트) 업로드
      */
-    @PostMapping("/posts")
+    @PostMapping
     public ResponseEntity<ResponseDto<PostResponseDto>> createPost(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Valid @RequestBody CreatePostRequestDto createPostRequestDto) {
@@ -43,7 +43,7 @@ public class PostController implements PostControllerDocs {
     /**
      * 포스트 목록 불러오기 (메인 화면에 쓰일 API)
      */
-    @GetMapping("/posts")
+    @GetMapping
     public ResponseEntity<ResponseDto> getPostList(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestParam(defaultValue = "0") int page,
@@ -58,12 +58,12 @@ public class PostController implements PostControllerDocs {
     /**
      * 포스트 상세 불러오기
      */
-    @GetMapping("/posts/{id}")
+    @GetMapping("/{postId}")
     public ResponseEntity<ResponseDto<PostDetailResponseDto>> getPostDetail(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable Long id) {
+            @PathVariable Long postId) {
 
-        PostDetailResponseDto res = postService.getPostDetail(customUserDetails.getUsername(), id);
+        PostDetailResponseDto res = postService.getPostDetail(customUserDetails.getUsername(), postId);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_GET_POST_DETAIL.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_POST_DETAIL, res));
@@ -72,13 +72,13 @@ public class PostController implements PostControllerDocs {
     /**
      * 포스트 수정하기
      */
-    @PatchMapping("/posts/{id}")
+    @PatchMapping("/{postId}")
     public ResponseEntity<ResponseDto<PostResponseDto>> updatePost(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable Long id,
+            @PathVariable Long postId,
             @RequestBody PostUpdateRequestDto postUpdateRequestDto) {
 
-        PostResponseDto res = postService.updatePost(customUserDetails.getUsername(), id, postUpdateRequestDto);
+        PostResponseDto res = postService.updatePost(customUserDetails.getUsername(), postId, postUpdateRequestDto);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_UPDATE_POST.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_UPDATE_POST, res));
@@ -87,12 +87,12 @@ public class PostController implements PostControllerDocs {
     /**
      * 포스트 삭제하기
      */
-    @DeleteMapping("/posts/{id}")
+    @DeleteMapping("/{postId}")
     public ResponseEntity<ResponseDto> deletePost(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable Long id) {
+            @PathVariable Long postId) {
 
-        postService.deletePost(customUserDetails.getUsername(), id);
+        postService.deletePost(customUserDetails.getUsername(), postId);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_DELETE_POST.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_DELETE_POST, null));
