@@ -1,10 +1,15 @@
 package com.example.starhub.controller;
 
+import com.example.starhub.dto.request.CreateApplicantRequestDto;
+import com.example.starhub.dto.response.ApplicantResponseDto;
+import com.example.starhub.dto.security.CustomUserDetails;
 import com.example.starhub.response.code.ResponseCode;
 import com.example.starhub.response.dto.ResponseDto;
 import com.example.starhub.service.ApplicantService;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,10 +23,15 @@ public class ApplicantController {
      * 지원서 작성
      */
     @PostMapping("/applicants")
-    public ResponseEntity<ResponseDto> createApplicant() {
+    public ResponseEntity<ResponseDto> createApplicant(
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestBody CreateApplicantRequestDto createApplicantRequestDto
+    ) {
+
+        ApplicantResponseDto res = applicantService.createApplicant(customUserDetails.getUsername(), createApplicantRequestDto);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_CREATE_APPLICANT.getStatus().value())
-                .body(new ResponseDto<>(ResponseCode.SUCCESS_CREATE_APPLICANT, null));
+                .body(new ResponseDto<>(ResponseCode.SUCCESS_CREATE_APPLICANT, res));
     }
 
     /**

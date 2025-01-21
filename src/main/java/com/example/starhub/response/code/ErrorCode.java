@@ -39,6 +39,7 @@ public enum ErrorCode {
      * 409 CONFLICT: 리소스 충돌 (이미 존재하는 경우)
      */
     USER_PROFILE_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 프로필이 생성되었습니다."),
+    POST_CREATOR_CANNOT_APPLY(HttpStatus.CONFLICT, "개설자는 자신의 포스트에 지원할 수 없습니다."),
 
     /**
      * 500 INTERNAL_SERVER_ERROR: 내부 서버 오류

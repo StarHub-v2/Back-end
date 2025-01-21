@@ -125,4 +125,16 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponseDto(ErrorCode.POST_MODIFY_FORBIDDEN));
     }
 
+    /**
+     * APPLICANT
+     */
+    @ExceptionHandler(PostCreatorCannotApplyException.class)
+    protected ResponseEntity<ErrorResponseDto> handlePostCreatorCannotApplyException(final PostCreatorCannotApplyException e) {
+        log.error("handlePostCreatorCannotApplyException : {}", e.getErrorCode().getMessage());
+        return ResponseEntity
+                .status(ErrorCode.POST_CREATOR_CANNOT_APPLY.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.POST_CREATOR_CANNOT_APPLY));
+    }
+
+
 }
