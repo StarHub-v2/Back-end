@@ -87,7 +87,7 @@ public class PostController implements PostControllerDocs {
     /**
      * 포스트 삭제하기
      */
-    @DeleteMapping("/posts/{postId}")
+    @DeleteMapping("/{postId}")
     public ResponseEntity<ResponseDto> deletePost(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long postId) {
