@@ -39,7 +39,7 @@ public class PostService {
     private final ApplicationRepository applicationRepository;
 
     /**
-     * 새로운 포스트(스터디/프로젝트)를 생성하는 메서드
+     * 새로운 포스트(스터디/프로젝트)를 생성하기
      *
      * @param username JWT를 통해 인증된 사용자명
      * @param createPostRequestDto 포스트 생성에 필요한 데이터를 담고 있는 요청 DTO

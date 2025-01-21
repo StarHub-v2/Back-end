@@ -29,6 +29,15 @@ public class ApplicationService {
     private final PostRepository postRepository;
     private final ApplicationRepository applicationRepository;
 
+    /**
+     * 지원서 작성하기
+     * - 개설자는 지원서를 작성하지 못합니다
+     *
+     * @param username JWT를 통해 인증된 사용자명
+     * @param postId 포스트 아이디
+     * @param createApplicationRequestDto 지원서 관련 정보가 담긴 DTO
+     * @return 지원서 응답에 대한 DTO
+     */
     public ApplicationResponseDto createApplication(String username, Long postId, CreateApplicationRequestDto createApplicationRequestDto) {
         UserEntity userEntity = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
@@ -52,6 +61,14 @@ public class ApplicationService {
         return ApplicationResponseDto.fromEntity(savedApplicationEntity);
     }
 
+    /**
+     * 지원서 목록 불러오기
+     * - 개설자만 지원서 목록을 불러올 수 있음
+     *
+     * @param username JWT를 통해 인증된 사용자명
+     * @param postId 포스트 아이디
+     * @return 지원서 응답에 대한 목록 DTO
+     */
     @Transactional(readOnly = true)
     public List<ApplicationResponseDto> getApplicationList(String username, Long postId) {
 
@@ -69,4 +86,5 @@ public class ApplicationService {
                 .map(applicant -> ApplicationResponseDto.fromEntity(applicant))
                 .collect(Collectors.toList());
     }
+
 }
