@@ -47,6 +47,16 @@ public class CustomUserDetails implements UserDetails {
     }
 
     /**
+     * 사용자 닉네임을 반환합니다.
+     *
+     * @return 닉네임
+     */
+    public String getNickname() {
+        return userEntity.getIsProfileComplete() ? userEntity.getNickname() : "";
+    }
+
+
+    /**
      * 사용자의 비밀번호를 반환합니다.
      *
      * @return 사용자의 비밀번호

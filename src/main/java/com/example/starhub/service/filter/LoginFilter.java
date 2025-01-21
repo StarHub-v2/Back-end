@@ -1,6 +1,7 @@
 package com.example.starhub.service.filter;
 
 import com.example.starhub.dto.request.CreateUserRequestDto;
+import com.example.starhub.dto.response.LoginResponseDto;
 import com.example.starhub.dto.response.UserResponseDto;
 import com.example.starhub.dto.response.util.ResponseUtil;
 import com.example.starhub.dto.security.CustomUserDetails;
@@ -151,12 +152,13 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         response.addHeader("Authorization", "Bearer " + accessToken);
         response.addCookie(createCookie("refresh", refreshToken));
 
-        UserResponseDto userResponseDto = UserResponseDto.builder()
+        LoginResponseDto loginResponseDto = LoginResponseDto.builder()
                 .username(customUserDetails.getUsername())
+                .nickname(customUserDetails.getNickname())
                 .isProfileComplete(customUserDetails.getIsProfileComplete())
                 .build();
 
-        ResponseUtil.writeSuccessResponse(response, ResponseCode.SUCCESS_LOGIN, userResponseDto);
+        ResponseUtil.writeSuccessResponse(response, ResponseCode.SUCCESS_LOGIN, loginResponseDto);
     }
 
     /**
