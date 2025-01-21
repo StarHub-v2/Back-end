@@ -27,6 +27,15 @@ public enum ResponseCode {
     SUCCESS_UPDATE_POST(HttpStatus.OK, "포스트가 성공적으로 수정되었습니다."),
     SUCCESS_DELETE_POST(HttpStatus.OK, "포스트가 성공적으로 삭제되었습니다."),
 
+    /**
+     * APPLICANT
+     */
+    SUCCESS_CREATE_APPLICANT(HttpStatus.CREATED, "지원서가 성공적으로 생성되었습니다."),
+    SUCCESS_GET_APPLICANT_LIST(HttpStatus.OK, "지원서 목록을 성공적으로 불러왔습니다."),
+    SUCCESS_GET_APPLICANT_DETAIL(HttpStatus.OK, "지원서 상세 정보를 성공적으로 불러왔습니다."),
+    SUCCESS_UPDATE_APPLICANT(HttpStatus.OK, "지원서가 성공적으로 수정되었습니다."),
+    SUCCESS_DELETE_APPLICANT(HttpStatus.OK, "지원서가 성공적으로 삭제되었습니다."),
+
     ;
 
     private final HttpStatus status;

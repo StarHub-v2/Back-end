@@ -17,8 +17,6 @@ import com.example.starhub.exception.UserNotFoundException;
 import com.example.starhub.repository.*;
 import com.example.starhub.response.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -38,7 +36,7 @@ public class PostService {
     private final TechStackRepository techStackRepository;
     private final PostTechStackRepository postTechStackRepository;
     private final LikeRepository likeRepository;
-    private final ApplicantsRepository applicantsRepository;
+    private final ApplicantRepository applicantRepository;
 
     /**
      * 새로운 포스트(스터디/프로젝트)를 생성하는 메서드
@@ -313,6 +311,6 @@ public class PostService {
         UserEntity userEntity = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
 
-        return applicantsRepository.existsByPostAndAuthor(postEntity, userEntity);
+        return applicantRepository.existsByPostAndAuthor(postEntity, userEntity);
     }
 }
