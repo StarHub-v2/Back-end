@@ -3,7 +3,7 @@ package com.example.starhub.dto.request;
 import lombok.Getter;
 
 @Getter
-public class CreateApplicantRequestDto {
+public class CreateApplicationRequestDto {
 
    private Long postId;
     private String content;

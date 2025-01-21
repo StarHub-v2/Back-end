@@ -1,14 +1,14 @@
 package com.example.starhub.service;
 
-import com.example.starhub.dto.request.CreateApplicantRequestDto;
-import com.example.starhub.dto.response.ApplicantResponseDto;
-import com.example.starhub.entity.ApplicantEntity;
+import com.example.starhub.dto.request.CreateApplicationRequestDto;
+import com.example.starhub.dto.response.ApplicationResponseDto;
+import com.example.starhub.entity.ApplicationEntity;
 import com.example.starhub.entity.PostEntity;
 import com.example.starhub.entity.UserEntity;
 import com.example.starhub.exception.PostCreatorCannotApplyException;
 import com.example.starhub.exception.PostNotFoundException;
 import com.example.starhub.exception.UserNotFoundException;
-import com.example.starhub.repository.ApplicantRepository;
+import com.example.starhub.repository.ApplicationRepository;
 import com.example.starhub.repository.PostRepository;
 import com.example.starhub.repository.UserRepository;
 import com.example.starhub.response.code.ErrorCode;
@@ -19,17 +19,17 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class ApplicantService {
+public class ApplicationService {
 
     private final UserRepository userRepository;
     private final PostRepository postRepository;
-    private final ApplicantRepository applicantRepository;
+    private final ApplicationRepository applicationRepository;
 
-    public ApplicantResponseDto createApplicant(String username, CreateApplicantRequestDto createApplicantRequestDto) {
+    public ApplicationResponseDto createApplication(String username, CreateApplicationRequestDto createApplicationRequestDto) {
         UserEntity userEntity = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
 
-        PostEntity postEntity = postRepository.findById(createApplicantRequestDto.getPostId())
+        PostEntity postEntity = postRepository.findById(createApplicationRequestDto.getPostId())
                 .orElseThrow(() -> new PostNotFoundException(ErrorCode.POST_NOT_FOUND));
 
         // 개설자일 경우 409 예외 처리
@@ -37,14 +37,14 @@ public class ApplicantService {
             throw new PostCreatorCannotApplyException(ErrorCode.POST_CREATOR_CANNOT_APPLY);
         }
 
-        ApplicantEntity applicantEntity = ApplicantEntity.builder()
+        ApplicationEntity applicationEntity = ApplicationEntity.builder()
                 .applicant(userEntity)
-                .content(createApplicantRequestDto.getContent())
+                .content(createApplicationRequestDto.getContent())
                 .post(postEntity)
                 .build();
 
-        ApplicantEntity savedApplicantEntity = applicantRepository.save(applicantEntity);
+        ApplicationEntity savedApplicationEntity = applicationRepository.save(applicationEntity);
 
-        return ApplicantResponseDto.fromEntity(savedApplicantEntity);
+        return ApplicationResponseDto.fromEntity(savedApplicationEntity);
     }
 }

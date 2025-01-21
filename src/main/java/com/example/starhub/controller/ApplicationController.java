@@ -1,11 +1,11 @@
 package com.example.starhub.controller;
 
-import com.example.starhub.dto.request.CreateApplicantRequestDto;
-import com.example.starhub.dto.response.ApplicantResponseDto;
+import com.example.starhub.dto.request.CreateApplicationRequestDto;
+import com.example.starhub.dto.response.ApplicationResponseDto;
 import com.example.starhub.dto.security.CustomUserDetails;
 import com.example.starhub.response.code.ResponseCode;
 import com.example.starhub.response.dto.ResponseDto;
-import com.example.starhub.service.ApplicantService;
+import com.example.starhub.service.ApplicationService;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,20 +15,20 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
-public class ApplicantController {
+public class ApplicationController {
 
-    private final ApplicantService applicantService;
+    private final ApplicationService applicationService;
 
     /**
      * 지원서 작성
      */
-    @PostMapping("/applicants")
-    public ResponseEntity<ResponseDto> createApplicant(
+    @PostMapping("/applications")
+    public ResponseEntity<ResponseDto> createApplication(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestBody CreateApplicantRequestDto createApplicantRequestDto
+            @RequestBody CreateApplicationRequestDto createApplicationRequestDto
     ) {
 
-        ApplicantResponseDto res = applicantService.createApplicant(customUserDetails.getUsername(), createApplicantRequestDto);
+        ApplicationResponseDto res = applicationService.createApplication(customUserDetails.getUsername(), createApplicationRequestDto);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_CREATE_APPLICANT.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_CREATE_APPLICANT, res));
@@ -37,8 +37,8 @@ public class ApplicantController {
     /**
      * 지원서 목록 불러오기
      */
-    @GetMapping("/applicants")
-    public ResponseEntity<ResponseDto> getApplicantList() {
+    @GetMapping("/applications")
+    public ResponseEntity<ResponseDto> getApplicationList() {
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_GET_APPLICANT_LIST.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_APPLICANT_LIST, null));
@@ -48,8 +48,8 @@ public class ApplicantController {
     /**
      * 지원서 상세 불러오기
      */
-    @GetMapping("/applicants/{id}")
-    public ResponseEntity<ResponseDto> getApplicantDetail() {
+    @GetMapping("/applications/{id}")
+    public ResponseEntity<ResponseDto> getApplicationDetail() {
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_GET_APPLICANT_DETAIL.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_APPLICANT_DETAIL, null));
@@ -58,8 +58,8 @@ public class ApplicantController {
     /**
      * 지원서 수정하기
      */
-    @PatchMapping("/applicants/{id}")
-    public ResponseEntity<ResponseDto> updateApplicant() {
+    @PatchMapping("/applications/{id}")
+    public ResponseEntity<ResponseDto> updateApplication() {
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_UPDATE_APPLICANT.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_UPDATE_APPLICANT, null));
@@ -68,8 +68,8 @@ public class ApplicantController {
     /**
      * 지원서 삭제하기
      */
-    @DeleteMapping("/applicants/{id}")
-    public ResponseEntity<ResponseDto> deleteApplicant() {
+    @DeleteMapping("/applications/{id}")
+    public ResponseEntity<ResponseDto> deleteApplication() {
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_DELETE_APPLICANT.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_DELETE_APPLICANT, null));

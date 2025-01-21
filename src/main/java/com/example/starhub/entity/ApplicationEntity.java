@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class ApplicantEntity {
+public class ApplicationEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,7 +30,7 @@ public class ApplicantEntity {
     private LocalDateTime updatedAt;  // 수정 시간
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "applicant_id", nullable = false)
     private UserEntity applicant;  // 사용자(작성자)
 
     @ManyToOne(fetch = FetchType.LAZY)

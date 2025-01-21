@@ -1,6 +1,6 @@
 package com.example.starhub.dto.response;
 
-import com.example.starhub.entity.ApplicantEntity;
+import com.example.starhub.entity.ApplicationEntity;
 import com.example.starhub.entity.UserEntity;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class ApplicantResponseDto {
+public class ApplicationResponseDto {
 
     private Long id;
     private String content;
@@ -20,19 +20,19 @@ public class ApplicantResponseDto {
      * 지원서 관련 정보
      * - ApplicantEntity으로부터 ApplicantResponseDto를 생성합니다.
      *
-     * @param applicantEntity 지원서 엔티티
+     * @param applicationEntity 지원서 엔티티
      * @return 생성된 ApplicantResponseDto
      */
-    public static ApplicantResponseDto fromEntity(ApplicantEntity applicantEntity) {
-        UserEntity applicant = applicantEntity.getApplicant();
+    public static ApplicationResponseDto fromEntity(ApplicationEntity applicationEntity) {
+        UserEntity applicant = applicationEntity.getApplicant();
         ApplicantDto applicantDto = ApplicantDto.builder()
                 .username(applicant.getUsername())
                 .build();
 
-        return ApplicantResponseDto.builder()
-                .id(applicantEntity.getId())
-                .content(applicantEntity.getContent())
-                .updatedAt(applicantEntity.getUpdatedAt())
+        return ApplicationResponseDto.builder()
+                .id(applicationEntity.getId())
+                .content(applicationEntity.getContent())
+                .updatedAt(applicationEntity.getUpdatedAt())
                 .applicant(applicantDto)
                 .build();
     }

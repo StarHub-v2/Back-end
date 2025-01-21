@@ -36,7 +36,7 @@ public class PostService {
     private final TechStackRepository techStackRepository;
     private final PostTechStackRepository postTechStackRepository;
     private final LikeRepository likeRepository;
-    private final ApplicantRepository applicantRepository;
+    private final ApplicationRepository applicationRepository;
 
     /**
      * 새로운 포스트(스터디/프로젝트)를 생성하는 메서드
@@ -311,6 +311,6 @@ public class PostService {
         UserEntity userEntity = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
 
-        return applicantRepository.existsByPostAndApplicant(postEntity, userEntity);
+        return applicationRepository.existsByPostAndApplicant(postEntity, userEntity);
     }
 }
