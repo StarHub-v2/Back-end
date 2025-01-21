@@ -59,11 +59,11 @@ public class PostService {
         savePostTechStacks(savedPost, createPostRequestDto);
 
         // 저장된 포스트에 연결된 기술 스택 이름들을 리스트로 반환
-        List<String> techStackNames = postTechStackRepository.findByPost(savedPost).stream()
+        List<String> techStacks = postTechStackRepository.findByPost(savedPost).stream()
                 .map(postTechStack -> postTechStack.getTechStack().getName())
                 .toList();
 
-        return PostResponseDto.fromEntity(savedPost, techStackNames);
+        return PostResponseDto.fromEntity(savedPost, techStacks);
     }
 
     /**
@@ -136,11 +136,11 @@ public class PostService {
         updatePostTechStacks(postEntity, postUpdateRequestDto);
 
         // 저장된 포스트에 연결된 기술 스택 이름들을 리스트로 반환
-        List<String> techStackNames = postTechStackRepository.findByPost(postEntity).stream()
+        List<String> techStacks = postTechStackRepository.findByPost(postEntity).stream()
                 .map(postTechStack -> postTechStack.getTechStack().getName())
                 .toList();
 
-        return PostResponseDto.fromEntity(postEntity, techStackNames);
+        return PostResponseDto.fromEntity(postEntity, techStacks);
 
     }
 
