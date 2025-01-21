@@ -121,8 +121,8 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<ErrorResponseDto> handlePostCreatorAuthorizationException(final CreatorAuthorizationException e) {
         log.error("handlePostCreatorAuthorizationException : {}", e.getErrorCode().getMessage());
         return ResponseEntity
-                .status(ErrorCode.POST_MODIFY_FORBIDDEN.getStatus().value())
-                .body(new ErrorResponseDto(ErrorCode.POST_MODIFY_FORBIDDEN));
+                .status(ErrorCode.POST_FORBIDDEN.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.POST_FORBIDDEN));
     }
 
     /**
@@ -148,8 +148,8 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<ErrorResponseDto> handleApplicantAuthorizationException(final ApplicantAuthorizationException e) {
         log.error("handleApplicantAuthorizationException : {}", e.getErrorCode().getMessage());
         return ResponseEntity
-                .status(ErrorCode.APPLICATION_VIEW_FORBIDDEN.getStatus().value())
-                .body(new ErrorResponseDto(ErrorCode.APPLICATION_VIEW_FORBIDDEN));
+                .status(ErrorCode.APPLICATION_FORBIDDEN.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.APPLICATION_FORBIDDEN));
     }
 
 

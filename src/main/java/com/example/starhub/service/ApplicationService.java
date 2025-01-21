@@ -1,6 +1,6 @@
 package com.example.starhub.service;
 
-import com.example.starhub.dto.request.CreateApplicationRequestDto;
+import com.example.starhub.dto.request.ApplicationRequestDto;
 import com.example.starhub.dto.response.ApplicationResponseDto;
 import com.example.starhub.entity.ApplicationEntity;
 import com.example.starhub.entity.PostEntity;
@@ -32,10 +32,10 @@ public class ApplicationService {
      *
      * @param username JWT를 통해 인증된 사용자명
      * @param postId 포스트 아이디
-     * @param createApplicationRequestDto 지원서 관련 정보가 담긴 DTO
+     * @param applicationRequestDto 지원서 관련 정보가 담긴 DTO
      * @return 지원서 응답에 대한 DTO
      */
-    public ApplicationResponseDto createApplication(String username, Long postId, CreateApplicationRequestDto createApplicationRequestDto) {
+    public ApplicationResponseDto createApplication(String username, Long postId, ApplicationRequestDto applicationRequestDto) {
         UserEntity userEntity = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
 
@@ -49,7 +49,7 @@ public class ApplicationService {
 
         ApplicationEntity applicationEntity = ApplicationEntity.builder()
                 .applicant(userEntity)
-                .content(createApplicationRequestDto.getContent())
+                .content(applicationRequestDto.getContent())
                 .post(postEntity)
                 .build();
 
@@ -74,7 +74,7 @@ public class ApplicationService {
 
         // 개설자가 아닌 경우 예외 처리
         if(!postEntity.getCreator().getUsername().equals(username)) {
-            throw new CreatorAuthorizationException(ErrorCode.POST_MODIFY_FORBIDDEN);
+            throw new CreatorAuthorizationException(ErrorCode.POST_FORBIDDEN);
         }
 
         List<ApplicationEntity> applicantEntities = applicationRepository.findByPost(postEntity);
@@ -84,6 +84,15 @@ public class ApplicationService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 특정 지원서의 상세 정보를 불러오는 메소드
+     * - 작성자만 불러올 수 있음
+     *
+     * @param username JWT를 통해 인증된 사용자명
+     * @param postId 포스트 아이디
+     * @param applicationId 지원서 아이디
+     * @return 지원서 상세 정보 DTO
+     */
     @Transactional(readOnly = true)
     public ApplicationResponseDto getApplicationDetail(String username, Long postId, Long applicationId) {
         if (!postRepository.existsById(postId)) {
@@ -99,10 +108,38 @@ public class ApplicationService {
         }
 
         if (!applicationEntity.getApplicant().getUsername().equals(username)) {
-            throw new ApplicantAuthorizationException(ErrorCode.APPLICATION_VIEW_FORBIDDEN);
+            throw new ApplicantAuthorizationException(ErrorCode.APPLICATION_FORBIDDEN);
         }
 
         // 지원서 상세 정보 반환
+        return ApplicationResponseDto.fromEntity(applicationEntity);
+    }
+
+    /**
+     * 지원서 수정하기
+     * - 작성자만 수정할 수 있음
+     *
+     * @param username JWT를 통해 인증된 사용자명
+     * @param postId 포스트 아이디
+     * @param applicationId 지원서 아이디
+     * @param applicationRequestDto 수정할 지원서 내용
+     * @return 수정된 지원서에 대한 DTO
+     */
+    public ApplicationResponseDto updateApplication(String username, Long postId, Long applicationId, ApplicationRequestDto applicationRequestDto) {
+
+        if (!postRepository.existsById(postId)) {
+            throw new PostNotFoundException(ErrorCode.POST_NOT_FOUND);
+        }
+
+        ApplicationEntity applicationEntity = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ApplicationNotFoundException(ErrorCode.APPLICATION_NOT_FOUND));
+
+        if (!applicationEntity.getApplicant().getUsername().equals(username)) {
+            throw new ApplicantAuthorizationException(ErrorCode.APPLICATION_FORBIDDEN);
+        }
+
+        applicationEntity.updateContent(applicationRequestDto.getContent());
+
         return ApplicationResponseDto.fromEntity(applicationEntity);
     }
 

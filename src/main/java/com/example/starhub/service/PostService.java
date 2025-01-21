@@ -125,7 +125,7 @@ public class PostService {
 
         // 개설자가 아닌 경우 예외 처리
         if(!postEntity.getCreator().getUsername().equals(username)) {
-            throw new CreatorAuthorizationException(ErrorCode.POST_MODIFY_FORBIDDEN);
+            throw new CreatorAuthorizationException(ErrorCode.POST_FORBIDDEN);
         }
 
         postEntity.updatePost(postUpdateRequestDto);
@@ -155,7 +155,7 @@ public class PostService {
 
         // 개설자가 아닌 경우 예외 처리
         if(!postEntity.getCreator().getUsername().equals(username)) {
-            throw new CreatorAuthorizationException(ErrorCode.POST_MODIFY_FORBIDDEN);
+            throw new CreatorAuthorizationException(ErrorCode.POST_FORBIDDEN);
         }
 
         postTechStackRepository.deleteByPost(postEntity);

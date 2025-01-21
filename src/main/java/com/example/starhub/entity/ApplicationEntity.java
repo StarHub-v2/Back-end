@@ -36,4 +36,8 @@ public class ApplicationEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     private PostEntity post;  // 해당 포스트
+
+    public void updateContent(String content) {
+        this.content = content != null ? content : this.content;
+    }
 }

@@ -1,6 +1,6 @@
 package com.example.starhub.controller;
 
-import com.example.starhub.dto.request.CreateApplicationRequestDto;
+import com.example.starhub.dto.request.ApplicationRequestDto;
 import com.example.starhub.dto.response.ApplicationResponseDto;
 import com.example.starhub.dto.security.CustomUserDetails;
 import com.example.starhub.response.code.ResponseCode;
@@ -28,9 +28,9 @@ public class ApplicationController {
     public ResponseEntity<ResponseDto> createApplication(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long postId,
-            @RequestBody CreateApplicationRequestDto createApplicationRequestDto) {
+            @RequestBody ApplicationRequestDto applicationRequestDto) {
 
-        ApplicationResponseDto res = applicationService.createApplication(customUserDetails.getUsername(), postId, createApplicationRequestDto);
+        ApplicationResponseDto res = applicationService.createApplication(customUserDetails.getUsername(), postId, applicationRequestDto);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_CREATE_APPLICANT.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_CREATE_APPLICANT, res));
@@ -70,10 +70,16 @@ public class ApplicationController {
      * 지원서 수정하기
      */
     @PatchMapping("/applications/{applicationId}")
-    public ResponseEntity<ResponseDto> updateApplication() {
+    public ResponseEntity<ResponseDto> updateApplication(
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long postId,
+            @PathVariable Long applicationId,
+            @RequestBody ApplicationRequestDto applicationRequestDto) {
+
+        ApplicationResponseDto res = applicationService.updateApplication(customUserDetails.getUsername(), postId, applicationId, applicationRequestDto);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_UPDATE_APPLICANT.getStatus().value())
-                .body(new ResponseDto<>(ResponseCode.SUCCESS_UPDATE_APPLICANT, null));
+                .body(new ResponseDto<>(ResponseCode.SUCCESS_UPDATE_APPLICANT, res));
     }
 
     /**

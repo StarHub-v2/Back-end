@@ -27,8 +27,8 @@ public enum ErrorCode {
     /**
      * 403 FORBIDDEN: 접근 금지(권한이 없는 경우)
      */
-    POST_MODIFY_FORBIDDEN(HttpStatus.FORBIDDEN, "게시글 수정 또는 삭제 권한이 없습니다."),
-    APPLICATION_VIEW_FORBIDDEN(HttpStatus.FORBIDDEN, "지원서를 볼 권한이 없습니다."),
+    POST_FORBIDDEN(HttpStatus.FORBIDDEN, "해당 게시글에 대한 권한이 없습니다."),
+    APPLICATION_FORBIDDEN(HttpStatus.FORBIDDEN, "해당 지원서에 대한 권한이 없습니다."),
 
     /**
      * 404 NOT_FOUND: 리소스를 찾을 수 없음
