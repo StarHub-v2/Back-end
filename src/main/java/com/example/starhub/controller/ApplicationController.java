@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/posts/{postId}")
 @RequiredArgsConstructor
@@ -38,10 +40,14 @@ public class ApplicationController {
      * 지원서 목록 불러오기
      */
     @GetMapping("/applications")
-    public ResponseEntity<ResponseDto> getApplicationList() {
+    public ResponseEntity<ResponseDto> getApplicationList(
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long postId) {
+
+        List<ApplicationResponseDto> res = applicationService.getApplicationList(customUserDetails.getUsername(), postId);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_GET_APPLICANT_LIST.getStatus().value())
-                .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_APPLICANT_LIST, null));
+                .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_APPLICANT_LIST, res));
     }
 
 
