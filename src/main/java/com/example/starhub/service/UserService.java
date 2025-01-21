@@ -54,12 +54,9 @@ public class UserService {
 
         // DB 저장
         UserEntity user = UserEntity.createUser(username, password);
-        userRepository.save(user);
+        UserEntity savedUser = userRepository.save(user);
 
-        return UserResponseDto.builder()
-                .username(user.getUsername())
-                .isProfileComplete(user.getIsProfileComplete())
-                .build();
+        return UserResponseDto.fromEntity(savedUser);
     }
 
     /**
@@ -72,7 +69,7 @@ public class UserService {
     public UsernameCheckResponseDto checkUsernameDuplicate(UsernameCheckRequestDto usernameCheckRequestDto) {
         String username = usernameCheckRequestDto.getUsername();
         boolean isAvailable = !userRepository.existsByUsername(username);
-        return new UsernameCheckResponseDto(username, isAvailable);
+        return UsernameCheckResponseDto.from(username, isAvailable);
     }
 
     /**
@@ -100,10 +97,7 @@ public class UserService {
                 createProfileRequestDto.getPhoneNumber()
         );
 
-        return ProfileResponseDto.builder()
-                .id(user.getId())
-                .nickname(user.getNickname())
-                .build();
+        return ProfileResponseDto.fromEntity(user);
     }
 
     /**

@@ -7,6 +7,6 @@ import lombok.Getter;
 @Builder
 public class LikeDto {
 
-    private Long likeCount;
-    private Boolean isLiked;
+    private Long likeCount; // 좋아요 수
+    private Boolean isLiked; // 좋아요 여부
 }

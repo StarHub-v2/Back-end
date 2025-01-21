@@ -1,15 +1,14 @@
 package com.example.starhub.dto.response;
 
 import com.example.starhub.entity.PostEntity;
+import com.example.starhub.entity.UserEntity;
 import com.example.starhub.entity.enums.Duration;
 import com.example.starhub.entity.enums.RecruitmentType;
-import com.example.starhub.entity.UserEntity;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -32,7 +31,15 @@ public class PostResponseDto {
     private CreatorDto creator;
     private List<String> techStacks;
 
-    public static PostResponseDto fromEntity(PostEntity postEntity, List<String> techStackNames) {
+    /**
+     * 포스트 관련 정보
+     * - PostEntity로부터 PostResponseDto를 생성합니다.
+     *
+     * @param postEntity 포스트 엔티티
+     * @param techStacks 기술 스택 이름 목록
+     * @return 생성된 PostResponseDto
+     */
+    public static PostResponseDto fromEntity(PostEntity postEntity, List<String> techStacks) {
         UserEntity creator = postEntity.getCreator();
         CreatorDto creatorDto = CreatorDto.builder()
                 .username(creator.getUsername())
@@ -53,7 +60,7 @@ public class PostResponseDto {
                 .otherInfo(postEntity.getOtherInfo())
                 .isConfirmed(postEntity.getIsConfirmed())
                 .creator(creatorDto)
-                .techStacks(techStackNames)
+                .techStacks(techStacks)
                 .build();
     }
 }
