@@ -92,12 +92,12 @@ public class PostService {
      * - 포스트의 생성자인지 확인하고, 지원 상태, 기술 스택, 좋아요 정보를 포함한 상세 정보를 반환합니다.
      *
      * @param username 포스트 상세 정보를 요청한 사용자의 사용자명
-     * @param id 포스트의 고유 ID
+     * @param postId 포스트의 고유 ID
      * @return 포스트의 상세 정보 DTO (PostDetailResponseDto)
      */
     @Transactional(readOnly = true)
-    public PostDetailResponseDto getPostDetail(String username, Long id) {
-        PostEntity postEntity = postRepository.findById(id)
+    public PostDetailResponseDto getPostDetail(String username, Long postId) {
+        PostEntity postEntity = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(ErrorCode.POST_NOT_FOUND));
 
         Boolean isCreator = postEntity.getCreator().getUsername().equals(username);
@@ -114,13 +114,13 @@ public class PostService {
      * - 개설자만 포스트 정보를 수정할 수 있음
      *
      * @param username JWT를 통해 인증된 사용자명
-     * @param id 수정할 포스트 아이디
+     * @param postId 수정할 포스트 아이디
      * @param postUpdateRequestDto 업데이트할 포스트 정보가 담긴 DTO
      * @return 포스트에 대한 응답 DTO
      */
-    public PostResponseDto updatePost(String username, Long id, PostUpdateRequestDto postUpdateRequestDto) {
+    public PostResponseDto updatePost(String username, Long postId, PostUpdateRequestDto postUpdateRequestDto) {
 
-        PostEntity postEntity = postRepository.findById(id)
+        PostEntity postEntity = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(ErrorCode.POST_NOT_FOUND));
 
         // 개설자가 아닌 경우 예외 처리

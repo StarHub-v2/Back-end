@@ -53,7 +53,7 @@ public interface PostControllerDocs {
     )
     ResponseEntity<ResponseDto<PostDetailResponseDto>> getPostDetail(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable Long id);
+            @PathVariable Long postId);
 
     /**
      * 포스트 수정하기
@@ -64,7 +64,7 @@ public interface PostControllerDocs {
     )
     ResponseEntity<ResponseDto<PostResponseDto>> updatePost(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable Long id,
+            @PathVariable Long postId,
             @RequestBody PostUpdateRequestDto postUpdateRequestDto);
 
     /**
@@ -76,5 +76,5 @@ public interface PostControllerDocs {
     )
     ResponseEntity<ResponseDto> deletePost(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable Long id);
+            @PathVariable Long postId);
 }
