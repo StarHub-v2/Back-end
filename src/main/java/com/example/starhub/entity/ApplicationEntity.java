@@ -38,6 +38,6 @@ public class ApplicationEntity {
     private PostEntity post;  // 해당 포스트
 
     public void updateContent(String content) {
-        this.content = content != null ? content : this.content;
+        this.content = content;
     }
 }
