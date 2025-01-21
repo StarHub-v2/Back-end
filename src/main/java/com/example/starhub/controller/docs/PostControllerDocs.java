@@ -1,10 +1,7 @@
 package com.example.starhub.controller.docs;
 
 import com.example.starhub.dto.request.*;
-import com.example.starhub.dto.response.PostResponseDto;
-import com.example.starhub.dto.response.ProfileResponseDto;
-import com.example.starhub.dto.response.UserResponseDto;
-import com.example.starhub.dto.response.UsernameCheckResponseDto;
+import com.example.starhub.dto.response.*;
 import com.example.starhub.dto.security.CustomUserDetails;
 import com.example.starhub.response.dto.ResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,6 +43,17 @@ public interface PostControllerDocs {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "4") int size
     );
+
+    /**
+     * 포스트 상세 불러오기
+     */
+    @Operation(
+            summary = "포스트 상세 불러오기",
+            description = "포스트 상세 불러오기를 진행합니다. 지원자, 개설자, 지원 여부, 모임 확정 여부 등의 요소를 포함합니다."
+    )
+    ResponseEntity<ResponseDto<PostDetailResponseDto>> getPostDetail(
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long id);
 
     /**
      * 포스트 수정하기
