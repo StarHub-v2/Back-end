@@ -18,10 +18,10 @@ public class ApplicationResponseDto {
 
     /**
      * 지원서 관련 정보
-     * - ApplicantEntity으로부터 ApplicantResponseDto를 생성합니다.
+     * - ApplicantEntity로부터 ApplicantResponseDto를 생성합니다.
      *
      * @param applicationEntity 지원서 엔티티
-     * @return 생성된 ApplicantResponseDto
+     * @return 생성된 ApplicationResponseDto
      */
     public static ApplicationResponseDto fromEntity(ApplicationEntity applicationEntity) {
         UserEntity applicant = applicationEntity.getApplicant();
