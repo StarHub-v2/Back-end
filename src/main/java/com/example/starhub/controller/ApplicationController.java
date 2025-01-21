@@ -86,7 +86,12 @@ public class ApplicationController {
      * 지원서 삭제하기
      */
     @DeleteMapping("/applications/{applicationId}")
-    public ResponseEntity<ResponseDto> deleteApplication() {
+    public ResponseEntity<ResponseDto> deleteApplication(
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long postId,
+            @PathVariable Long applicationId) {
+
+        applicationService.deleteApplication(customUserDetails.getUsername(), postId, applicationId);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_DELETE_APPLICANT.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_DELETE_APPLICANT, null));

@@ -173,4 +173,24 @@ public class ApplicationService {
         return ApplicationResponseDto.fromEntity(applicationEntity);
     }
 
+    /**
+     * 지원서 삭제하기
+     * - 작성자만 삭제할 수 있음
+     *
+     * @param username JWT를 통해 인증된 사용자명
+     * @param postId 포스트 아이디
+     * @param applicationId 지원서 아이디
+     */
+    public void deleteApplication(String username, Long postId, Long applicationId) {
+        validateAndGetPost(postId);
+
+        ApplicationEntity applicationEntity = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ApplicationNotFoundException(ErrorCode.APPLICATION_NOT_FOUND));
+
+        // 지원자인지 확인
+        validateApplicant(applicationEntity, username);
+
+        applicationRepository.delete(applicationEntity);
+    }
+
 }
