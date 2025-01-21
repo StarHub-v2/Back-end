@@ -85,6 +85,11 @@ public class ApplicationService {
             throw new PostCreatorCannotApplyException(ErrorCode.POST_CREATOR_CANNOT_APPLY);
         }
 
+        // 이미 지원한 경우 예외 처리
+        if(applicationRepository.existsByPostAndApplicant(postEntity, userEntity)) {
+            throw new DuplicateApplicationException(ErrorCode.DUPLICATE_APPLICATION);
+        }
+
         ApplicationEntity applicationEntity = ApplicationEntity.builder()
                 .applicant(userEntity)
                 .content(applicationRequestDto.getContent())

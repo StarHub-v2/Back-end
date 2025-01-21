@@ -160,4 +160,12 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponseDto(ErrorCode.STUDY_CONFIRMED));
     }
 
+    @ExceptionHandler(DuplicateApplicationException.class)
+    protected ResponseEntity<ErrorResponseDto> handleDuplicateApplicationException(final DuplicateApplicationException e) {
+        log.error("handleDuplicateApplicationException : {}", e.getErrorCode().getMessage());
+        return ResponseEntity
+                .status(ErrorCode.DUPLICATE_APPLICATION.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.DUPLICATE_APPLICATION));
+    }
+
 }
