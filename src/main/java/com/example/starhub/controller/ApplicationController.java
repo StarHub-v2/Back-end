@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -28,7 +29,7 @@ public class ApplicationController {
     public ResponseEntity<ResponseDto> createApplication(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long postId,
-            @RequestBody ApplicationRequestDto applicationRequestDto) {
+            @Valid @RequestBody ApplicationRequestDto applicationRequestDto) {
 
         ApplicationResponseDto res = applicationService.createApplication(customUserDetails.getUsername(), postId, applicationRequestDto);
         return ResponseEntity
@@ -74,7 +75,7 @@ public class ApplicationController {
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long postId,
             @PathVariable Long applicationId,
-            @RequestBody ApplicationRequestDto applicationRequestDto) {
+            @Valid @RequestBody ApplicationRequestDto applicationRequestDto) {
 
         ApplicationResponseDto res = applicationService.updateApplication(customUserDetails.getUsername(), postId, applicationId, applicationRequestDto);
         return ResponseEntity
