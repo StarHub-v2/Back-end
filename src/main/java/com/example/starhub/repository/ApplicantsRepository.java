@@ -6,5 +6,5 @@ import com.example.starhub.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ApplicantsRepository extends JpaRepository<ApplicantsEntity, Long> {
-    Boolean existsByPostAndAuthor(PostEntity postEntity, UserEntity userEntity);
+    boolean existsByPostAndAuthor(PostEntity postEntity, UserEntity userEntity);
 }
