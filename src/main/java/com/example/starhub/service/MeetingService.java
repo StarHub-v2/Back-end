@@ -1,19 +1,13 @@
 package com.example.starhub.service;
 
+import com.example.starhub.dto.request.ConfirmMeetingRequestDto;
 import com.example.starhub.dto.request.CreateMeetingRequestDto;
 import com.example.starhub.dto.request.MeetingUpdateRequestDto;
-import com.example.starhub.dto.response.LikeDto;
-import com.example.starhub.dto.response.MeetingDetailResponseDto;
-import com.example.starhub.dto.response.MeetingResponseDto;
-import com.example.starhub.dto.response.MeetingSummaryResponseDto;
-import com.example.starhub.entity.MeetingEntity;
-import com.example.starhub.entity.MeetingTechStackEntity;
-import com.example.starhub.entity.TechStackEntity;
-import com.example.starhub.entity.UserEntity;
+import com.example.starhub.dto.response.*;
+import com.example.starhub.entity.*;
+import com.example.starhub.entity.enums.ApplicationStatus;
 import com.example.starhub.entity.enums.TechCategory;
-import com.example.starhub.exception.CreatorAuthorizationException;
-import com.example.starhub.exception.MeetingNotFoundException;
-import com.example.starhub.exception.UserNotFoundException;
+import com.example.starhub.exception.*;
 import com.example.starhub.repository.*;
 import com.example.starhub.response.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +17,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,6 +36,29 @@ public class MeetingService {
     private final ApplicationRepository applicationRepository;
 
     /**
+     * 공통 검증 로직: 게시글 가져오기 및 상태 확인
+     */
+    private MeetingEntity validateAndGetMeeting(Long meetingId) {
+        MeetingEntity meetingEntity = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new MeetingNotFoundException(ErrorCode.MEETING_NOT_FOUND));
+
+        if (meetingEntity.getIsConfirmed()) {
+            throw new StudyConfirmedException(ErrorCode.STUDY_CONFIRMED);
+        }
+
+        return meetingEntity;
+    }
+
+    /**
+     * 공통 검증 로직: 사용자가 게시글의 개설자인지 확인
+     */
+    private void validateMeetingCreator(MeetingEntity meetingEntity, String username) {
+        if (!meetingEntity.getCreator().getUsername().equals(username)) {
+            throw new CreatorAuthorizationException(ErrorCode.MEETING_FORBIDDEN);
+        }
+    }
+
+    /**
      * 새로운 모임(스터디/프로젝트)를 생성하기
      *
      * @param username JWT를 통해 인증된 사용자명
@@ -50,7 +70,7 @@ public class MeetingService {
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
 
-        MeetingEntity meetingEntity = buildMeetingEntity(user, createMeetingRequestDto);
+        MeetingEntity meetingEntity = MeetingEntity.createMeeting(user, createMeetingRequestDto);
         MeetingEntity savedMeeting = meetingRepository.save(meetingEntity);
 
         // 기술 스택 정보를 처리하여 모임와 연결
@@ -120,13 +140,10 @@ public class MeetingService {
      */
     public MeetingResponseDto updateMeeting(String username, Long meetingId, MeetingUpdateRequestDto meetingUpdateRequestDto) {
 
-        MeetingEntity meetingEntity = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new MeetingNotFoundException(ErrorCode.MEETING_NOT_FOUND));
+        MeetingEntity meetingEntity = validateAndGetMeeting(meetingId);
 
         // 개설자가 아닌 경우 예외 처리
-        if(!meetingEntity.getCreator().getUsername().equals(username)) {
-            throw new CreatorAuthorizationException(ErrorCode.MEETING_FORBIDDEN);
-        }
+        validateMeetingCreator(meetingEntity, username);
 
         meetingEntity.updateMeeting(meetingUpdateRequestDto);
 
@@ -150,13 +167,11 @@ public class MeetingService {
      * @param meetingId 삭제할 모임 아이디
      */
     public void deleteMeeting(String username, Long meetingId) {
-        MeetingEntity meetingEntity = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new MeetingNotFoundException(ErrorCode.MEETING_NOT_FOUND));
+
+        MeetingEntity meetingEntity = validateAndGetMeeting(meetingId);
 
         // 개설자가 아닌 경우 예외 처리
-        if(!meetingEntity.getCreator().getUsername().equals(username)) {
-            throw new CreatorAuthorizationException(ErrorCode.MEETING_FORBIDDEN);
-        }
+        validateMeetingCreator(meetingEntity, username);
 
         meetingTechStackRepository.deleteByMeeting(meetingEntity);
 
@@ -165,29 +180,61 @@ public class MeetingService {
         meetingRepository.delete(meetingEntity);
     }
 
-    /**
-     * 모임 엔티티를 생성하는 메서드
-     *
-     * @param user 모임을 생성한 사용자 (개설자)
-     * @param createMeetingRequestDto 모임 생성을 위한 요청 DTO
-     * @return 생성된 MeetingEntity
-     */
-    private MeetingEntity buildMeetingEntity(UserEntity user, CreateMeetingRequestDto createMeetingRequestDto) {
-        return MeetingEntity.builder()
-                .recruitmentType(createMeetingRequestDto.getRecruitmentType())
-                .maxParticipants(createMeetingRequestDto.getMaxParticipants())
-                .duration(createMeetingRequestDto.getDuration())
-                .endDate(createMeetingRequestDto.getEndDate())
-                .location(createMeetingRequestDto.getLocation())
-                .latitude(createMeetingRequestDto.getLatitude())
-                .longitude(createMeetingRequestDto.getLongitude())
-                .title(createMeetingRequestDto.getTitle())
-                .description(createMeetingRequestDto.getDescription())
-                .goal(createMeetingRequestDto.getGoal())
-                .otherInfo(createMeetingRequestDto.getOtherInfo())
-                .isConfirmed(false) // 확인되지 않은 상태로 설정
-                .creator(user) // 모임 개설자 지정
-                .build();
+    public List<ConfirmMeetingResponseDto> confirmMeetingMember(String username, Long meetingId, ConfirmMeetingRequestDto confirmMeetingRequestDto) {
+
+        MeetingEntity meetingEntity = validateAndGetMeeting(meetingId);
+
+        // 개설자가 아닌 경우 예외 처리
+        validateMeetingCreator(meetingEntity, username);
+
+        // 지원자 정보와 상태 업데이트
+        Set<Long> applicationIds = new HashSet<>(confirmMeetingRequestDto.getApplicationIds());
+        List<ApplicationEntity> applications = applicationRepository.findByMeeting(meetingEntity);
+
+        List<ConfirmMeetingResponseDto> responseDtos = new ArrayList<>();
+        responseDtos.add(convertUserToDto(meetingEntity.getCreator())); // 개설자 처리
+        processApplications(applications, applicationIds, responseDtos); // 지원자 처리
+
+        // 미팅 상태를 확정
+        meetingEntity.confirm();
+
+        // 승인된 지원자 정보를 반환
+        return responseDtos;
+    }
+
+    private ConfirmMeetingResponseDto convertUserToDto(UserEntity userEntity) {
+        return ConfirmMeetingResponseDto.fromEntity(userEntity);
+    }
+
+    private void processApplications(List<ApplicationEntity> applications, Set<Long> applicationIds, List<ConfirmMeetingResponseDto> responseDtos) {
+        // 지원서 ID가 유효한지 확인
+        Set<Long> validApplicationIds = new HashSet<>(applicationIds); // Set으로 변환하여 중복 제거
+        List<ApplicationEntity> validApplications = new ArrayList<>();
+
+        for (ApplicationEntity applicationEntity : applications) {
+            if (validApplicationIds.contains(applicationEntity.getId())) {
+                validApplications.add(applicationEntity);
+                validApplicationIds.remove(applicationEntity.getId()); // 유효한 ID를 처리 후 제거
+            }
+        }
+
+        // 유효하지 않은 ID가 있는지 체크
+        if (!validApplicationIds.isEmpty()) {
+            throw new InvalidApplicationIdException(ErrorCode.INVALID_APPLICATION_ID);
+        }
+
+        // 유효한 지원서에 대해서 승인 또는 거절 처리
+        for (ApplicationEntity applicationEntity : validApplications) {
+            applicationEntity.approve(); // 지원 확정
+            responseDtos.add(convertUserToDto(applicationEntity.getApplicant())); // 승인된 지원자 DTO 변환 후 추가
+        }
+
+        // 유효하지 않은 지원서에 대해서 거절 처리
+        for (ApplicationEntity applicationEntity : applications) {
+            if (!validApplications.contains(applicationEntity)) {
+                applicationEntity.reject(); // 지원 거절
+            }
+        }
     }
 
     /**

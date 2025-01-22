@@ -1,8 +1,10 @@
 package com.example.starhub.controller;
 
 import com.example.starhub.controller.docs.MeetingControllerDocs;
+import com.example.starhub.dto.request.ConfirmMeetingRequestDto;
 import com.example.starhub.dto.request.CreateMeetingRequestDto;
 import com.example.starhub.dto.request.MeetingUpdateRequestDto;
+import com.example.starhub.dto.response.ConfirmMeetingResponseDto;
 import com.example.starhub.dto.response.MeetingDetailResponseDto;
 import com.example.starhub.dto.response.MeetingResponseDto;
 import com.example.starhub.dto.response.MeetingSummaryResponseDto;
@@ -18,6 +20,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/meetings")
@@ -101,5 +104,34 @@ public class MeetingController implements MeetingControllerDocs {
                 .status(ResponseCode.SUCCESS_DELETE_MEETING.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_DELETE_MEETING, null));
     }
+
+    /**
+     * 모임원 확정하기
+     */
+    @PutMapping("/{meetingId}/confirm")
+    public ResponseEntity<ResponseDto> confirmMeetingMember(
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long meetingId,
+            @RequestBody ConfirmMeetingRequestDto confirmMeetingRequestDto) {
+        List<ConfirmMeetingResponseDto> res = meetingService.confirmMeetingMember(customUserDetails.getUsername(), meetingId, confirmMeetingRequestDto);
+        return ResponseEntity
+                .status(ResponseCode.SUCCESS_CONFIRM_MEETING_MEMBER.getStatus().value())
+                .body(new ResponseDto<>(ResponseCode.SUCCESS_CONFIRM_MEETING_MEMBER, res));
+    }
+
+
+    /**
+     * 확정된 모임원 불러오기
+     */
+    @GetMapping("/{meetingId}/confirmed-members")
+    public ResponseEntity<ResponseDto> getConfirmedMembers(
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long meetingId) {
+        return ResponseEntity
+                .status(ResponseCode.SUCCESS_GET_CONFIRMED_MEMBERS.getStatus().value())
+                .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_CONFIRMED_MEMBERS, null));
+    }
+
+
 
 }

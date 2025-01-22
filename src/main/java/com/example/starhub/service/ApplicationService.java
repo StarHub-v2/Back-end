@@ -90,12 +90,7 @@ public class ApplicationService {
             throw new DuplicateApplicationException(ErrorCode.DUPLICATE_APPLICATION);
         }
 
-        ApplicationEntity applicationEntity = ApplicationEntity.builder()
-                .applicant(userEntity)
-                .content(applicationRequestDto.getContent())
-                .meeting(meetingEntity)
-                .build();
-
+        ApplicationEntity applicationEntity = ApplicationEntity.createApplication(userEntity, meetingEntity, applicationRequestDto);
         ApplicationEntity savedApplicationEntity = applicationRepository.save(applicationEntity);
 
         return ApplicationResponseDto.fromEntity(savedApplicationEntity);

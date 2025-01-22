@@ -1,5 +1,8 @@
 package com.example.starhub.entity;
 
+import com.example.starhub.dto.request.ApplicationRequestDto;
+import com.example.starhub.dto.request.CreateMeetingRequestDto;
+import com.example.starhub.entity.enums.ApplicationStatus;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -37,7 +40,30 @@ public class ApplicationEntity {
     @JoinColumn(name = "meeting_id", nullable = false)
     private MeetingEntity meeting;  // 해당 포스트
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ApplicationStatus status;
+
+    public static ApplicationEntity createApplication(UserEntity user, MeetingEntity meeting, ApplicationRequestDto applicationRequestDto) {
+        return ApplicationEntity.builder()
+                .applicant(user)
+                .content(applicationRequestDto.getContent())
+                .meeting(meeting)
+                .status(ApplicationStatus.PENDING) // 기본 상태 (대기 상태)
+                .build();
+    }
+
     public void updateContent(String content) {
         this.content = content;
     }
+
+    // 상태 변경 메서드
+    public void approve() {
+        this.status = ApplicationStatus.APPROVED;
+    }
+
+    public void reject() {
+        this.status = ApplicationStatus.REJECTED;
+    }
+
 }

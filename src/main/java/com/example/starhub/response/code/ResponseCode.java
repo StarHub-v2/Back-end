@@ -27,6 +27,9 @@ public enum ResponseCode {
     SUCCESS_UPDATE_MEETING(HttpStatus.OK, "모임이 성공적으로 수정되었습니다."),
     SUCCESS_DELETE_MEETING(HttpStatus.OK, "모임이 성공적으로 삭제되었습니다."),
 
+    SUCCESS_CONFIRM_MEETING_MEMBER(HttpStatus.OK, "모임원이 성공적으로 확정되었습니다."),
+    SUCCESS_GET_CONFIRMED_MEMBERS(HttpStatus.OK, "확정된 모임원 목록을 성공적으로 불러왔습니다."),
+
     /**
      * APPLICANT
      */
