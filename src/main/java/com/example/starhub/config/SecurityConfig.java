@@ -8,6 +8,7 @@ import com.example.starhub.util.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -84,6 +85,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .antMatchers("/api/v1/register", "/api/v1/users/check", "/api/v1/login", "/api/v1/reissue").permitAll()
                         .antMatchers("/swagger-ui/**", "/v3/api-docs/**", "/starhub-api/**").permitAll()
+                        .antMatchers(HttpMethod.GET, "/api/v1/meetings", "/api/v1/meetings/{meetingId}").permitAll()
                         .anyRequest().authenticated());
 
         // 로그아웃 필터 추가
