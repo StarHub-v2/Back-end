@@ -123,13 +123,14 @@ public class MeetingController implements MeetingControllerDocs {
     /**
      * 확정된 모임원 불러오기
      */
-    @GetMapping("/{meetingId}/confirmed-members")
+    @GetMapping("/{meetingId}/confirmed")
     public ResponseEntity<ResponseDto> getConfirmedMembers(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long meetingId) {
+        List<ConfirmMeetingResponseDto> res = meetingService.getConfirmedMembers(customUserDetails.getUsername(), meetingId);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_GET_CONFIRMED_MEMBERS.getStatus().value())
-                .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_CONFIRMED_MEMBERS, null));
+                .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_CONFIRMED_MEMBERS, res));
     }
 
 

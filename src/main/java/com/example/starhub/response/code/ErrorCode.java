@@ -14,6 +14,7 @@ public enum ErrorCode {
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
     USERNAME_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 사용 중인 사용자명입니다."),
     STUDY_CONFIRMED(HttpStatus.BAD_REQUEST, "스터디원이 확정된 상태입니다."),
+    STUDY_NOT_CONFIRMED(HttpStatus.BAD_REQUEST, "스터디원이 확정되지 않은 상태입니다."),
     INVALID_APPLICATION_ID(HttpStatus.BAD_REQUEST, "잘못된 지원서 ID가 포함되었습니다"),
 
     /**

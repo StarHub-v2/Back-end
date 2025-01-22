@@ -17,10 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,6 +41,20 @@ public class MeetingService {
 
         if (meetingEntity.getIsConfirmed()) {
             throw new StudyConfirmedException(ErrorCode.STUDY_CONFIRMED);
+        }
+
+        return meetingEntity;
+    }
+
+    /**
+     * 공통 검증 로직: 게시글 가져오기 및 상태 확인
+     */
+    private MeetingEntity validateAndGetConfirmedMeeting(Long meetingId) {
+        MeetingEntity meetingEntity = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new MeetingNotFoundException(ErrorCode.MEETING_NOT_FOUND));
+
+        if (!meetingEntity.getIsConfirmed()) {
+            throw new StudyNotConfirmedException(ErrorCode.STUDY_NOT_CONFIRMED);
         }
 
         return meetingEntity;
@@ -199,6 +210,41 @@ public class MeetingService {
         meetingEntity.confirm();
 
         // 승인된 지원자 정보를 반환
+        return responseDtos;
+    }
+
+    public List<ConfirmMeetingResponseDto> getConfirmedMembers(String username, Long meetingId) {
+        // 모임이 확정된 상태인지 확인
+        MeetingEntity meetingEntity = validateAndGetConfirmedMeeting(meetingId);
+
+        // 사용자가 존재하는지 확인
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
+
+        // 지원서가 존재하는지 확인
+        ApplicationEntity applicant = applicationRepository.findByApplicantAndMeeting(user, meetingEntity)
+                .orElseThrow(() -> new ApplicationNotFoundException(ErrorCode.APPLICATION_NOT_FOUND));
+
+        // username이 개설자가 아니거나, 거절된 상태이면 예외 처리
+        if (meetingEntity.getCreator().getUsername().equals(username) || "REJECT".equals(applicant.getStatus())) {
+            throw new StudyNotConfirmedException(ErrorCode.STUDY_NOT_CONFIRMED);
+        }
+
+        // 개설자 정보
+        UserEntity creator = meetingEntity.getCreator();
+        ConfirmMeetingResponseDto creatorInfo = convertUserToDto(creator);
+
+        // meetingId에 해당되고, 상태가 APPROVED인 지원서 조회
+        List<ApplicationEntity> approvedApplications = applicationRepository
+                .findByMeetingAndStatus(meetingEntity, ApplicationStatus.APPROVED);
+
+        // DTO로 변환 (개설자 정보 포함)
+        List<ConfirmMeetingResponseDto> responseDtos = approvedApplications.stream()
+                .map(application -> ConfirmMeetingResponseDto.fromEntity(application.getApplicant()))
+                .collect(Collectors.toList());
+
+        responseDtos.add(0, creatorInfo);
+
         return responseDtos;
     }
 

@@ -18,6 +18,7 @@ public class ConfirmMeetingResponseDto {
 
     public static ConfirmMeetingResponseDto fromEntity(UserEntity userEntity) {
         return ConfirmMeetingResponseDto.builder()
+
                 .name(userEntity.getName())
                 .age(userEntity.getAge())
                 .bio(userEntity.getBio())
