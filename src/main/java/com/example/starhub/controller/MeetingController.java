@@ -65,7 +65,9 @@ public class MeetingController implements MeetingControllerDocs {
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long meetingId) {
 
-        MeetingDetailResponseDto res = meetingService.getMeetingDetail(customUserDetails.getUsername(), meetingId);
+        // 익명 사용자일 경우 null 전달, 인증된 사용자일 경우 customUserDetails 전달
+        String username = customUserDetails != null ? customUserDetails.getUsername() : null;
+        MeetingDetailResponseDto res = meetingService.getMeetingDetail(username, meetingId);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_GET_MEETING_DETAIL.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_MEETING_DETAIL, res));

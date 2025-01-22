@@ -100,13 +100,13 @@ public class MeetingService {
         MeetingEntity meetingEntity = meetingRepository.findById(meetingId)
                 .orElseThrow(() -> new MeetingNotFoundException(ErrorCode.MEETING_NOT_FOUND));
 
-        Boolean isCreator = meetingEntity.getCreator().getUsername().equals(username);
-        Boolean applicationStatus = isCreator ? null : getApplicationStatus(username, meetingEntity);
+        Boolean isApplicant = !meetingEntity.getCreator().getUsername().equals(username);
+        Boolean applicationStatus = isApplicant ? null : getApplicationStatus(username, meetingEntity);
 
         List<String> techStacks = getTechStacksForMeeting(meetingEntity);
         LikeDto likeDto = getLikeDtoForMeeting(meetingEntity, username);
 
-        return MeetingDetailResponseDto.fromEntity(isCreator, applicationStatus, meetingEntity, techStacks, likeDto);
+        return MeetingDetailResponseDto.fromEntity(isApplicant, applicationStatus, meetingEntity, techStacks, likeDto);
     }
 
     /**
