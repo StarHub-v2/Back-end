@@ -84,6 +84,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .antMatchers("/api/v1/register", "/api/v1/users/check", "/api/v1/login", "/api/v1/reissue").permitAll()
                         .antMatchers("/swagger-ui/**", "/v3/api-docs/**", "/starhub-api/**").permitAll()
+                        .antMatchers("/api/v1/meetings").permitAll()
                         .anyRequest().authenticated());
 
         // 로그아웃 필터 추가

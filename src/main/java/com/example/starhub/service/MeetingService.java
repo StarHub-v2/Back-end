@@ -292,7 +292,12 @@ public class MeetingService {
      */
     private LikeDto getLikeDtoForMeeting(MeetingEntity meetingEntity, String username) {
         Long likeCount = likeRepository.countByMeeting(meetingEntity);
-        Boolean isLiked = likeRepository.existsByMeetingAndUserUsername(meetingEntity, username);
+
+        Boolean isLiked = null;
+        // 인증된 사용자일 경우에만 like 여부를 확인
+        if (username != null) {
+            isLiked = likeRepository.existsByMeetingAndUserUsername(meetingEntity, username);
+        }
 
         return LikeDto.builder()
                 .likeCount(likeCount)

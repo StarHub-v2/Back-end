@@ -49,7 +49,9 @@ public class MeetingController implements MeetingControllerDocs {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "4") int size) {
 
-        Page<MeetingSummaryResponseDto> res = meetingService.getMeetingList(customUserDetails.getUsername(), page, size);
+        // 익명 사용자일 경우 null 전달, 인증된 사용자일 경우 customUserDetails 전달
+        String username = customUserDetails != null ? customUserDetails.getUsername() : null;
+        Page<MeetingSummaryResponseDto> res = meetingService.getMeetingList(username, page, size);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_GET_MEETING_LIST.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_MEETING_LIST, res));
