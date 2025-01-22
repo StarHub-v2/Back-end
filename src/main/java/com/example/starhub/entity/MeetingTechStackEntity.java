@@ -11,15 +11,15 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostTechStackEntity {
+public class MeetingTechStackEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 조인 테이블 고유 식별자
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = false)
-    private PostEntity post;  // 스터디와 연관
+    @JoinColumn(name = "meeting_id", nullable = false)
+    private MeetingEntity meeting;  // 스터디와 연관
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tech_stack_id", nullable = false)

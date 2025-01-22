@@ -1,6 +1,6 @@
 package com.example.starhub.dto.response;
 
-import com.example.starhub.entity.PostEntity;
+import com.example.starhub.entity.MeetingEntity;
 import com.example.starhub.entity.UserEntity;
 import com.example.starhub.entity.enums.Duration;
 import com.example.starhub.entity.enums.RecruitmentType;
@@ -13,7 +13,7 @@ import java.util.List;
 
 @Getter
 @Builder
-public class PostResponseDto {
+public class MeetingResponseDto {
 
     private Long id;
     private RecruitmentType recruitmentType;
@@ -35,30 +35,30 @@ public class PostResponseDto {
      * 포스트 관련 정보
      * - PostEntity로부터 PostResponseDto를 생성합니다.
      *
-     * @param postEntity 포스트 엔티티
+     * @param meetingEntity 포스트 엔티티
      * @param techStacks 기술 스택 이름 목록
      * @return 생성된 PostResponseDto
      */
-    public static PostResponseDto fromEntity(PostEntity postEntity, List<String> techStacks) {
-        UserEntity creator = postEntity.getCreator();
+    public static MeetingResponseDto fromEntity(MeetingEntity meetingEntity, List<String> techStacks) {
+        UserEntity creator = meetingEntity.getCreator();
         CreatorDto creatorDto = CreatorDto.builder()
                 .username(creator.getUsername())
                 .build();
 
-        return PostResponseDto.builder()
-                .id(postEntity.getId())
-                .recruitmentType(postEntity.getRecruitmentType())
-                .maxParticipants(postEntity.getMaxParticipants())
-                .duration(postEntity.getDuration())
-                .endDate(postEntity.getEndDate())
-                .location(postEntity.getLocation())
-                .latitude(postEntity.getLatitude())
-                .longitude(postEntity.getLongitude())
-                .title(postEntity.getTitle())
-                .description(postEntity.getDescription())
-                .goal(postEntity.getGoal())
-                .otherInfo(postEntity.getOtherInfo())
-                .isConfirmed(postEntity.getIsConfirmed())
+        return MeetingResponseDto.builder()
+                .id(meetingEntity.getId())
+                .recruitmentType(meetingEntity.getRecruitmentType())
+                .maxParticipants(meetingEntity.getMaxParticipants())
+                .duration(meetingEntity.getDuration())
+                .endDate(meetingEntity.getEndDate())
+                .location(meetingEntity.getLocation())
+                .latitude(meetingEntity.getLatitude())
+                .longitude(meetingEntity.getLongitude())
+                .title(meetingEntity.getTitle())
+                .description(meetingEntity.getDescription())
+                .goal(meetingEntity.getGoal())
+                .otherInfo(meetingEntity.getOtherInfo())
+                .isConfirmed(meetingEntity.getIsConfirmed())
                 .creator(creatorDto)
                 .techStacks(techStacks)
                 .build();

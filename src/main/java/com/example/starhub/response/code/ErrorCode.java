@@ -28,21 +28,21 @@ public enum ErrorCode {
     /**
      * 403 FORBIDDEN: 접근 금지(권한이 없는 경우)
      */
-    POST_FORBIDDEN(HttpStatus.FORBIDDEN, "해당 게시글에 대한 권한이 없습니다."),
+    MEETING_FORBIDDEN(HttpStatus.FORBIDDEN, "해당 게시글에 대한 권한이 없습니다."),
     APPLICATION_FORBIDDEN(HttpStatus.FORBIDDEN, "해당 지원서에 대한 권한이 없습니다."),
 
     /**
      * 404 NOT_FOUND: 리소스를 찾을 수 없음
      */
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 사용자를 찾을 수 없습니다."),
-    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 포스트를 찾을 수 없습니다."),
+    MEETING_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 포스트를 찾을 수 없습니다."),
     APPLICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 지원서를 찾을 수 없습니다."),
 
     /**
      * 409 CONFLICT: 리소스 충돌 (이미 존재하는 경우)
      */
     USER_PROFILE_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 프로필이 생성되었습니다."),
-    POST_CREATOR_CANNOT_APPLY(HttpStatus.CONFLICT, "개설자는 자신의 포스트에 지원할 수 없습니다."),
+    MEETING_CREATOR_CANNOT_APPLY(HttpStatus.CONFLICT, "개설자는 자신의 포스트에 지원할 수 없습니다."),
     DUPLICATE_APPLICATION(HttpStatus.CONFLICT, "지원자는 한 번만 지원할 수 있습니다."),
 
     /**

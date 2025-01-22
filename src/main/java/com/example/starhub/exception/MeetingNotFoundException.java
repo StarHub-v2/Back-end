@@ -6,6 +6,6 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class PostCreatorCannotApplyException extends RuntimeException {
+public class MeetingNotFoundException extends RuntimeException {
     private final ErrorCode errorCode;
 }

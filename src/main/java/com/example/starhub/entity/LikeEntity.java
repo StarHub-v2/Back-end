@@ -25,7 +25,7 @@ public class LikeEntity {
     private UserEntity user;  // 사용자
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = false)
-    private PostEntity post;   // 스터디
+    @JoinColumn(name = "meeting_id", nullable = false)
+    private MeetingEntity meeting;   // 스터디
 }
 

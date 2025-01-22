@@ -107,33 +107,33 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * POST
+     * MEETING
      */
-    @ExceptionHandler(PostNotFoundException.class)
-    protected ResponseEntity<ErrorResponseDto> handlePostNotFoundException(final PostNotFoundException e) {
-        log.error("handlePostNotFoundException : {}", e.getErrorCode().getMessage());
+    @ExceptionHandler(MeetingNotFoundException.class)
+    protected ResponseEntity<ErrorResponseDto> handleMeetingNotFoundException(final MeetingNotFoundException e) {
+        log.error("handleMeetingNotFoundException : {}", e.getErrorCode().getMessage());
         return ResponseEntity
-                .status(ErrorCode.POST_NOT_FOUND.getStatus().value())
-                .body(new ErrorResponseDto(ErrorCode.POST_NOT_FOUND));
+                .status(ErrorCode.MEETING_NOT_FOUND.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.MEETING_NOT_FOUND));
     }
 
     @ExceptionHandler(CreatorAuthorizationException.class)
-    protected ResponseEntity<ErrorResponseDto> handlePostCreatorAuthorizationException(final CreatorAuthorizationException e) {
-        log.error("handlePostCreatorAuthorizationException : {}", e.getErrorCode().getMessage());
+    protected ResponseEntity<ErrorResponseDto> handleCreatorAuthorizationException(final CreatorAuthorizationException e) {
+        log.error("handleCreatorAuthorizationException : {}", e.getErrorCode().getMessage());
         return ResponseEntity
-                .status(ErrorCode.POST_FORBIDDEN.getStatus().value())
-                .body(new ErrorResponseDto(ErrorCode.POST_FORBIDDEN));
+                .status(ErrorCode.MEETING_FORBIDDEN.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.MEETING_FORBIDDEN));
     }
 
     /**
      * APPLICATION
      */
-    @ExceptionHandler(PostCreatorCannotApplyException.class)
-    protected ResponseEntity<ErrorResponseDto> handlePostCreatorCannotApplyException(final PostCreatorCannotApplyException e) {
-        log.error("handlePostCreatorCannotApplyException : {}", e.getErrorCode().getMessage());
+    @ExceptionHandler(MeetingCreatorCannotApplyException.class)
+    protected ResponseEntity<ErrorResponseDto> handleMeetingCreatorCannotApplyException(final MeetingCreatorCannotApplyException e) {
+        log.error("handleMeetingCreatorCannotApplyException : {}", e.getErrorCode().getMessage());
         return ResponseEntity
-                .status(ErrorCode.POST_CREATOR_CANNOT_APPLY.getStatus().value())
-                .body(new ErrorResponseDto(ErrorCode.POST_CREATOR_CANNOT_APPLY));
+                .status(ErrorCode.MEETING_CREATOR_CANNOT_APPLY.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.MEETING_CREATOR_CANNOT_APPLY));
     }
 
     @ExceptionHandler(ApplicationNotFoundException.class)

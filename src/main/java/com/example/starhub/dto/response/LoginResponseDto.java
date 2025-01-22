@@ -8,7 +8,7 @@ import lombok.Getter;
 public class LoginResponseDto {
 
     private String username;
-    private String nickname;
     private Boolean isProfileComplete;
+    private String nickname;
 
 }

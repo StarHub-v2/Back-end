@@ -34,8 +34,8 @@ public class ApplicationEntity {
     private UserEntity applicant;  // 사용자(작성자)
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = false)
-    private PostEntity post;  // 해당 포스트
+    @JoinColumn(name = "meeting_id", nullable = false)
+    private MeetingEntity meeting;  // 해당 포스트
 
     public void updateContent(String content) {
         this.content = content;

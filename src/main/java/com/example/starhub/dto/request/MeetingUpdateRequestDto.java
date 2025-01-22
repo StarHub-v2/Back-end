@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Getter
-public class PostUpdateRequestDto {
+public class MeetingUpdateRequestDto {
 
     private RecruitmentType recruitmentType;
     private Integer maxParticipants;

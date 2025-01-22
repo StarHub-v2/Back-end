@@ -154,8 +154,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         LoginResponseDto loginResponseDto = LoginResponseDto.builder()
                 .username(customUserDetails.getUsername())
-                .nickname(customUserDetails.getNickname())
                 .isProfileComplete(customUserDetails.getIsProfileComplete())
+                .nickname(customUserDetails.getNickname())
                 .build();
 
         ResponseUtil.writeSuccessResponse(response, ResponseCode.SUCCESS_LOGIN, loginResponseDto);
