@@ -1,5 +1,6 @@
 package com.example.starhub.controller;
 
+import com.example.starhub.controller.docs.ApplicationControllerDocs;
 import com.example.starhub.dto.request.ApplicationRequestDto;
 import com.example.starhub.dto.response.ApplicationResponseDto;
 import com.example.starhub.dto.security.CustomUserDetails;
@@ -18,7 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/posts/{postId}")
 @RequiredArgsConstructor
-public class ApplicationController {
+public class ApplicationController implements ApplicationControllerDocs {
 
     private final ApplicationService applicationService;
 
@@ -26,7 +27,7 @@ public class ApplicationController {
      * 지원서 작성
      */
     @PostMapping("/applications")
-    public ResponseEntity<ResponseDto> createApplication(
+    public ResponseEntity<ResponseDto<ApplicationResponseDto>> createApplication(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long postId,
             @Valid @RequestBody ApplicationRequestDto applicationRequestDto) {
@@ -41,7 +42,7 @@ public class ApplicationController {
      * 지원서 목록 불러오기
      */
     @GetMapping("/applications")
-    public ResponseEntity<ResponseDto> getApplicationList(
+    public ResponseEntity<ResponseDto<List<ApplicationResponseDto>>> getApplicationList(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long postId) {
 
@@ -56,7 +57,7 @@ public class ApplicationController {
      * 지원서 상세 불러오기
      */
     @GetMapping("/applications/{applicationId}")
-    public ResponseEntity<ResponseDto> getApplicationDetail(
+    public ResponseEntity<ResponseDto<ApplicationResponseDto>> getApplicationDetail(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long postId,
             @PathVariable Long applicationId) {
@@ -71,7 +72,7 @@ public class ApplicationController {
      * 지원서 수정하기
      */
     @PatchMapping("/applications/{applicationId}")
-    public ResponseEntity<ResponseDto> updateApplication(
+    public ResponseEntity<ResponseDto<ApplicationResponseDto>> updateApplication(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long postId,
             @PathVariable Long applicationId,
