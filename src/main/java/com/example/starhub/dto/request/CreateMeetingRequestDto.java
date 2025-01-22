@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Getter
-public class CreatePostRequestDto {
+public class CreateMeetingRequestDto {
 
     @NotNull(message = "모집 유형을 입력해주세요.")
     private RecruitmentType recruitmentType;

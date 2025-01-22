@@ -17,7 +17,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/posts/{postId}")
+@RequestMapping("/api/v1/meetings/{meetingId}")
 @RequiredArgsConstructor
 public class ApplicationController implements ApplicationControllerDocs {
 
@@ -29,10 +29,10 @@ public class ApplicationController implements ApplicationControllerDocs {
     @PostMapping("/applications")
     public ResponseEntity<ResponseDto<ApplicationResponseDto>> createApplication(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable Long postId,
+            @PathVariable Long meetingId,
             @Valid @RequestBody ApplicationRequestDto applicationRequestDto) {
 
-        ApplicationResponseDto res = applicationService.createApplication(customUserDetails.getUsername(), postId, applicationRequestDto);
+        ApplicationResponseDto res = applicationService.createApplication(customUserDetails.getUsername(), meetingId, applicationRequestDto);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_CREATE_APPLICANT.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_CREATE_APPLICANT, res));
@@ -44,9 +44,9 @@ public class ApplicationController implements ApplicationControllerDocs {
     @GetMapping("/applications")
     public ResponseEntity<ResponseDto<List<ApplicationResponseDto>>> getApplicationList(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable Long postId) {
+            @PathVariable Long meetingId) {
 
-        List<ApplicationResponseDto> res = applicationService.getApplicationList(customUserDetails.getUsername(), postId);
+        List<ApplicationResponseDto> res = applicationService.getApplicationList(customUserDetails.getUsername(), meetingId);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_GET_APPLICANT_LIST.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_APPLICANT_LIST, res));
@@ -59,10 +59,10 @@ public class ApplicationController implements ApplicationControllerDocs {
     @GetMapping("/applications/{applicationId}")
     public ResponseEntity<ResponseDto<ApplicationResponseDto>> getApplicationDetail(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable Long postId,
+            @PathVariable Long meetingId,
             @PathVariable Long applicationId) {
 
-        ApplicationResponseDto res = applicationService.getApplicationDetail(customUserDetails.getUsername(), postId, applicationId);
+        ApplicationResponseDto res = applicationService.getApplicationDetail(customUserDetails.getUsername(), meetingId, applicationId);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_GET_APPLICANT_DETAIL.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_APPLICANT_DETAIL, res));
@@ -74,11 +74,11 @@ public class ApplicationController implements ApplicationControllerDocs {
     @PatchMapping("/applications/{applicationId}")
     public ResponseEntity<ResponseDto<ApplicationResponseDto>> updateApplication(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable Long postId,
+            @PathVariable Long meetingId,
             @PathVariable Long applicationId,
             @Valid @RequestBody ApplicationRequestDto applicationRequestDto) {
 
-        ApplicationResponseDto res = applicationService.updateApplication(customUserDetails.getUsername(), postId, applicationId, applicationRequestDto);
+        ApplicationResponseDto res = applicationService.updateApplication(customUserDetails.getUsername(), meetingId, applicationId, applicationRequestDto);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_UPDATE_APPLICANT.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_UPDATE_APPLICANT, res));
@@ -90,10 +90,10 @@ public class ApplicationController implements ApplicationControllerDocs {
     @DeleteMapping("/applications/{applicationId}")
     public ResponseEntity<ResponseDto> deleteApplication(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable Long postId,
+            @PathVariable Long meetingId,
             @PathVariable Long applicationId) {
 
-        applicationService.deleteApplication(customUserDetails.getUsername(), postId, applicationId);
+        applicationService.deleteApplication(customUserDetails.getUsername(), meetingId, applicationId);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_DELETE_APPLICANT.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_DELETE_APPLICANT, null));

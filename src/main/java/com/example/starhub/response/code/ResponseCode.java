@@ -19,13 +19,13 @@ public enum ResponseCode {
     SUCCESS_REISSUE_TOKEN(HttpStatus.OK, "토큰 재발급을 성공했습니다."),
 
     /**
-     * POST
+     * MEETING
      */
-    SUCCESS_CREATE_POST(HttpStatus.CREATED, "포스트가 성공적으로 생성되었습니다."),
-    SUCCESS_GET_POST_LIST(HttpStatus.OK, "포스트 목록을 성공적으로 불러왔습니다."),
-    SUCCESS_GET_POST_DETAIL(HttpStatus.OK, "포스트 상세 정보를 성공적으로 불러왔습니다."),
-    SUCCESS_UPDATE_POST(HttpStatus.OK, "포스트가 성공적으로 수정되었습니다."),
-    SUCCESS_DELETE_POST(HttpStatus.OK, "포스트가 성공적으로 삭제되었습니다."),
+    SUCCESS_CREATE_MEETING(HttpStatus.CREATED, "모임이 성공적으로 생성되었습니다."),
+    SUCCESS_GET_MEETING_LIST(HttpStatus.OK, "모임 목록을 성공적으로 불러왔습니다."),
+    SUCCESS_GET_MEETING_DETAIL(HttpStatus.OK, "모임 상세 정보를 성공적으로 불러왔습니다."),
+    SUCCESS_UPDATE_MEETING(HttpStatus.OK, "모임이 성공적으로 수정되었습니다."),
+    SUCCESS_DELETE_MEETING(HttpStatus.OK, "모임이 성공적으로 삭제되었습니다."),
 
     /**
      * APPLICANT

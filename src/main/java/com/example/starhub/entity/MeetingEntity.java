@@ -1,6 +1,6 @@
 package com.example.starhub.entity;
 
-import com.example.starhub.dto.request.PostUpdateRequestDto;
+import com.example.starhub.dto.request.MeetingUpdateRequestDto;
 import com.example.starhub.entity.enums.Duration;
 import com.example.starhub.entity.enums.RecruitmentType;
 import lombok.*;
@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class PostEntity {
+public class MeetingEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -68,18 +68,18 @@ public class PostEntity {
     @JoinColumn(name = "creator_id", nullable = false)
     private UserEntity creator;  // 사용자(작성자)
 
-    public void updatePost(PostUpdateRequestDto postUpdateRequestDto) {
-        this.recruitmentType = postUpdateRequestDto.getRecruitmentType() != null ? postUpdateRequestDto.getRecruitmentType() : this.recruitmentType;
-        this.maxParticipants = postUpdateRequestDto.getMaxParticipants() != null ? postUpdateRequestDto.getMaxParticipants() : this.maxParticipants;
-        this.duration = postUpdateRequestDto.getDuration() != null ? postUpdateRequestDto.getDuration() : this.duration;
-        this.endDate = postUpdateRequestDto.getEndDate() != null ? postUpdateRequestDto.getEndDate() : this.endDate;
-        this.location = postUpdateRequestDto.getLocation() != null ? postUpdateRequestDto.getLocation() : this.location;
-        this.latitude = postUpdateRequestDto.getLatitude() != null ? postUpdateRequestDto.getLatitude() : this.latitude;
-        this.longitude = postUpdateRequestDto.getLongitude() != null ? postUpdateRequestDto.getLongitude() : this.longitude;
-        this.title = postUpdateRequestDto.getTitle() != null ? postUpdateRequestDto.getTitle() : this.title;
-        this.description = postUpdateRequestDto.getDescription() != null ? postUpdateRequestDto.getDescription() : this.description;
-        this.goal = postUpdateRequestDto.getGoal() != null ? postUpdateRequestDto.getGoal() : this.goal;
-        this.otherInfo = postUpdateRequestDto.getOtherInfo() != null ? postUpdateRequestDto.getOtherInfo() : this.otherInfo;
+    public void updateMeeting(MeetingUpdateRequestDto meetingUpdateRequestDto) {
+        this.recruitmentType = meetingUpdateRequestDto.getRecruitmentType() != null ? meetingUpdateRequestDto.getRecruitmentType() : this.recruitmentType;
+        this.maxParticipants = meetingUpdateRequestDto.getMaxParticipants() != null ? meetingUpdateRequestDto.getMaxParticipants() : this.maxParticipants;
+        this.duration = meetingUpdateRequestDto.getDuration() != null ? meetingUpdateRequestDto.getDuration() : this.duration;
+        this.endDate = meetingUpdateRequestDto.getEndDate() != null ? meetingUpdateRequestDto.getEndDate() : this.endDate;
+        this.location = meetingUpdateRequestDto.getLocation() != null ? meetingUpdateRequestDto.getLocation() : this.location;
+        this.latitude = meetingUpdateRequestDto.getLatitude() != null ? meetingUpdateRequestDto.getLatitude() : this.latitude;
+        this.longitude = meetingUpdateRequestDto.getLongitude() != null ? meetingUpdateRequestDto.getLongitude() : this.longitude;
+        this.title = meetingUpdateRequestDto.getTitle() != null ? meetingUpdateRequestDto.getTitle() : this.title;
+        this.description = meetingUpdateRequestDto.getDescription() != null ? meetingUpdateRequestDto.getDescription() : this.description;
+        this.goal = meetingUpdateRequestDto.getGoal() != null ? meetingUpdateRequestDto.getGoal() : this.goal;
+        this.otherInfo = meetingUpdateRequestDto.getOtherInfo() != null ? meetingUpdateRequestDto.getOtherInfo() : this.otherInfo;
     }
 
 
