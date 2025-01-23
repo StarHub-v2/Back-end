@@ -50,8 +50,7 @@ public interface ApplicationControllerDocs {
     )
     ResponseEntity<ResponseDto<ApplicationResponseDto>> getApplicationDetail(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable Long meetingId,
-            @PathVariable Long applicationId);
+            @PathVariable Long meetingId);
 
     /**
      * 지원서 수정하기
@@ -63,7 +62,6 @@ public interface ApplicationControllerDocs {
     ResponseEntity<ResponseDto<ApplicationResponseDto>> updateApplication(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long meetingId,
-            @PathVariable Long applicationId,
             @Valid @RequestBody ApplicationRequestDto applicationRequestDto);
 
     /**
@@ -75,7 +73,6 @@ public interface ApplicationControllerDocs {
     )
     ResponseEntity<ResponseDto> deleteApplication(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable Long meetingId,
-            @PathVariable Long applicationId);
+            @PathVariable Long meetingId);
 
 }

@@ -14,7 +14,7 @@ public class ApplicationResponseDto {
     private Long id;
     private String content;
     private LocalDateTime updatedAt;
-    private ApplicantDto applicant;
+    private ApplicantDto applicant; // 지원자 정보
 
     /**
      * 지원서 관련 정보

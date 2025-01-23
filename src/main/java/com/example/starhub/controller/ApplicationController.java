@@ -56,13 +56,12 @@ public class ApplicationController implements ApplicationControllerDocs {
     /**
      * 지원서 상세 불러오기
      */
-    @GetMapping("/applications/{applicationId}")
+    @GetMapping("/applications/me")
     public ResponseEntity<ResponseDto<ApplicationResponseDto>> getApplicationDetail(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable Long meetingId,
-            @PathVariable Long applicationId) {
+            @PathVariable Long meetingId) {
 
-        ApplicationResponseDto res = applicationService.getApplicationDetail(customUserDetails.getUsername(), meetingId, applicationId);
+        ApplicationResponseDto res = applicationService.getApplicationDetail(customUserDetails.getUsername(), meetingId);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_GET_APPLICANT_DETAIL.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_APPLICANT_DETAIL, res));
@@ -71,14 +70,13 @@ public class ApplicationController implements ApplicationControllerDocs {
     /**
      * 지원서 수정하기
      */
-    @PatchMapping("/applications/{applicationId}")
+    @PatchMapping("/applications/me")
     public ResponseEntity<ResponseDto<ApplicationResponseDto>> updateApplication(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long meetingId,
-            @PathVariable Long applicationId,
             @Valid @RequestBody ApplicationRequestDto applicationRequestDto) {
 
-        ApplicationResponseDto res = applicationService.updateApplication(customUserDetails.getUsername(), meetingId, applicationId, applicationRequestDto);
+        ApplicationResponseDto res = applicationService.updateApplication(customUserDetails.getUsername(), meetingId, applicationRequestDto);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_UPDATE_APPLICANT.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_UPDATE_APPLICANT, res));
@@ -87,13 +85,12 @@ public class ApplicationController implements ApplicationControllerDocs {
     /**
      * 지원서 삭제하기
      */
-    @DeleteMapping("/applications/{applicationId}")
+    @DeleteMapping("/applications/me")
     public ResponseEntity<ResponseDto> deleteApplication(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable Long meetingId,
-            @PathVariable Long applicationId) {
+            @PathVariable Long meetingId) {
 
-        applicationService.deleteApplication(customUserDetails.getUsername(), meetingId, applicationId);
+        applicationService.deleteApplication(customUserDetails.getUsername(), meetingId);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_DELETE_APPLICANT.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_DELETE_APPLICANT, null));
