@@ -159,19 +159,19 @@ public class ApplicationService {
      *
      * @param username JWT를 통해 인증된 사용자명
      * @param meetingId 모임 아이디
-     * @param applicationId 지원서 아이디
      * @param applicationRequestDto 수정할 지원서 내용
      * @return 수정된 지원서에 대한 DTO
      */
-    public ApplicationResponseDto updateApplication(String username, Long meetingId, Long applicationId, ApplicationRequestDto applicationRequestDto) {
+    public ApplicationResponseDto updateApplication(String username, Long meetingId, ApplicationRequestDto applicationRequestDto) {
 
-        validateAndGetMeeting(meetingId);
+        UserEntity userEntity = validateAndGetUser(username);
+        MeetingEntity meetingEntity = validateAndGetMeeting(meetingId);
 
-        ApplicationEntity applicationEntity = applicationRepository.findById(applicationId)
+        // 개설자가 아님을 확인해야 함
+        validateMeetingApplicant(meetingEntity, username);
+
+        ApplicationEntity applicationEntity = applicationRepository.findByApplicantAndMeeting(userEntity, meetingEntity)
                 .orElseThrow(() -> new ApplicationNotFoundException(ErrorCode.APPLICATION_NOT_FOUND));
-
-        // 지원자인지 확인
-        validateApplicant(applicationEntity, username);
 
         applicationEntity.updateContent(applicationRequestDto.getContent());
 

@@ -62,7 +62,6 @@ public interface ApplicationControllerDocs {
     ResponseEntity<ResponseDto<ApplicationResponseDto>> updateApplication(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long meetingId,
-            @PathVariable Long applicationId,
             @Valid @RequestBody ApplicationRequestDto applicationRequestDto);
 
     /**

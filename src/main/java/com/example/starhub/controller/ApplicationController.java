@@ -70,14 +70,13 @@ public class ApplicationController implements ApplicationControllerDocs {
     /**
      * 지원서 수정하기
      */
-    @PatchMapping("/applications/{applicationId}")
+    @PatchMapping("/applications/me")
     public ResponseEntity<ResponseDto<ApplicationResponseDto>> updateApplication(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long meetingId,
-            @PathVariable Long applicationId,
             @Valid @RequestBody ApplicationRequestDto applicationRequestDto) {
 
-        ApplicationResponseDto res = applicationService.updateApplication(customUserDetails.getUsername(), meetingId, applicationId, applicationRequestDto);
+        ApplicationResponseDto res = applicationService.updateApplication(customUserDetails.getUsername(), meetingId, applicationRequestDto);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_UPDATE_APPLICANT.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_UPDATE_APPLICANT, res));
