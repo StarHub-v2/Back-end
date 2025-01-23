@@ -85,7 +85,7 @@ public class ApplicationController implements ApplicationControllerDocs {
     /**
      * 지원서 삭제하기
      */
-    @DeleteMapping("/applications/{applicationId}")
+    @DeleteMapping("/applications/me")
     public ResponseEntity<ResponseDto> deleteApplication(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long meetingId) {
