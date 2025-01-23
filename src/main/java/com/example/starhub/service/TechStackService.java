@@ -44,15 +44,9 @@ public class TechStackService {
      * @param techStackDtos 기술 스택 정보 리스트
      */
     public void createTechStack(List<TechStackDto> techStackDtos) {
-        List<TechStackEntity> techStackEntities = new ArrayList<>();
-
-        for (TechStackDto dto : techStackDtos) {
-            TechStackEntity entity = TechStackEntity.builder()
-                    .name(dto.getName())
-                    .category(dto.getCategory()) // 카테고리 enum 처리
-                    .build();
-            techStackEntities.add(entity);
-        }
+        List<TechStackEntity> techStackEntities = techStackDtos.stream()
+                                .map(TechStackEntity::createTechStackEntity)
+                                .collect(Collectors.toList());
 
         techStackRepository.saveAll(techStackEntities); // 여러 개 한 번에 저장
     }
