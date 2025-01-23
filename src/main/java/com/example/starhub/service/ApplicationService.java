@@ -29,9 +29,10 @@ public class ApplicationService {
     /**
      * 공통 검증 로직: 모임 가져오기 및 상태 확인
      * - 모임이 확정이 안된 상태이여야 함
+     * - 개설자 정보와 같이 JOIN FETCH
      */
     private MeetingEntity validateAndGetMeeting(Long meetingId) {
-        MeetingEntity meetingEntity = meetingRepository.findById(meetingId)
+        MeetingEntity meetingEntity = meetingRepository.findWithCreatorById(meetingId)
                 .orElseThrow(() -> new MeetingNotFoundException(ErrorCode.MEETING_NOT_FOUND));
 
         if (meetingEntity.getIsConfirmed()) {
