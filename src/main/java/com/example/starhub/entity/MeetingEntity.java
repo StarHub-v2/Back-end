@@ -4,6 +4,8 @@ import com.example.starhub.dto.request.CreateMeetingRequestDto;
 import com.example.starhub.dto.request.MeetingUpdateRequestDto;
 import com.example.starhub.entity.enums.Duration;
 import com.example.starhub.entity.enums.RecruitmentType;
+import com.example.starhub.exception.StudyConfirmedException;
+import com.example.starhub.response.code.ErrorCode;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -102,6 +104,7 @@ public class MeetingEntity {
     }
 
     public void confirm() {
+
         this.isConfirmed = true;
     }
 

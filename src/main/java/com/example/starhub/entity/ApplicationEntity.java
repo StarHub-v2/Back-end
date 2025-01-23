@@ -59,10 +59,18 @@ public class ApplicationEntity {
 
     // 상태 변경 메서드
     public void approve() {
+        if (this.status != ApplicationStatus.PENDING) {
+            throw new IllegalStateException("대기 상태의 지원서만 승인할 수 있습니다.");
+        }
+
         this.status = ApplicationStatus.APPROVED;
     }
 
     public void reject() {
+        if (this.status != ApplicationStatus.PENDING) {
+            throw new IllegalStateException("대기 상태의 지원서만 거절할 수 있습니다.");
+        }
+
         this.status = ApplicationStatus.REJECTED;
     }
 

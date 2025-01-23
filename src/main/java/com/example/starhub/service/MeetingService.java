@@ -241,7 +241,7 @@ public class MeetingService {
                 .orElseThrow(() -> new ApplicationNotFoundException(ErrorCode.APPLICATION_NOT_FOUND));
 
         // username이 개설자가 아니거나, 거절된 상태이면 예외 처리
-        if (meetingEntity.getCreator().getUsername().equals(username) || "REJECT".equals(applicant.getStatus())) {
+        if (meetingEntity.getCreator().getUsername().equals(username) || applicant.getStatus() == ApplicationStatus.REJECTED) {
             throw new StudyNotConfirmedException(ErrorCode.STUDY_NOT_CONFIRMED);
         }
 
