@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @Tag(name = "MeetingController", description = "모임(스터디 및 프로젝트) 관련 API")
 public interface MeetingControllerDocs {
@@ -73,6 +74,29 @@ public interface MeetingControllerDocs {
             description = "모임 삭제하기를 진행합니다. 개설자만 이 모임을 삭제할 권한이 있습니다."
     )
     ResponseEntity<ResponseDto> deleteMeeting(
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long meetingId);
+
+    /**
+     * 모임원 확정하기
+     */
+    @Operation(
+            summary = "모임원 확정하기",
+            description = "모임 확정하기를 진행합니다. 개설자만 이 모임을 확정할 권한이 있습니다."
+    )
+    ResponseEntity<ResponseDto<List<ConfirmMeetingResponseDto>>> confirmMeetingMember(
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long meetingId,
+            @RequestBody ConfirmMeetingRequestDto confirmMeetingRequestDto);
+
+    /**
+     * 확정된 모임원 불러오기
+     */
+    @Operation(
+            summary = "확정된 모임원 불러오기",
+            description = "확정된 모임원 불러오기를 진행합니다."
+    )
+    ResponseEntity<ResponseDto<List<ConfirmMeetingResponseDto>>> getConfirmedMembers(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long meetingId);
 }
