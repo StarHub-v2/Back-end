@@ -63,4 +63,10 @@ public class MeetingResponseDto {
                 .techStacks(techStacks)
                 .build();
     }
+
+    @Getter
+    @Builder
+    public static class CreatorDto {
+        private String username; // 개설자 사용자 이름
+    }
 }

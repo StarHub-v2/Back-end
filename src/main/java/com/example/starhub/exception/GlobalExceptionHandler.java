@@ -125,6 +125,22 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponseDto(ErrorCode.MEETING_FORBIDDEN));
     }
 
+    @ExceptionHandler(InvalidApplicationIdException.class)
+    protected ResponseEntity<ErrorResponseDto> handleInvalidApplicationIdException(final InvalidApplicationIdException e) {
+        log.error("handleInvalidApplicationIdException : {}", e.getErrorCode().getMessage());
+        return ResponseEntity
+                .status(ErrorCode.INVALID_APPLICATION_ID.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.INVALID_APPLICATION_ID));
+    }
+
+    @ExceptionHandler(StudyNotConfirmedException.class)
+    protected ResponseEntity<ErrorResponseDto> handleStudyNotConfirmedException(final StudyNotConfirmedException e) {
+        log.error("handleStudyNotConfirmedException : {}", e.getErrorCode().getMessage());
+        return ResponseEntity
+                .status(ErrorCode.STUDY_NOT_CONFIRMED.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.STUDY_NOT_CONFIRMED));
+    }
+
     /**
      * APPLICATION
      */

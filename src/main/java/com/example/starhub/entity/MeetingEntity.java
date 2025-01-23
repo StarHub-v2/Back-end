@@ -1,8 +1,11 @@
 package com.example.starhub.entity;
 
+import com.example.starhub.dto.request.CreateMeetingRequestDto;
 import com.example.starhub.dto.request.MeetingUpdateRequestDto;
 import com.example.starhub.entity.enums.Duration;
 import com.example.starhub.entity.enums.RecruitmentType;
+import com.example.starhub.exception.StudyConfirmedException;
+import com.example.starhub.response.code.ErrorCode;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -68,6 +71,24 @@ public class MeetingEntity {
     @JoinColumn(name = "creator_id", nullable = false)
     private UserEntity creator;  // 사용자(작성자)
 
+    public static MeetingEntity createMeeting(UserEntity user, CreateMeetingRequestDto createMeetingRequestDto) {
+        return MeetingEntity.builder()
+                .recruitmentType(createMeetingRequestDto.getRecruitmentType())
+                .maxParticipants(createMeetingRequestDto.getMaxParticipants())
+                .duration(createMeetingRequestDto.getDuration())
+                .endDate(createMeetingRequestDto.getEndDate())
+                .location(createMeetingRequestDto.getLocation())
+                .latitude(createMeetingRequestDto.getLatitude())
+                .longitude(createMeetingRequestDto.getLongitude())
+                .title(createMeetingRequestDto.getTitle())
+                .description(createMeetingRequestDto.getDescription())
+                .goal(createMeetingRequestDto.getGoal())
+                .otherInfo(createMeetingRequestDto.getOtherInfo())
+                .isConfirmed(false) // 기본값 설정
+                .creator(user)
+                .build();
+    }
+
     public void updateMeeting(MeetingUpdateRequestDto meetingUpdateRequestDto) {
         this.recruitmentType = meetingUpdateRequestDto.getRecruitmentType() != null ? meetingUpdateRequestDto.getRecruitmentType() : this.recruitmentType;
         this.maxParticipants = meetingUpdateRequestDto.getMaxParticipants() != null ? meetingUpdateRequestDto.getMaxParticipants() : this.maxParticipants;
@@ -82,5 +103,9 @@ public class MeetingEntity {
         this.otherInfo = meetingUpdateRequestDto.getOtherInfo() != null ? meetingUpdateRequestDto.getOtherInfo() : this.otherInfo;
     }
 
+    public void confirm() {
+
+        this.isConfirmed = true;
+    }
 
 }
