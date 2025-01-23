@@ -1,15 +1,13 @@
 package com.example.starhub.controller;
 
+import com.example.starhub.dto.request.CreateTechStackRequestDto;
 import com.example.starhub.dto.response.TechStackResponseDto;
 import com.example.starhub.response.code.ResponseCode;
 import com.example.starhub.response.dto.ResponseDto;
 import com.example.starhub.service.TechStackService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -35,7 +33,8 @@ public class TechStackController {
      * 기술 스택 추가하기
      */
     @PostMapping
-    public ResponseEntity<ResponseDto> createTechStack() {
+    public ResponseEntity<ResponseDto> createTechStack(@RequestBody CreateTechStackRequestDto createTechStackRequestDto) {
+        techStackService.createTechStack(createTechStackRequestDto.getTechStacks());
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_CREATE_TECH_STACK.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_CREATE_TECH_STACK, null));

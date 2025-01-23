@@ -83,11 +83,19 @@ public class SecurityConfig {
         // 경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
+                        // 공개 접근 경로
                         .antMatchers("/api/v1/register", "/api/v1/users/check", "/api/v1/login", "/api/v1/reissue").permitAll()
                         .antMatchers("/swagger-ui/**", "/v3/api-docs/**", "/starhub-api/**").permitAll()
                         .antMatchers(HttpMethod.GET, "/api/v1/meetings", "/api/v1/meetings/{meetingId}").permitAll()
                         .antMatchers(HttpMethod.GET, "/api/v1/techStacks").permitAll()
-                        .anyRequest().authenticated());
+
+                        // 관리자만 접근 가능 경로
+                        .antMatchers(HttpMethod.POST, "/api/v1/techStacks").hasRole("ADMIN")
+
+                        // 모든 인증된 사용자
+                        .anyRequest().authenticated()
+                );
+
 
         // 로그아웃 필터 추가
         http
