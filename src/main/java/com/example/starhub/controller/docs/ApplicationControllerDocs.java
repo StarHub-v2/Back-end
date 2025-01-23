@@ -73,7 +73,6 @@ public interface ApplicationControllerDocs {
     )
     ResponseEntity<ResponseDto> deleteApplication(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable Long meetingId,
-            @PathVariable Long applicationId);
+            @PathVariable Long meetingId);
 
 }

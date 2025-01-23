@@ -88,10 +88,9 @@ public class ApplicationController implements ApplicationControllerDocs {
     @DeleteMapping("/applications/{applicationId}")
     public ResponseEntity<ResponseDto> deleteApplication(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable Long meetingId,
-            @PathVariable Long applicationId) {
+            @PathVariable Long meetingId) {
 
-        applicationService.deleteApplication(customUserDetails.getUsername(), meetingId, applicationId);
+        applicationService.deleteApplication(customUserDetails.getUsername(), meetingId);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_DELETE_APPLICANT.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_DELETE_APPLICANT, null));

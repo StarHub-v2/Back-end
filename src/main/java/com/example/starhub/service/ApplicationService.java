@@ -27,7 +27,7 @@ public class ApplicationService {
     private final ApplicationRepository applicationRepository;
 
     /**
-     * 공통 검증 로직: 게시글 가져오기 및 상태 확인
+     * 공통 검증 로직: 모임 가져오기 및 상태 확인
      * - 모임이 확정이 안된 상태이여야 함
      */
     private MeetingEntity validateAndGetMeeting(Long meetingId) {
@@ -42,7 +42,7 @@ public class ApplicationService {
     }
 
     /**
-     * 공통 검증 로직: 사용자가 게시글의 개설자인지 확인
+     * 공통 검증 로직: 사용자가 모임의 개설자인지 확인
      */
     private void validateMeetingCreator(MeetingEntity meetingEntity, String username) {
         if (!meetingEntity.getCreator().getUsername().equals(username)) {
@@ -51,19 +51,10 @@ public class ApplicationService {
     }
 
     /**
-     * 공통 검증 로직: 사용자가 게시글의 개설자가 아님을 확인
+     * 공통 검증 로직: 사용자가 모임의 지원자인지 확인
      */
     private void validateMeetingApplicant(MeetingEntity meetingEntity, String username) {
         if (meetingEntity.getCreator().getUsername().equals(username)) {
-            throw new ApplicantAuthorizationException(ErrorCode.APPLICATION_FORBIDDEN);
-        }
-    }
-
-    /**
-     * 공통 검증 로직: 사용자가 지원자인지 확인
-     */
-    private void validateApplicant(ApplicationEntity applicationEntity, String username) {
-        if (!applicationEntity.getApplicant().getUsername().equals(username)) {
             throw new ApplicantAuthorizationException(ErrorCode.APPLICATION_FORBIDDEN);
         }
     }
@@ -184,18 +175,18 @@ public class ApplicationService {
      *
      * @param username JWT를 통해 인증된 사용자명
      * @param meetingId 모임 아이디
-     * @param applicationId 지원서 아이디
      */
-    public void deleteApplication(String username, Long meetingId, Long applicationId) {
-        validateAndGetMeeting(meetingId);
+    public void deleteApplication(String username, Long meetingId) {
 
-        ApplicationEntity applicationEntity = applicationRepository.findById(applicationId)
+        UserEntity userEntity = validateAndGetUser(username);
+        MeetingEntity meetingEntity = validateAndGetMeeting(meetingId);
+
+        // 개설자가 아님을 확인해야 함
+        validateMeetingApplicant(meetingEntity, username);
+
+        ApplicationEntity applicationEntity = applicationRepository.findByApplicantAndMeeting(userEntity, meetingEntity)
                 .orElseThrow(() -> new ApplicationNotFoundException(ErrorCode.APPLICATION_NOT_FOUND));
-
-        // 지원자인지 확인
-        validateApplicant(applicationEntity, username);
 
         applicationRepository.delete(applicationEntity);
     }
-
 }
