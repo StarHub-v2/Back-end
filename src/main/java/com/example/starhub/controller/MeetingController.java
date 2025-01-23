@@ -109,7 +109,7 @@ public class MeetingController implements MeetingControllerDocs {
      * 모임원 확정하기
      */
     @PutMapping("/{meetingId}/confirm")
-    public ResponseEntity<ResponseDto> confirmMeetingMember(
+    public ResponseEntity<ResponseDto<List<ConfirmMeetingResponseDto>>> confirmMeetingMember(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long meetingId,
             @RequestBody ConfirmMeetingRequestDto confirmMeetingRequestDto) {
@@ -124,7 +124,7 @@ public class MeetingController implements MeetingControllerDocs {
      * 확정된 모임원 불러오기
      */
     @GetMapping("/{meetingId}/confirmed")
-    public ResponseEntity<ResponseDto> getConfirmedMembers(
+    public ResponseEntity<ResponseDto<List<ConfirmMeetingResponseDto>>> getConfirmedMembers(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long meetingId) {
         List<ConfirmMeetingResponseDto> res = meetingService.getConfirmedMembers(customUserDetails.getUsername(), meetingId);

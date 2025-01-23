@@ -1,5 +1,8 @@
 package com.example.starhub.entity;
 
+import com.example.starhub.dto.request.CreateMeetingRequestDto;
+import com.example.starhub.dto.request.CreateTechStackRequestDto;
+import com.example.starhub.dto.request.TechStackDto;
 import com.example.starhub.entity.enums.TechCategory;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,4 +27,11 @@ public class TechStackEntity {
 
     @Enumerated(EnumType.STRING)
     private TechCategory category;  // 카테고리
+
+    public static TechStackEntity createTechStackEntity(TechStackDto techStackDto) {
+        return TechStackEntity.builder()
+                .name(techStackDto.getName())
+                .category(techStackDto.getCategory())
+                .build();
+    }
 }

@@ -39,6 +39,13 @@ public enum ResponseCode {
     SUCCESS_UPDATE_APPLICANT(HttpStatus.OK, "지원서가 성공적으로 수정되었습니다."),
     SUCCESS_DELETE_APPLICANT(HttpStatus.OK, "지원서가 성공적으로 삭제되었습니다."),
 
+    /**
+     * TECH STACK
+     */
+    SUCCESS_CREATE_TECH_STACK(HttpStatus.CREATED, "기술 스택을 성공적으로 생성되었습니다."),
+    SUCCESS_GET_TECH_STACK(HttpStatus.OK, "기술 스택을 성공적으로 불러왔습니다."),
+
+
     ;
 
     private final HttpStatus status;
