@@ -28,6 +28,7 @@ public class ApplicationService {
 
     /**
      * 공통 검증 로직: 게시글 가져오기 및 상태 확인
+     * - 모임이 확정이 안된 상태이여야 함
      */
     private MeetingEntity validateAndGetMeeting(Long meetingId) {
         MeetingEntity meetingEntity = meetingRepository.findById(meetingId)
