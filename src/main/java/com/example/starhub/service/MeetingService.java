@@ -228,6 +228,7 @@ public class MeetingService {
      * @param meetingId 삭제할 모임 아이디
      * @return 모임원들의 정보가 담긴 DTO
      */
+    @Transactional(readOnly = true)
     public List<ConfirmMeetingResponseDto> getConfirmedMembers(String username, Long meetingId) {
         // 모임이 확정된 상태인지 확인
         MeetingEntity meetingEntity = validateAndGetConfirmedMeeting(meetingId);
