@@ -191,6 +191,14 @@ public class MeetingService {
         meetingRepository.delete(meetingEntity);
     }
 
+    /**
+     * 모임원 확정하기
+     *
+     * @param username JWT를 통해 인증된 사용자명
+     * @param meetingId 삭제할 모임 아이디
+     * @param confirmMeetingRequestDto 모임원들의 지원서 아이디 리스트
+     * @return 모임원들의 정보가 담긴 DTO
+     */
     public List<ConfirmMeetingResponseDto> confirmMeetingMember(String username, Long meetingId, ConfirmMeetingRequestDto confirmMeetingRequestDto) {
 
         MeetingEntity meetingEntity = validateAndGetMeeting(meetingId);
@@ -213,6 +221,13 @@ public class MeetingService {
         return responseDtos;
     }
 
+    /**
+     * 확정된 모임원 불러오기
+     *
+     * @param username JWT를 통해 인증된 사용자명
+     * @param meetingId 삭제할 모임 아이디
+     * @return 모임원들의 정보가 담긴 DTO
+     */
     public List<ConfirmMeetingResponseDto> getConfirmedMembers(String username, Long meetingId) {
         // 모임이 확정된 상태인지 확인
         MeetingEntity meetingEntity = validateAndGetConfirmedMeeting(meetingId);
@@ -248,10 +263,25 @@ public class MeetingService {
         return responseDtos;
     }
 
+    /**
+     * 유저 엔티티를 통해 모임 확정 DTO로 바꾸는 메서드
+     *
+     * @param userEntity 유저 엔티티
+     * @return 모임원들의 정보가 담긴 DTO
+     */
     private ConfirmMeetingResponseDto convertUserToDto(UserEntity userEntity) {
         return ConfirmMeetingResponseDto.fromEntity(userEntity);
     }
 
+    /**
+     * 지원자들의 처리
+     * - 유효하지 않은 아이디 제거
+     * - 모임 확정된 지원자들은 지원으로 status 변경, 아닌 경우는 거절로 status 변경
+     *
+     * @param applications 지원서 엔티티
+     * @param applicationIds 모임원들의 지원서 아이디 리스트
+     * @param responseDtos 모임원들의 정보가 담긴 DTO
+     */
     private void processApplications(List<ApplicationEntity> applications, Set<Long> applicationIds, List<ConfirmMeetingResponseDto> responseDtos) {
         // 지원서 ID가 유효한지 확인
         Set<Long> validApplicationIds = new HashSet<>(applicationIds); // Set으로 변환하여 중복 제거
