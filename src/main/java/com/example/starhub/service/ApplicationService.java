@@ -51,6 +51,15 @@ public class ApplicationService {
     }
 
     /**
+     * 공통 검증 로직: 사용자가 게시글의 개설자가 아님을 확인
+     */
+    private void validateMeetingApplicant(MeetingEntity meetingEntity, String username) {
+        if (meetingEntity.getCreator().getUsername().equals(username)) {
+            throw new ApplicantAuthorizationException(ErrorCode.APPLICATION_FORBIDDEN);
+        }
+    }
+
+    /**
      * 공통 검증 로직: 사용자가 지원자인지 확인
      */
     private void validateApplicant(ApplicationEntity applicationEntity, String username) {
@@ -126,24 +135,19 @@ public class ApplicationService {
      *
      * @param username JWT를 통해 인증된 사용자명
      * @param meetingId 모임 아이디
-     * @param applicationId 지원서 아이디
      * @return 지원서 상세 정보 DTO
      */
     @Transactional(readOnly = true)
-    public ApplicationResponseDto getApplicationDetail(String username, Long meetingId, Long applicationId) {
+    public ApplicationResponseDto getApplicationDetail(String username, Long meetingId) {
 
-        validateAndGetMeeting(meetingId);
+        UserEntity userEntity = validateAndGetUser(username);
+        MeetingEntity meetingEntity = validateAndGetMeeting(meetingId);
 
-        ApplicationEntity applicationEntity = applicationRepository.findById(applicationId)
+        // 개설자가 아님을 확인해야 함
+        validateMeetingApplicant(meetingEntity, username);
+
+        ApplicationEntity applicationEntity = applicationRepository.findByApplicantAndMeeting(userEntity, meetingEntity)
                 .orElseThrow(() -> new ApplicationNotFoundException(ErrorCode.APPLICATION_NOT_FOUND));
-
-        // 해당 지원서가 모임에 포함되는지 확인
-        if (!applicationEntity.getMeeting().getId().equals(meetingId)) {
-            throw new MeetingNotFoundException(ErrorCode.MEETING_NOT_FOUND);
-        }
-
-        // 지원자인지 확인
-        validateApplicant(applicationEntity, username);
 
         // 지원서 상세 정보 반환
         return ApplicationResponseDto.fromEntity(applicationEntity);

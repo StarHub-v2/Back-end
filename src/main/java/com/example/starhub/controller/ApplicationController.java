@@ -56,13 +56,12 @@ public class ApplicationController implements ApplicationControllerDocs {
     /**
      * 지원서 상세 불러오기
      */
-    @GetMapping("/applications/{applicationId}")
+    @GetMapping("/applications/me")
     public ResponseEntity<ResponseDto<ApplicationResponseDto>> getApplicationDetail(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable Long meetingId,
-            @PathVariable Long applicationId) {
+            @PathVariable Long meetingId) {
 
-        ApplicationResponseDto res = applicationService.getApplicationDetail(customUserDetails.getUsername(), meetingId, applicationId);
+        ApplicationResponseDto res = applicationService.getApplicationDetail(customUserDetails.getUsername(), meetingId);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_GET_APPLICANT_DETAIL.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_APPLICANT_DETAIL, res));
