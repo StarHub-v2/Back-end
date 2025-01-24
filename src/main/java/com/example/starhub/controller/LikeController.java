@@ -1,5 +1,6 @@
 package com.example.starhub.controller;
 
+import com.example.starhub.controller.docs.LikeControllerDocs;
 import com.example.starhub.dto.security.CustomUserDetails;
 import com.example.starhub.response.code.ResponseCode;
 import com.example.starhub.response.dto.ResponseDto;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/meetings/{meetingId}/likes")
 @RequiredArgsConstructor
-public class LikeController {
+public class LikeController implements LikeControllerDocs {
 
     private final LikeService likeService;
 
