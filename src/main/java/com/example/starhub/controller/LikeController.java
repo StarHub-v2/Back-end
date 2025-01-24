@@ -38,7 +38,7 @@ public class LikeController implements LikeControllerDocs {
     public ResponseEntity<ResponseDto> deleteLike(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long meetingId) {
-
+        likeService.deleteLike(customUserDetails.getUsername(), meetingId);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_DELETE_LIKE.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_DELETE_LIKE, null));
