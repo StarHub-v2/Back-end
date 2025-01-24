@@ -22,4 +22,16 @@ public interface LikeControllerDocs {
     ResponseEntity<ResponseDto> createLike(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long meetingId);
+
+    /**
+     * 좋아요 삭제하기
+     */
+    @Operation(
+            summary = "좋아요 삭제하기",
+            description = "좋아요 삭제하기를 진행합니다."
+    )
+    ResponseEntity<ResponseDto> deleteLike(
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long meetingId);
+
 }
