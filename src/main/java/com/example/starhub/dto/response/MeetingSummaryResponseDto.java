@@ -2,6 +2,7 @@ package com.example.starhub.dto.response;
 
 import com.example.starhub.entity.MeetingEntity;
 import com.example.starhub.entity.enums.Duration;
+import com.example.starhub.entity.enums.RecruitmentType;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -15,6 +16,7 @@ public class MeetingSummaryResponseDto {
 
     private Long id;
     private String title;
+    private RecruitmentType recruitmentType;
     private Integer maxParticipants;
     private Duration duration;
     private LocalDate endDate;
@@ -36,6 +38,7 @@ public class MeetingSummaryResponseDto {
         return MeetingSummaryResponseDto.builder()
                 .id(meetingEntity.getId())
                 .title(meetingEntity.getTitle())
+                .recruitmentType(meetingEntity.getRecruitmentType())
                 .maxParticipants(meetingEntity.getMaxParticipants())
                 .duration(meetingEntity.getDuration())
                 .endDate(meetingEntity.getEndDate())
