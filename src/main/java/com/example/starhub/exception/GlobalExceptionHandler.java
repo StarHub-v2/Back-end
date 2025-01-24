@@ -184,4 +184,16 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponseDto(ErrorCode.DUPLICATE_APPLICATION));
     }
 
+    /**
+     * LIKE
+     */
+    @ExceptionHandler(LikeAlreadyExistsException.class)
+    protected ResponseEntity<ErrorResponseDto> handleLikeAlreadyExistsException(final LikeAlreadyExistsException e) {
+        log.error("handleLikeAlreadyExistsException : {}", e.getErrorCode().getMessage());
+        return ResponseEntity
+                .status(ErrorCode.LIKE_ALREADY_EXISTS.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.LIKE_ALREADY_EXISTS));
+    }
+
+
 }

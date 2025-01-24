@@ -11,7 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/v1/meetings/{meetingId}/likes")
+@RequestMapping("/api/v1/meetings/{meetingId}/likes")
 @RequiredArgsConstructor
 public class LikeController {
 
@@ -24,7 +24,7 @@ public class LikeController {
     public ResponseEntity<ResponseDto> createLike(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long meetingId) {
-
+        likeService.createLike(customUserDetails.getUsername(), meetingId);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_CREATE_LIKE.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_CREATE_LIKE, null));
