@@ -1,12 +1,14 @@
 package com.example.starhub.dto.request;
 
 import com.example.starhub.entity.enums.TechCategory;
+import lombok.Builder;
 import lombok.Getter;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+@Builder
 @Getter
 public class TechStackDto {
 
