@@ -45,6 +45,11 @@ public enum ResponseCode {
     SUCCESS_CREATE_TECH_STACK(HttpStatus.CREATED, "기술 스택을 성공적으로 생성되었습니다."),
     SUCCESS_GET_TECH_STACK(HttpStatus.OK, "기술 스택을 성공적으로 불러왔습니다."),
 
+    /**
+     * LIKE
+     */
+    SUCCESS_CREATE_LIKE(HttpStatus.CREATED, "좋아요를 성공적으로 생성되었습니다."),
+    SUCCESS_DELETE_LIKE(HttpStatus.OK, "좋아요를 성공적으로 삭제되었습니다."),
 
     ;
 

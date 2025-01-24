@@ -44,7 +44,6 @@ class ApplicationServiceTest {
     void setUp() {
         // 테스트용 사용자와 모임 생성
         creator = userRepository.save(UserEntity.createUser("creatorUser", "creatorPassword"));
-
         applicant = userRepository.save(UserEntity.createUser("applicantUser", "applicantPassword"));
 
         meeting = meetingRepository.save(MeetingEntity.builder()
