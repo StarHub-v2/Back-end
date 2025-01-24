@@ -43,6 +43,7 @@ build
 
 ### application ###
 /src/main/resources/application.yml
+/src/test/resources/application.yml
 
 ### ADMIN ###
 /src/main/java/com/example/starhub/config/AdminAccountInitializer.java
