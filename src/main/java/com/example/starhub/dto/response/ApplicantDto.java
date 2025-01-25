@@ -6,5 +6,5 @@ import lombok.Getter;
 @Getter
 @Builder
 public class ApplicantDto {
-    private String username;  // 지원자 사용자 이름
+    private String nickname;  // 지원자 닉네임
 }

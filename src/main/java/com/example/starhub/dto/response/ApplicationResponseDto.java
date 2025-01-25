@@ -26,7 +26,7 @@ public class ApplicationResponseDto {
     public static ApplicationResponseDto fromEntity(ApplicationEntity applicationEntity) {
         UserEntity applicant = applicationEntity.getApplicant();
         ApplicantDto applicantDto = ApplicantDto.builder()
-                .username(applicant.getUsername())
+                .nickname(applicant.getNickname())
                 .build();
 
         return ApplicationResponseDto.builder()
