@@ -21,8 +21,8 @@ public class MeetingResponseDto {
     private Duration duration;
     private LocalDate endDate;
     private String location;
-    private BigDecimal latitude;
-    private BigDecimal longitude;
+    private Double latitude;
+    private Double longitude;
     private String title;
     private String description;
     private String goal;

@@ -22,8 +22,8 @@ public class MeetingSummaryResponseDto {
     private LocalDate endDate;
     private List<String> techStacks;  // 기술 스택 목록
     private String location;
-    private BigDecimal latitude;
-    private BigDecimal longitude;
+    private Double latitude;
+    private Double longitude;
     private LikeDto likeDto; // 좋아요 관련 정보
 
     /**
