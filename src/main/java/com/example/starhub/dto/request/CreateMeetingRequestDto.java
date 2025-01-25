@@ -32,12 +32,12 @@ public class CreateMeetingRequestDto {
     @NotNull(message = "위도 값을 입력해주세요.")
     @DecimalMin(value = "-90.0", inclusive = true, message = "위도는 -90에서 90 사이여야 합니다.")
     @DecimalMax(value = "90.0", inclusive = true, message = "위도는 -90에서 90 사이여야 합니다.")
-    private BigDecimal latitude;
+    private Double latitude;
 
     @NotNull(message = "경도 값을 입력해주세요.")
     @DecimalMin(value = "-180.0", inclusive = true, message = "경도는 -180에서 180 사이여야 합니다.")
     @DecimalMax(value = "180.0", inclusive = true, message = "경도는 -180에서 180 사이여야 합니다.")
-    private BigDecimal longitude;
+    private Double longitude;
 
     @NotBlank(message = "제목을 입력해주세요.")
     @Size(max = 100, message = "제목은 100자 이내로 작성해야 합니다.")

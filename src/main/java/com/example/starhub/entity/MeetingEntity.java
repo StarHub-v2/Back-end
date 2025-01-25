@@ -41,9 +41,11 @@ public class MeetingEntity {
     @Column(length = 100)
     private String location;  // 진행 장소
 
-    private BigDecimal latitude;  // 위도
+    @Column(precision = 15, scale = 13) // 최대 정수부 2자리 + 소수부 13자리
+    private Double latitude;  // 위도
 
-    private BigDecimal longitude;  // 경도
+    @Column(precision = 16, scale = 13) // 최대 정수부 3자리 + 소수부 13자리
+    private Double longitude;  // 경도
 
     @Column(length = 100)
     private String title;  // 스터디 제목
