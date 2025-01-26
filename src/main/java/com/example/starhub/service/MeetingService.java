@@ -132,7 +132,7 @@ public class MeetingService {
                 .orElseThrow(() -> new MeetingNotFoundException(ErrorCode.MEETING_NOT_FOUND));
 
         Boolean isApplicant = !meetingEntity.getCreator().getUsername().equals(username);
-        Boolean applicationStatus = isApplicant ? null : getApplicationStatus(username, meetingEntity);
+        Boolean applicationStatus = isApplicant ? getApplicationStatus(username, meetingEntity) : null;
 
         List<String> techStacks = getTechStacksForMeeting(meetingEntity);
         LikeDto likeDto = getLikeDtoForMeeting(meetingEntity, username);
