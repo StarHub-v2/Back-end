@@ -213,12 +213,11 @@ public class MeetingService {
         validateMeetingCreator(meetingEntity, username);
 
         // 지원자 정보와 상태 업데이트
-        Set<Long> applicationIds = new HashSet<>(confirmMeetingRequestDto.getApplicationIds());
         List<ApplicationEntity> applications = applicationRepository.findByMeeting(meetingEntity);
 
         List<ConfirmMeetingResponseDto> responseDtos = new ArrayList<>();
         responseDtos.add(convertUserToDto(meetingEntity.getCreator())); // 개설자 처리
-        processApplications(applications, applicationIds, responseDtos); // 지원자 처리
+        processApplications(applications, confirmMeetingRequestDto.getApplicationIds(), responseDtos); // 지원자 처리
 
         // 미팅 상태를 확정
         meetingEntity.confirm();
@@ -243,31 +242,25 @@ public class MeetingService {
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
 
-        // 지원서가 존재하는지 확인
-        ApplicationEntity applicant = applicationRepository.findByApplicantAndMeeting(user, meetingEntity)
-                .orElseThrow(() -> new ApplicationNotFoundException(ErrorCode.APPLICATION_NOT_FOUND));
-
-        // username이 개설자가 아니거나, 거절된 상태이면 예외 처리
-        if (meetingEntity.getCreator().getUsername().equals(username) || applicant.getStatus() == ApplicationStatus.REJECTED) {
-            throw new StudyNotConfirmedException(ErrorCode.STUDY_NOT_CONFIRMED);
-        }
-
         // 개설자 정보
         UserEntity creator = meetingEntity.getCreator();
         ConfirmMeetingResponseDto creatorInfo = convertUserToDto(creator);
 
-        // meetingId에 해당되고, 상태가 APPROVED인 지원서 조회
-        List<ApplicationEntity> approvedApplications = applicationRepository
-                .findByMeetingAndStatus(meetingEntity, ApplicationStatus.APPROVED);
+        // 개설자인 경우: 지원서가 승인된 회원만 반환
+        if (meetingEntity.getCreator().getUsername().equals(username)) {
+            return getConfirmedMembersForCreator(meetingEntity, creatorInfo);
+        }
 
-        // DTO로 변환 (개설자 정보 포함)
-        List<ConfirmMeetingResponseDto> responseDtos = approvedApplications.stream()
-                .map(application -> ConfirmMeetingResponseDto.fromEntity(application.getApplicant()))
-                .collect(Collectors.toList());
+        // 개설자가 아니고, 지원자가 승인되지 않은 경우 예외 처리
+        ApplicationEntity applicant = applicationRepository.findByApplicantAndMeeting(user, meetingEntity)
+                .orElseThrow(() -> new ApplicationNotFoundException(ErrorCode.APPLICATION_NOT_FOUND));
 
-        responseDtos.add(0, creatorInfo);
+        if (applicant.getStatus() != ApplicationStatus.APPROVED) {
+            throw new StudyNotConfirmedException(ErrorCode.STUDY_NOT_CONFIRMED);
+        }
 
-        return responseDtos;
+        // 승인된 지원서들 반환
+        return getConfirmedMembersForCreator(meetingEntity, creatorInfo);
     }
 
     /**
@@ -473,34 +466,70 @@ public class MeetingService {
      * @param applicationIds 모임원들의 지원서 아이디 리스트
      * @param responseDtos 모임원들의 정보가 담긴 DTO
      */
-    private void processApplications(List<ApplicationEntity> applications, Set<Long> applicationIds, List<ConfirmMeetingResponseDto> responseDtos) {
+    private void processApplications(List<ApplicationEntity> applications, List<Long> applicationIds, List<ConfirmMeetingResponseDto> responseDtos) {
         // 지원서 ID가 유효한지 확인
-        Set<Long> validApplicationIds = new HashSet<>(applicationIds); // Set으로 변환하여 중복 제거
+        Set<Long> validApplicationIds = new HashSet<>(applicationIds); // 중복 제거를 위해 Set 사용
         List<ApplicationEntity> validApplications = new ArrayList<>();
 
+        // 유효한 지원서를 처리하고, 유효하지 않은 ID는 예외 처리
         for (ApplicationEntity applicationEntity : applications) {
-            if (validApplicationIds.contains(applicationEntity.getId())) {
+            if (validApplicationIds.remove(applicationEntity.getId())) {
                 validApplications.add(applicationEntity);
-                validApplicationIds.remove(applicationEntity.getId()); // 유효한 ID를 처리 후 제거
             }
         }
 
-        // 유효하지 않은 ID가 있는지 체크
+        // 유효하지 않은 ID가 존재하면 예외 발생
         if (!validApplicationIds.isEmpty()) {
             throw new InvalidApplicationIdException(ErrorCode.INVALID_APPLICATION_ID);
         }
 
-        // 유효한 지원서에 대해서 승인 또는 거절 처리
+        // 승인된 지원서 처리
+        processApprovedApplications(validApplications, responseDtos);
+
+        // 거절된 지원서 처리
+        rejectInvalidApplications(applications, validApplications);
+    }
+
+    /**
+     * 승인된 지원서 처리
+     * - 지원자의 상태 -> approve
+     */
+    private void processApprovedApplications(List<ApplicationEntity> validApplications, List<ConfirmMeetingResponseDto> responseDtos) {
         for (ApplicationEntity applicationEntity : validApplications) {
             applicationEntity.approve(); // 지원 확정
             responseDtos.add(convertUserToDto(applicationEntity.getApplicant())); // 승인된 지원자 DTO 변환 후 추가
         }
+    }
 
-        // 유효하지 않은 지원서에 대해서 거절 처리
+    /**
+     * 거절된 지원서 처리
+     * - 지원자의 상태 -> reject
+     */
+    private void rejectInvalidApplications(List<ApplicationEntity> applications, List<ApplicationEntity> validApplications) {
         for (ApplicationEntity applicationEntity : applications) {
             if (!validApplications.contains(applicationEntity)) {
                 applicationEntity.reject(); // 지원 거절
             }
         }
     }
+
+    /**
+     * 개설자에게 승인된 지원자 목록을 반환하는 공통 로직
+     */
+    private List<ConfirmMeetingResponseDto> getConfirmedMembersForCreator(MeetingEntity meetingEntity, ConfirmMeetingResponseDto creatorInfo) {
+        // 상태가 APPROVED인 지원서 조회
+        List<ApplicationEntity> approvedApplications = applicationRepository
+                .findByMeetingAndStatus(meetingEntity, ApplicationStatus.APPROVED);
+
+        // DTO로 변환
+        List<ConfirmMeetingResponseDto> responseDtos = approvedApplications.stream()
+                .map(application -> ConfirmMeetingResponseDto.fromEntity(application.getApplicant()))
+                .collect(Collectors.toList());
+
+        // 개설자 정보 추가
+        responseDtos.add(0, creatorInfo);
+
+        return responseDtos;
+    }
+
 }
