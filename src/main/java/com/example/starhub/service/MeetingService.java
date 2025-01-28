@@ -169,15 +169,9 @@ public class MeetingService {
         meetingEntity.updateMeeting(meetingUpdateRequestDto);
 
         // 기술 스택 업데이트
-        updateMeetingTechStacks(meetingEntity, meetingUpdateRequestDto);
+        List<String> techStackNames = updateMeetingTechStacks(meetingEntity, meetingUpdateRequestDto);
 
-        // 저장된 모임에 연결된 기술 스택 이름들을 리스트로 반환
-        List<String> techStacks = meetingTechStackRepository.findByMeeting(meetingEntity).stream()
-                .map(meetingTechStack -> meetingTechStack.getTechStack().getName())
-                .toList();
-
-        return MeetingResponseDto.fromEntity(meetingEntity, techStacks);
-
+        return MeetingResponseDto.fromEntity(meetingEntity, techStackNames);
     }
 
     /**
@@ -275,56 +269,6 @@ public class MeetingService {
     }
 
     /**
-     * 유저 엔티티를 통해 모임 확정 DTO로 바꾸는 메서드
-     *
-     * @param userEntity 유저 엔티티
-     * @return 모임원들의 정보가 담긴 DTO
-     */
-    private ConfirmMeetingResponseDto convertUserToDto(UserEntity userEntity) {
-        return ConfirmMeetingResponseDto.fromEntity(userEntity);
-    }
-
-    /**
-     * 지원자들의 처리
-     * - 유효하지 않은 아이디 제거
-     * - 모임 확정된 지원자들은 지원으로 status 변경, 아닌 경우는 거절로 status 변경
-     *
-     * @param applications 지원서 엔티티
-     * @param applicationIds 모임원들의 지원서 아이디 리스트
-     * @param responseDtos 모임원들의 정보가 담긴 DTO
-     */
-    private void processApplications(List<ApplicationEntity> applications, Set<Long> applicationIds, List<ConfirmMeetingResponseDto> responseDtos) {
-        // 지원서 ID가 유효한지 확인
-        Set<Long> validApplicationIds = new HashSet<>(applicationIds); // Set으로 변환하여 중복 제거
-        List<ApplicationEntity> validApplications = new ArrayList<>();
-
-        for (ApplicationEntity applicationEntity : applications) {
-            if (validApplicationIds.contains(applicationEntity.getId())) {
-                validApplications.add(applicationEntity);
-                validApplicationIds.remove(applicationEntity.getId()); // 유효한 ID를 처리 후 제거
-            }
-        }
-
-        // 유효하지 않은 ID가 있는지 체크
-        if (!validApplicationIds.isEmpty()) {
-            throw new InvalidApplicationIdException(ErrorCode.INVALID_APPLICATION_ID);
-        }
-
-        // 유효한 지원서에 대해서 승인 또는 거절 처리
-        for (ApplicationEntity applicationEntity : validApplications) {
-            applicationEntity.approve(); // 지원 확정
-            responseDtos.add(convertUserToDto(applicationEntity.getApplicant())); // 승인된 지원자 DTO 변환 후 추가
-        }
-
-        // 유효하지 않은 지원서에 대해서 거절 처리
-        for (ApplicationEntity applicationEntity : applications) {
-            if (!validApplications.contains(applicationEntity)) {
-                applicationEntity.reject(); // 지원 거절
-            }
-        }
-    }
-
-    /**
      * 모임에 연결된 기술 스택을 저장하는 메서드
      *
      * @param meetingEntity 생성된 모임 엔티티
@@ -406,47 +350,6 @@ public class MeetingService {
                 .toList();
     }
 
-
-    /**
-     * 모임 연결된 기술 스택을 업데이트하는 메서드
-     *
-     * @param meetingEntity 모임 엔티티
-     * @param meetingUpdateRequestDto 업데이트할 모임 정보가 담긴 DTO
-     */
-    private void updateMeetingTechStacks(MeetingEntity meetingEntity, MeetingUpdateRequestDto meetingUpdateRequestDto) {
-        if (meetingUpdateRequestDto.getTechStackIds() != null || meetingUpdateRequestDto.getOtherTechStacks() != null) {
-            meetingTechStackRepository.deleteByMeeting(meetingEntity);
-        }
-
-        if (meetingUpdateRequestDto.getTechStackIds() != null) {
-            List<TechStackEntity> techStacks = techStackRepository.findAllById(meetingUpdateRequestDto.getTechStackIds());
-            techStacks.forEach(techStack -> meetingTechStackRepository.save(
-                    MeetingTechStackEntity.builder()
-                            .meeting(meetingEntity)
-                            .techStack(techStack)
-                            .build()
-            ));
-        }
-
-        if (meetingUpdateRequestDto.getOtherTechStacks() != null) {
-            meetingUpdateRequestDto.getOtherTechStacks().forEach(otherTech -> {
-                TechStackEntity techStack = techStackRepository.findByName(otherTech)
-                        .orElseGet(() -> techStackRepository.save(
-                                TechStackEntity.builder()
-                                        .name(otherTech)
-                                        .category(TechCategory.OTHER)
-                                        .build()
-                        ));
-                meetingTechStackRepository.save(
-                        MeetingTechStackEntity.builder()
-                                .meeting(meetingEntity)
-                                .techStack(techStack)
-                                .build()
-                );
-            });
-        }
-    }
-
     /**
      * userType 정의
      * - 익명 사용자, 개설자, 지원자 세가지 상태가 존재
@@ -520,5 +423,82 @@ public class MeetingService {
                 .likeCount(likeCount)
                 .isLiked(isLiked)
                 .build();
+    }
+
+    /**
+     * 모임 연결된 기술 스택을 업데이트하는 메서드
+     *
+     * @param meetingEntity 모임 엔티티
+     * @param meetingUpdateRequestDto 업데이트할 모임 정보가 담긴 DTO
+     */
+    private List<String> updateMeetingTechStacks(MeetingEntity meetingEntity, MeetingUpdateRequestDto meetingUpdateRequestDto) {
+        if (meetingUpdateRequestDto.getTechStackIds() != null || meetingUpdateRequestDto.getOtherTechStacks() != null) {
+            meetingTechStackRepository.deleteByMeeting(meetingEntity);
+        }
+
+        List<String> techStackNames = new ArrayList<>();
+
+        // 기존에 있는 기술 스택 처리
+        if (meetingUpdateRequestDto.getTechStackIds() != null) {
+            techStackNames.addAll(processExistingTechStacks(meetingEntity, meetingUpdateRequestDto.getTechStackIds()));
+        }
+
+        // 새로운 기타 기술 스택 처리
+        if (meetingUpdateRequestDto.getOtherTechStacks() != null) {
+            techStackNames.addAll(processOtherTechStacks(meetingEntity, meetingUpdateRequestDto.getOtherTechStacks()));
+        }
+
+        return techStackNames;
+    }
+
+
+    /**
+     * 유저 엔티티를 통해 모임 확정 DTO로 바꾸는 메서드
+     *
+     * @param userEntity 유저 엔티티
+     * @return 모임원들의 정보가 담긴 DTO
+     */
+    private ConfirmMeetingResponseDto convertUserToDto(UserEntity userEntity) {
+        return ConfirmMeetingResponseDto.fromEntity(userEntity);
+    }
+
+    /**
+     * 지원자들의 처리
+     * - 유효하지 않은 아이디 제거
+     * - 모임 확정된 지원자들은 지원으로 status 변경, 아닌 경우는 거절로 status 변경
+     *
+     * @param applications 지원서 엔티티
+     * @param applicationIds 모임원들의 지원서 아이디 리스트
+     * @param responseDtos 모임원들의 정보가 담긴 DTO
+     */
+    private void processApplications(List<ApplicationEntity> applications, Set<Long> applicationIds, List<ConfirmMeetingResponseDto> responseDtos) {
+        // 지원서 ID가 유효한지 확인
+        Set<Long> validApplicationIds = new HashSet<>(applicationIds); // Set으로 변환하여 중복 제거
+        List<ApplicationEntity> validApplications = new ArrayList<>();
+
+        for (ApplicationEntity applicationEntity : applications) {
+            if (validApplicationIds.contains(applicationEntity.getId())) {
+                validApplications.add(applicationEntity);
+                validApplicationIds.remove(applicationEntity.getId()); // 유효한 ID를 처리 후 제거
+            }
+        }
+
+        // 유효하지 않은 ID가 있는지 체크
+        if (!validApplicationIds.isEmpty()) {
+            throw new InvalidApplicationIdException(ErrorCode.INVALID_APPLICATION_ID);
+        }
+
+        // 유효한 지원서에 대해서 승인 또는 거절 처리
+        for (ApplicationEntity applicationEntity : validApplications) {
+            applicationEntity.approve(); // 지원 확정
+            responseDtos.add(convertUserToDto(applicationEntity.getApplicant())); // 승인된 지원자 DTO 변환 후 추가
+        }
+
+        // 유효하지 않은 지원서에 대해서 거절 처리
+        for (ApplicationEntity applicationEntity : applications) {
+            if (!validApplications.contains(applicationEntity)) {
+                applicationEntity.reject(); // 지원 거절
+            }
+        }
     }
 }
