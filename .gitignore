@@ -47,6 +47,7 @@ build
 
 ### ADMIN ###
 /src/main/java/com/example/starhub/config/AdminAccountInitializer.java
+/src/main/java/com/example/starhub/admin/AdminAccountInitializer.java
 
 
 

@@ -1,7 +1,5 @@
 package com.example.starhub.entity;
 
-import com.example.starhub.dto.request.CreateMeetingRequestDto;
-import com.example.starhub.dto.request.CreateTechStackRequestDto;
 import com.example.starhub.dto.request.TechStackDto;
 import com.example.starhub.entity.enums.TechCategory;
 import lombok.AllArgsConstructor;

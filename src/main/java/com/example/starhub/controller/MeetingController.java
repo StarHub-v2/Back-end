@@ -108,7 +108,7 @@ public class MeetingController implements MeetingControllerDocs {
     /**
      * 모임원 확정하기
      */
-    @PutMapping("/{meetingId}/confirm")
+    @PatchMapping("/{meetingId}/confirm")
     public ResponseEntity<ResponseDto<List<ConfirmMeetingResponseDto>>> confirmMeetingMember(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long meetingId,

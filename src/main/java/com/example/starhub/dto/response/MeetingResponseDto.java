@@ -42,7 +42,7 @@ public class MeetingResponseDto {
     public static MeetingResponseDto fromEntity(MeetingEntity meetingEntity, List<String> techStacks) {
         UserEntity creator = meetingEntity.getCreator();
         CreatorDto creatorDto = CreatorDto.builder()
-                .username(creator.getUsername())
+                .nickname(creator.getNickname())
                 .build();
 
         return MeetingResponseDto.builder()
@@ -67,6 +67,6 @@ public class MeetingResponseDto {
     @Getter
     @Builder
     public static class CreatorDto {
-        private String username; // 개설자 사용자 이름
+        private String nickname; // 개설자 닉네임
     }
 }
