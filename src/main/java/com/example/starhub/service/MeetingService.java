@@ -37,7 +37,7 @@ public class MeetingService {
      * 공통 검증 로직: 게시글 가져오기 및 상태 확인
      */
     private MeetingEntity validateAndGetMeeting(Long meetingId) {
-        MeetingEntity meetingEntity = meetingRepository.findById(meetingId)
+        MeetingEntity meetingEntity = meetingRepository.findWithCreatorById(meetingId)
                 .orElseThrow(() -> new MeetingNotFoundException(ErrorCode.MEETING_NOT_FOUND));
 
         if (meetingEntity.getIsConfirmed()) {
