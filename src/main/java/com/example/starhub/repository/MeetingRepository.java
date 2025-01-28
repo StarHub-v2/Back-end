@@ -11,4 +11,6 @@ public interface MeetingRepository extends JpaRepository<MeetingEntity, Long> {
 
     @Query("SELECT m FROM MeetingEntity m JOIN FETCH m.creator WHERE m.id = :meetingId")
     Optional<MeetingEntity> findWithCreatorById(@Param("meetingId") Long meetingId);
+
+
 }

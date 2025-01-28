@@ -10,6 +10,7 @@ import com.example.starhub.entity.enums.TechCategory;
 import com.example.starhub.exception.*;
 import com.example.starhub.repository.*;
 import com.example.starhub.response.code.ErrorCode;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -85,14 +86,9 @@ public class MeetingService {
         MeetingEntity savedMeeting = meetingRepository.save(meetingEntity);
 
         // 기술 스택 정보를 처리하여 모임와 연결
-        saveMeetingTechStacks(savedMeeting, createMeetingRequestDto);
+        List<String> techStackNames = saveMeetingTechStacks(savedMeeting, createMeetingRequestDto);
 
-        // 저장된 모임에 연결된 기술 스택 이름들을 리스트로 반환
-        List<String> techStacks = meetingTechStackRepository.findByMeeting(savedMeeting).stream()
-                .map(meetingTechStack -> meetingTechStack.getTechStack().getName())
-                .toList();
-
-        return MeetingResponseDto.fromEntity(savedMeeting, techStacks);
+        return MeetingResponseDto.fromEntity(savedMeeting, techStackNames);
     }
 
     /**
@@ -128,16 +124,30 @@ public class MeetingService {
      */
     @Transactional(readOnly = true)
     public MeetingDetailResponseDto getMeetingDetail(String username, Long meetingId) {
-        MeetingEntity meetingEntity = meetingRepository.findById(meetingId)
+
+        // 모임 정보와 개설자 정보 같이 가져오기
+        MeetingEntity meetingEntity = meetingRepository.findWithCreatorById(meetingId)
                 .orElseThrow(() -> new MeetingNotFoundException(ErrorCode.MEETING_NOT_FOUND));
 
-        Boolean isApplicant = !meetingEntity.getCreator().getUsername().equals(username);
-        Boolean applicationStatus = isApplicant ? null : getApplicationStatus(username, meetingEntity);
+        // 사용자 타입: Creator(개설자), Applicant(지원자), Anonymous(익명 사용자)
+        String userType = determineUserType(username, meetingEntity);
 
+        // 지원 상태 조회
+        ApplicationDetail applicationDetail = getApplicationDetail(username, userType, meetingEntity);
+
+        // 기술 스택 조회
         List<String> techStacks = getTechStacksForMeeting(meetingEntity);
+
+        // 좋아요 정보
         LikeDto likeDto = getLikeDtoForMeeting(meetingEntity, username);
 
-        return MeetingDetailResponseDto.fromEntity(isApplicant, applicationStatus, meetingEntity, techStacks, likeDto);
+        return MeetingDetailResponseDto.fromEntity(
+                userType,
+                applicationDetail.isApplication(),
+                applicationDetail.applicationStatus(),
+                meetingEntity,
+                techStacks,
+                likeDto);
     }
 
     /**
@@ -319,41 +329,83 @@ public class MeetingService {
      *
      * @param meetingEntity 생성된 모임 엔티티
      * @param createMeetingRequestDto 모임 생성 요청 DTO
+     * @return 기술 스택 이름 리스트
      */
-    private void saveMeetingTechStacks(MeetingEntity meetingEntity, CreateMeetingRequestDto createMeetingRequestDto) {
-        // 기존 기술 스택 처리 (기술 스택 ID 목록을 사용하여 처리)
+    private List<String> saveMeetingTechStacks(MeetingEntity meetingEntity, CreateMeetingRequestDto createMeetingRequestDto) {
+        List<String> techStackNames = new ArrayList<>();
+
+        // 기존 기술 스택 처리
         if (createMeetingRequestDto.getTechStackIds() != null) {
-            List<TechStackEntity> techStacks = techStackRepository.findAllById(createMeetingRequestDto.getTechStackIds());
-            techStacks.forEach(techStack -> meetingTechStackRepository.save(
+            techStackNames.addAll(processExistingTechStacks(meetingEntity, createMeetingRequestDto.getTechStackIds()));
+        }
+
+        // 새로운 기타 기술 스택 처리
+        if (createMeetingRequestDto.getOtherTechStacks() != null) {
+            techStackNames.addAll(processOtherTechStacks(meetingEntity, createMeetingRequestDto.getOtherTechStacks()));
+        }
+
+        return techStackNames;
+    }
+
+    /**
+     * 기존 기술 스택 처리 메서드
+     * - 기존 기술 스택 = 서비스에서 기본적으로 제공하는 기술 스택
+     *
+     * @param meetingEntity 모임 엔티티
+     * @param techStackIds 기술 스택 아이디들
+     * @return 기술 스택 이름 리스트
+     */
+    private List<String> processExistingTechStacks(MeetingEntity meetingEntity, List<Long> techStackIds) {
+        List<TechStackEntity> techStacks = techStackRepository.findAllById(techStackIds);
+
+        // MeetingTechStackEntity 생성
+        List<MeetingTechStackEntity> meetingTechStackEntities = techStacks.stream()
+                .map(techStack -> MeetingTechStackEntity.builder()
+                        .meeting(meetingEntity)
+                        .techStack(techStack)
+                        .build())
+                .toList();
+
+        // 한 번에 저장
+        meetingTechStackRepository.saveAll(meetingTechStackEntities);
+
+        // 이름 반환
+        return techStacks.stream()
+                .map(TechStackEntity::getName)
+                .toList();
+    }
+
+    /**
+     * 사용자가 새로 입력한 기술 스택 처리 메서드
+     *
+     * @param meetingEntity 모임 엔티티
+     * @param otherTechStackNames 사용자가 입력한 기술 스택 이름들
+     * @return 기술 스택 이름 리스트
+     */
+    private List<String> processOtherTechStacks(MeetingEntity meetingEntity, List<String> otherTechStackNames) {
+        otherTechStackNames.forEach(otherTech -> {
+            // 기술 스택이 이미 존재하는지 확인하고, 없으면 새로 생성
+            TechStackEntity techStack = techStackRepository.findByName(otherTech)
+                    .orElseGet(() -> techStackRepository.save(
+                            TechStackEntity.builder()
+                                    .name(otherTech)
+                                    .category(TechCategory.OTHER)
+                                    .build()
+                    ));
+
+            // 모임과 기술 스택을 연결하여 저장
+            meetingTechStackRepository.save(
                     MeetingTechStackEntity.builder()
                             .meeting(meetingEntity)
                             .techStack(techStack)
                             .build()
-            ));
-        }
+            );
+        });
 
-        // 사용자가 입력한 기타 기술 스택 처리
-        if (createMeetingRequestDto.getOtherTechStacks() != null) {
-            createMeetingRequestDto.getOtherTechStacks().forEach(otherTech -> {
-                // 기술 스택이 이미 존재하는지 확인하고, 없으면 새로 생성
-                TechStackEntity techStack = techStackRepository.findByName(otherTech)
-                        .orElseGet(() -> techStackRepository.save(
-                                TechStackEntity.builder()
-                                        .name(otherTech)
-                                        .category(TechCategory.OTHER)
-                                        .build()
-                        ));
-
-                // 모임과 기술 스택을 연결하여 저장
-                meetingTechStackRepository.save(
-                        MeetingTechStackEntity.builder()
-                                .meeting(meetingEntity)
-                                .techStack(techStack)
-                                .build()
-                );
-            });
-        }
+        return otherTechStackNames.stream()
+                .toList();
     }
+
 
     /**
      * 모임 연결된 기술 스택을 업데이트하는 메서드
@@ -396,6 +448,47 @@ public class MeetingService {
     }
 
     /**
+     * userType 정의
+     * - 익명 사용자, 개설자, 지원자 세가지 상태가 존재
+     *
+     * @param username 사용자명
+     * @param meetingEntity 모임 엔티티
+     * @return userType
+     */
+    private String determineUserType(String username, MeetingEntity meetingEntity) {
+        if (username == null) return "Anonymous";
+        if (meetingEntity.getCreator().getUsername().equals(username)) return "Creator";
+        return "Applicant";
+    }
+
+    /**
+     * 지원자일 경우 지원자의 상태를 확인하기 위한 메서드
+     * - 지원 여부, 지원 상태를 알려줍니다.
+     *
+     * @param username 사용자명
+     * @param userType 유저 타입 - 지원자일 경우 체크
+     * @param meetingEntity 모임 엔티티
+     * @return 지원 여부 (isApplication)와 지원 상태 (applicationStatus)를 포함하는 ApplicationDetail 객체
+     */
+    private ApplicationDetail getApplicationDetail(String username, String userType, MeetingEntity meetingEntity) {
+        if (!"Applicant".equals(userType)) {
+            return new ApplicationDetail(null, null);
+        }
+
+        UserEntity userEntity = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
+        ApplicationEntity applicationEntity = applicationRepository.findByApplicantAndMeeting(userEntity, meetingEntity)
+                .orElse(null);
+
+        Boolean isApplication = (applicationEntity != null);
+        ApplicationStatus applicationStatus = (applicationEntity != null) ? applicationEntity.getStatus() : null;
+
+        return new ApplicationDetail(isApplication, applicationStatus);
+    }
+
+    private record ApplicationDetail(Boolean isApplication, ApplicationStatus applicationStatus) {}
+
+    /**
      * 모임에 연결된 기술 스택을 반환하는 메서드
      *
      * @param meetingEntity 모임 엔티티
@@ -409,6 +502,7 @@ public class MeetingService {
 
     /**
      * 모임에 대한 좋아요 정보 및 내가 좋아요를 눌렀는지 여부를 반환하는 메서드
+     * - 익명 사용자의 경우 isLiked 정보를 넘기지 않음 -> null
      *
      * @param meetingEntity 모임 엔티티
      * @param username   사용자명
@@ -417,29 +511,14 @@ public class MeetingService {
     private LikeDto getLikeDtoForMeeting(MeetingEntity meetingEntity, String username) {
         Long likeCount = likeRepository.countByMeeting(meetingEntity);
 
-        Boolean isLiked = null;
-        // 인증된 사용자일 경우에만 like 여부를 확인
-        if (username != null) {
-            isLiked = likeRepository.existsByMeetingAndUserUsername(meetingEntity, username);
-        }
+        // 익명 사용자인 경우 좋아요 여부를 포함하지 않음
+        Boolean isLiked = (username != null)
+                ? likeRepository.existsByMeetingAndUserUsername(meetingEntity, username)
+                : null;
 
         return LikeDto.builder()
                 .likeCount(likeCount)
                 .isLiked(isLiked)
                 .build();
-    }
-
-    /**
-     * 사용자가 해당 모임에 지원했는지 여부를 반환하는 메서드
-     *
-     * @param username   사용자명
-     * @param meetingEntity 모임 엔티티
-     * @return 지원 여부
-     */
-    private Boolean getApplicationStatus(String username, MeetingEntity meetingEntity) {
-        UserEntity userEntity = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
-
-        return applicationRepository.existsByMeetingAndApplicant(meetingEntity, userEntity);
     }
 }

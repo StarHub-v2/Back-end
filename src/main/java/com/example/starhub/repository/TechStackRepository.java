@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface TechStackRepository extends JpaRepository<TechStackEntity, Long> {
     Optional<TechStackEntity> findByName(String name);
     List<TechStackEntity> findByCategoryNot(TechCategory category);
+    List<TechStackEntity> findAllByNameIn(List<String> names);
 }
