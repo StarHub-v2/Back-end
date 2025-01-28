@@ -35,6 +35,8 @@ public class MeetingService {
 
     /**
      * 공통 검증 로직: 게시글 가져오기 및 상태 확인
+     * - 모임이 확정이 안된 상태이여야 함
+     * - 개설자 정보와 같이 JOIN FETCH
      */
     private MeetingEntity validateAndGetMeeting(Long meetingId) {
         MeetingEntity meetingEntity = meetingRepository.findWithCreatorById(meetingId)
@@ -62,7 +64,7 @@ public class MeetingService {
     }
 
     /**
-     * 공통 검증 로직: 사용자가 게시글의 개설자인지 확인
+     * 공통 검증 로직: 사용자가 모임의 개설자인지 확인
      */
     private void validateMeetingCreator(MeetingEntity meetingEntity, String username) {
         if (!meetingEntity.getCreator().getUsername().equals(username)) {

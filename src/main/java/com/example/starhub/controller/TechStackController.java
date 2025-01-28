@@ -32,16 +32,4 @@ public class TechStackController implements TechStackControllerDocs {
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_TECH_STACK, res));
     }
 
-    /**
-     * 기술 스택 추가하기
-     */
-    @Hidden
-    @PostMapping
-    public ResponseEntity<ResponseDto> createTechStack(@Valid @RequestBody CreateTechStackRequestDto createTechStackRequestDto) {
-        techStackService.createTechStack(createTechStackRequestDto.getTechStacks());
-        return ResponseEntity
-                .status(ResponseCode.SUCCESS_CREATE_TECH_STACK.getStatus().value())
-                .body(new ResponseDto<>(ResponseCode.SUCCESS_CREATE_TECH_STACK, null));
-    }
-
 }
