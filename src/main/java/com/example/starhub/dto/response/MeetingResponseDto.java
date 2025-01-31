@@ -43,6 +43,7 @@ public class MeetingResponseDto {
         UserEntity creator = meetingEntity.getCreator();
         CreatorDto creatorDto = CreatorDto.builder()
                 .nickname(creator.getNickname())
+                .profileImage(creator.getProfileImage())
                 .build();
 
         return MeetingResponseDto.builder()
@@ -68,5 +69,6 @@ public class MeetingResponseDto {
     @Builder
     public static class CreatorDto {
         private String nickname; // 개설자 닉네임
+        private String profileImage; // 개설자 프로필 이미지
     }
 }

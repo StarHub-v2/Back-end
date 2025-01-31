@@ -156,6 +156,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                 .username(customUserDetails.getUsername())
                 .isProfileComplete(customUserDetails.getIsProfileComplete())
                 .nickname(customUserDetails.getNickname())
+                .profileImage(customUserDetails.getProfileImage())
                 .build();
 
         ResponseUtil.writeSuccessResponse(response, ResponseCode.SUCCESS_LOGIN, loginResponseDto);
