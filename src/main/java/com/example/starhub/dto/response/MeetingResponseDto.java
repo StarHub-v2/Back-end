@@ -7,8 +7,8 @@ import com.example.starhub.entity.enums.RecruitmentType;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -28,6 +28,7 @@ public class MeetingResponseDto {
     private String goal;
     private String otherInfo;
     private Boolean isConfirmed;
+    private LocalDateTime updatedAt;
     private CreatorDto creator;
     private List<String> techStacks;
 
@@ -60,6 +61,7 @@ public class MeetingResponseDto {
                 .goal(meetingEntity.getGoal())
                 .otherInfo(meetingEntity.getOtherInfo())
                 .isConfirmed(meetingEntity.getIsConfirmed())
+                .updatedAt(meetingEntity.getUpdatedAt())
                 .creator(creatorDto)
                 .techStacks(techStacks)
                 .build();
