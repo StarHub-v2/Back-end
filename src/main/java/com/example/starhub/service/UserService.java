@@ -4,6 +4,7 @@ import com.example.starhub.dto.request.CreateProfileRequestDto;
 import com.example.starhub.dto.request.CreateUserRequestDto;
 import com.example.starhub.dto.request.UsernameCheckRequestDto;
 import com.example.starhub.dto.response.ProfileResponseDto;
+import com.example.starhub.dto.response.ProfileSummaryResponseDto;
 import com.example.starhub.dto.response.UserResponseDto;
 import com.example.starhub.dto.response.UsernameCheckResponseDto;
 import com.example.starhub.entity.UserEntity;
@@ -79,7 +80,7 @@ public class UserService {
      * @param createProfileRequestDto 프로필 생성 요청 DTO
      * @return ProfileResponseDto 프로필 생성 응답 DTO
      */
-    public ProfileResponseDto createUserProfile(String username, CreateProfileRequestDto createProfileRequestDto) {
+    public ProfileSummaryResponseDto createUserProfile(String username, CreateProfileRequestDto createProfileRequestDto) {
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
 
@@ -96,6 +97,20 @@ public class UserService {
                 createProfileRequestDto.getEmail(),
                 createProfileRequestDto.getPhoneNumber()
         );
+
+        return ProfileSummaryResponseDto.fromEntity(user);
+    }
+
+    /**
+     * 마이페이지 - 사용자 정보 불러오기
+     *
+     * @param username 사용자명
+     * @return 사용자 정보가 담긴 DTO
+     */
+    @Transactional(readOnly = true)
+    public ProfileResponseDto getUserProfile(String username) {
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
 
         return ProfileResponseDto.fromEntity(user);
     }

@@ -1,7 +1,6 @@
 package com.example.starhub.dto.response;
 
 import com.example.starhub.entity.UserEntity;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -10,11 +9,17 @@ import lombok.Getter;
 public class ProfileResponseDto {
 
     private Long id;
-    private String nickname;
     private String profileImage;
+    private String name;
+    private String nickname;
+    private Integer age;
+    private String phoneNumber;
+    private String email;
+    private String bio;
+
 
     /**
-     * 2차 회원가입 이후 프로필 정보
+     * 마이페이지 - 프로필 정보
      * - UserEntity로부터 ProfileResponseDto를 생성합니다.
      *
      * @param userEntity 유저 엔티티
@@ -23,8 +28,13 @@ public class ProfileResponseDto {
     public static ProfileResponseDto fromEntity(UserEntity userEntity) {
         return ProfileResponseDto.builder()
                 .id(userEntity.getId())
-                .nickname(userEntity.getNickname())
                 .profileImage(userEntity.getProfileImage())
+                .name(userEntity.getName())
+                .nickname(userEntity.getNickname())
+                .age(userEntity.getAge())
+                .phoneNumber(userEntity.getPhoneNumber())
+                .email(userEntity.getEmail())
+                .bio(userEntity.getBio())
                 .build();
     }
 

@@ -5,6 +5,7 @@ import com.example.starhub.dto.request.CreateProfileRequestDto;
 import com.example.starhub.dto.request.CreateUserRequestDto;
 import com.example.starhub.dto.request.UsernameCheckRequestDto;
 import com.example.starhub.dto.response.ProfileResponseDto;
+import com.example.starhub.dto.response.ProfileSummaryResponseDto;
 import com.example.starhub.dto.response.UserResponseDto;
 import com.example.starhub.dto.response.UsernameCheckResponseDto;
 import com.example.starhub.dto.security.CustomUserDetails;
@@ -15,10 +16,8 @@ import com.example.starhub.response.dto.ResponseDto;
 import com.example.starhub.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
@@ -59,9 +58,9 @@ public class UserController implements UserControllerDocs {
      * 프로필 생성하기(2차 회원가입)
      */
     @PostMapping("/users/profile")
-    public ResponseEntity<ResponseDto<ProfileResponseDto>> createUserProfile(@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                                                             @Valid @RequestBody CreateProfileRequestDto createProfileRequestDto) {
-        ProfileResponseDto res = userService.createUserProfile(customUserDetails.getUsername(), createProfileRequestDto);
+    public ResponseEntity<ResponseDto<ProfileSummaryResponseDto>> createUserProfile(@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                                                                    @Valid @RequestBody CreateProfileRequestDto createProfileRequestDto) {
+        ProfileSummaryResponseDto res = userService.createUserProfile(customUserDetails.getUsername(), createProfileRequestDto);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_CREATE_PROFILE.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_CREATE_PROFILE, res));
@@ -103,10 +102,12 @@ public class UserController implements UserControllerDocs {
      * 마이페이지 정보 불러오기 - 사용자 정보
      */
     @GetMapping("/mypage/users")
-    public ResponseEntity<ResponseDto> getUserProfile() {
+    public ResponseEntity<ResponseDto<ProfileResponseDto>> getUserProfile(@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        ProfileResponseDto res = userService.getUserProfile(customUserDetails.getUsername());
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_GET_PROFILE.getStatus().value())
-                .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_PROFILE, null));
+                .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_PROFILE, res));
     }
 
     /**
