@@ -3,6 +3,7 @@ package com.example.starhub.controller.docs;
 import com.example.starhub.dto.request.CreateProfileRequestDto;
 import com.example.starhub.dto.request.CreateUserRequestDto;
 import com.example.starhub.dto.request.UsernameCheckRequestDto;
+import com.example.starhub.dto.response.ProfileResponseDto;
 import com.example.starhub.dto.response.ProfileSummaryResponseDto;
 import com.example.starhub.dto.response.UserResponseDto;
 import com.example.starhub.dto.response.UsernameCheckResponseDto;
@@ -57,4 +58,14 @@ public interface UserControllerDocs {
             description = "Access 및 Refresh 토큰을 재발급을 진행합니다."
     )
     ResponseEntity<ResponseDto> reissueToken(HttpServletRequest request, HttpServletResponse response);
+
+    /**
+     * 마이페이지 정보 불러오기 - 사용자 정보
+     */
+    @Operation(
+            summary = "마이페이지 정보 불러오기 - 사용자 정보",
+            description = "마이페이지 정보 중 사용자 정보와 관련된 정보 불러오기를 진행합니다."
+    )
+    ResponseEntity<ResponseDto<ProfileResponseDto>> getUserProfile(@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails);
+
 }
