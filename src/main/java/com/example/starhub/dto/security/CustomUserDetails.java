@@ -52,9 +52,17 @@ public class CustomUserDetails implements UserDetails {
      * @return 닉네임
      */
     public String getNickname() {
-        return userEntity.getIsProfileComplete() ? userEntity.getNickname() : "";
+        return userEntity.getIsProfileComplete() ? userEntity.getNickname() : null;
     }
 
+    /**
+     * 사용자 프로필 이미지를 반환합니다.
+     *
+     * @return 프로필 이미지
+     */
+    public String getProfileImage() {
+        return userEntity.getIsProfileComplete() ? userEntity.getProfileImage() : null;
+    }
 
     /**
      * 사용자의 비밀번호를 반환합니다.

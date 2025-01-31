@@ -11,6 +11,8 @@ import java.util.List;
 public class ConfirmMeetingResponseDto {
 
     private String name;
+    private String profileImage;
+    private String nickname;
     private Integer age;
     private String bio;
     private String phoneNumber;
@@ -18,8 +20,9 @@ public class ConfirmMeetingResponseDto {
 
     public static ConfirmMeetingResponseDto fromEntity(UserEntity userEntity) {
         return ConfirmMeetingResponseDto.builder()
-
                 .name(userEntity.getName())
+                .profileImage(userEntity.getProfileImage())
+                .nickname(userEntity.getNickname())
                 .age(userEntity.getAge())
                 .bio(userEntity.getBio())
                 .phoneNumber(userEntity.getPhoneNumber())

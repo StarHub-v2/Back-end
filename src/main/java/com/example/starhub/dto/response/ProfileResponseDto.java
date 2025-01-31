@@ -1,6 +1,7 @@
 package com.example.starhub.dto.response;
 
 import com.example.starhub.entity.UserEntity;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -10,6 +11,7 @@ public class ProfileResponseDto {
 
     private Long id;
     private String nickname;
+    private String profileImage;
 
     /**
      * 2차 회원가입 이후 프로필 정보
@@ -22,6 +24,8 @@ public class ProfileResponseDto {
         return ProfileResponseDto.builder()
                 .id(userEntity.getId())
                 .nickname(userEntity.getNickname())
+                .profileImage(userEntity.getProfileImage())
                 .build();
     }
+
 }

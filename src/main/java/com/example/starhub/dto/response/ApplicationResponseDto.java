@@ -27,6 +27,7 @@ public class ApplicationResponseDto {
         UserEntity applicant = applicationEntity.getApplicant();
         ApplicantDto applicantDto = ApplicantDto.builder()
                 .nickname(applicant.getNickname())
+                .profileImage(applicant.getProfileImage())
                 .build();
 
         return ApplicationResponseDto.builder()
