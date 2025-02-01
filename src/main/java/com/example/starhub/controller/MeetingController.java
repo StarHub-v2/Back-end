@@ -3,7 +3,7 @@ package com.example.starhub.controller;
 import com.example.starhub.controller.docs.MeetingControllerDocs;
 import com.example.starhub.dto.request.ConfirmMeetingRequestDto;
 import com.example.starhub.dto.request.CreateMeetingRequestDto;
-import com.example.starhub.dto.request.MeetingUpdateRequestDto;
+import com.example.starhub.dto.request.UpdateMeetingRequestDto;
 import com.example.starhub.dto.response.ConfirmMeetingResponseDto;
 import com.example.starhub.dto.response.MeetingDetailResponseDto;
 import com.example.starhub.dto.response.MeetingResponseDto;
@@ -83,9 +83,9 @@ public class MeetingController implements MeetingControllerDocs {
     public ResponseEntity<ResponseDto<MeetingResponseDto>> updateMeeting(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long meetingId,
-            @RequestBody MeetingUpdateRequestDto meetingUpdateRequestDto) {
+            @RequestBody UpdateMeetingRequestDto updateMeetingRequestDto) {
 
-        MeetingResponseDto res = meetingService.updateMeeting(customUserDetails.getUsername(), meetingId, meetingUpdateRequestDto);
+        MeetingResponseDto res = meetingService.updateMeeting(customUserDetails.getUsername(), meetingId, updateMeetingRequestDto);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_UPDATE_MEETING.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_UPDATE_MEETING, res));

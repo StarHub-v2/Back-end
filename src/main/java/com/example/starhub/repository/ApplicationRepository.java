@@ -6,6 +6,7 @@ import com.example.starhub.entity.UserEntity;
 import com.example.starhub.entity.enums.ApplicationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,4 +20,10 @@ public interface ApplicationRepository extends JpaRepository<ApplicationEntity, 
     Optional<ApplicationEntity> findByApplicantAndMeeting(UserEntity userEntity, MeetingEntity meetingEntity);
 
     List<ApplicationEntity> findByMeetingAndStatus(MeetingEntity meetingEntity, ApplicationStatus status);
+
+    @Query("SELECT a FROM ApplicationEntity a " +
+            "JOIN FETCH a.meeting m " +
+            "WHERE a.applicant = :user " +
+            "ORDER BY a.createdAt DESC")
+    List<ApplicationEntity> findTop3ByApplicantWithMeeting(@Param("user") UserEntity user);
 }

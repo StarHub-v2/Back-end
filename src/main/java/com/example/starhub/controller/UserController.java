@@ -3,6 +3,7 @@ package com.example.starhub.controller;
 import com.example.starhub.controller.docs.UserControllerDocs;
 import com.example.starhub.dto.request.CreateProfileRequestDto;
 import com.example.starhub.dto.request.CreateUserRequestDto;
+import com.example.starhub.dto.request.UpdateProfileRequestDto;
 import com.example.starhub.dto.request.UsernameCheckRequestDto;
 import com.example.starhub.dto.response.ProfileResponseDto;
 import com.example.starhub.dto.response.ProfileSummaryResponseDto;
@@ -121,13 +122,15 @@ public class UserController implements UserControllerDocs {
     }
 
     /**
-     * 마이페이지 정보 수정하기
+     * 마이페이지 - 프로필 정보 수정하기
      */
-    @PutMapping("/mypage/users")
-    public ResponseEntity<ResponseDto> updateUserProfile() {
+    @PatchMapping("/mypage/users")
+    public ResponseEntity<ResponseDto> updateUserProfile(@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                                         @Valid @RequestBody UpdateProfileRequestDto updateProfileRequestDto) {
+        ProfileResponseDto res = userService.updateUserProfile(customUserDetails.getUsername(), updateProfileRequestDto);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_UPDATE_PROFILE.getStatus().value())
-                .body(new ResponseDto<>(ResponseCode.SUCCESS_UPDATE_PROFILE, null));
+                .body(new ResponseDto<>(ResponseCode.SUCCESS_UPDATE_PROFILE, res));
     }
 
     /**

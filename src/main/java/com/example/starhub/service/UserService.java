@@ -1,7 +1,8 @@
 package com.example.starhub.service;
 
-import com.example.starhub.dto.request.CreateProfileRequestDto;
 import com.example.starhub.dto.request.CreateUserRequestDto;
+import com.example.starhub.dto.request.CreateProfileRequestDto;
+import com.example.starhub.dto.request.UpdateProfileRequestDto;
 import com.example.starhub.dto.request.UsernameCheckRequestDto;
 import com.example.starhub.dto.response.ProfileResponseDto;
 import com.example.starhub.dto.response.ProfileSummaryResponseDto;
@@ -88,7 +89,7 @@ public class UserService {
             throw new UserProfileAlreadyExistsException(ErrorCode.USER_PROFILE_ALREADY_EXISTS);
         }
 
-        user.updateProfile(
+        user.createProfile(
                 createProfileRequestDto.getProfileImage(),
                 createProfileRequestDto.getNickname(),
                 createProfileRequestDto.getName(),
@@ -115,6 +116,21 @@ public class UserService {
         return ProfileResponseDto.fromEntity(user);
     }
 
+    /**
+     * 마이페이지 - 프로필 정보 수정하기
+     *
+     * @param username 사용자명
+     * @param updateProfileRequestDto 업데이트할 프로필 정보
+     * @return 사용자 정보가 담긴 DTO
+     */
+    public ProfileResponseDto updateUserProfile(String username, UpdateProfileRequestDto updateProfileRequestDto) {
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
+
+        user.updateProfile(updateProfileRequestDto);
+
+        return ProfileResponseDto.fromEntity(user);
+    }
     /**
      * 토큰 재발급
      *

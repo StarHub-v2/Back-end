@@ -1,18 +1,15 @@
 package com.example.starhub.entity;
 
 import com.example.starhub.dto.request.CreateMeetingRequestDto;
-import com.example.starhub.dto.request.MeetingUpdateRequestDto;
+import com.example.starhub.dto.request.UpdateMeetingRequestDto;
 import com.example.starhub.entity.enums.Duration;
 import com.example.starhub.entity.enums.RecruitmentType;
-import com.example.starhub.exception.StudyConfirmedException;
-import com.example.starhub.response.code.ErrorCode;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -91,18 +88,22 @@ public class MeetingEntity {
                 .build();
     }
 
-    public void updateMeeting(MeetingUpdateRequestDto meetingUpdateRequestDto) {
-        this.recruitmentType = meetingUpdateRequestDto.getRecruitmentType() != null ? meetingUpdateRequestDto.getRecruitmentType() : this.recruitmentType;
-        this.maxParticipants = meetingUpdateRequestDto.getMaxParticipants() != null ? meetingUpdateRequestDto.getMaxParticipants() : this.maxParticipants;
-        this.duration = meetingUpdateRequestDto.getDuration() != null ? meetingUpdateRequestDto.getDuration() : this.duration;
-        this.endDate = meetingUpdateRequestDto.getEndDate() != null ? meetingUpdateRequestDto.getEndDate() : this.endDate;
-        this.location = meetingUpdateRequestDto.getLocation() != null ? meetingUpdateRequestDto.getLocation() : this.location;
-        this.latitude = meetingUpdateRequestDto.getLatitude() != null ? meetingUpdateRequestDto.getLatitude() : this.latitude;
-        this.longitude = meetingUpdateRequestDto.getLongitude() != null ? meetingUpdateRequestDto.getLongitude() : this.longitude;
-        this.title = meetingUpdateRequestDto.getTitle() != null ? meetingUpdateRequestDto.getTitle() : this.title;
-        this.description = meetingUpdateRequestDto.getDescription() != null ? meetingUpdateRequestDto.getDescription() : this.description;
-        this.goal = meetingUpdateRequestDto.getGoal() != null ? meetingUpdateRequestDto.getGoal() : this.goal;
-        this.otherInfo = meetingUpdateRequestDto.getOtherInfo() != null ? meetingUpdateRequestDto.getOtherInfo() : this.otherInfo;
+    public void updateMeeting(UpdateMeetingRequestDto updateMeetingRequestDto) {
+        this.recruitmentType = updateValue(updateMeetingRequestDto.getRecruitmentType(), this.recruitmentType);
+        this.maxParticipants = updateValue(updateMeetingRequestDto.getMaxParticipants(), this.maxParticipants);
+        this.duration = updateValue(updateMeetingRequestDto.getDuration(), this.duration);
+        this.endDate = updateValue(updateMeetingRequestDto.getEndDate(), this.endDate);
+        this.location = updateValue(updateMeetingRequestDto.getLocation(), this.location);
+        this.latitude = updateValue(updateMeetingRequestDto.getLatitude(), this.latitude);
+        this.longitude = updateValue(updateMeetingRequestDto.getLongitude(), this.longitude);
+        this.title = updateValue(updateMeetingRequestDto.getTitle(), this.title);
+        this.description = updateValue(updateMeetingRequestDto.getDescription(), this.description);
+        this.goal = updateValue(updateMeetingRequestDto.getGoal(), this.goal);
+        this.otherInfo = updateValue(updateMeetingRequestDto.getOtherInfo(), this.otherInfo);
+    }
+
+    private <T> T updateValue(T newValue, T currentValue) {
+        return newValue != null ? newValue : currentValue;
     }
 
     public void confirm() {

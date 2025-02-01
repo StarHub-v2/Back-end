@@ -4,12 +4,11 @@ import com.example.starhub.entity.enums.Duration;
 import com.example.starhub.entity.enums.RecruitmentType;
 import lombok.Getter;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
 @Getter
-public class MeetingUpdateRequestDto {
+public class UpdateMeetingRequestDto {
 
     private RecruitmentType recruitmentType;
     private Integer maxParticipants;
