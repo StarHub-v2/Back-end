@@ -4,14 +4,12 @@ import com.example.starhub.dto.request.UpdateProfileRequestDto;
 import com.example.starhub.dto.response.LikeDto;
 import com.example.starhub.dto.response.MeetingSummaryResponseDto;
 import com.example.starhub.dto.response.ProfileResponseDto;
+import com.example.starhub.entity.ApplicationEntity;
 import com.example.starhub.entity.LikeEntity;
 import com.example.starhub.entity.MeetingEntity;
 import com.example.starhub.entity.UserEntity;
 import com.example.starhub.exception.UserNotFoundException;
-import com.example.starhub.repository.LikeRepository;
-import com.example.starhub.repository.MeetingRepository;
-import com.example.starhub.repository.MeetingTechStackRepository;
-import com.example.starhub.repository.UserRepository;
+import com.example.starhub.repository.*;
 import com.example.starhub.response.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,6 +27,7 @@ public class MyPageService {
     private final MeetingRepository meetingRepository;
     private final MeetingTechStackRepository meetingTechStackRepository;
     private final LikeRepository likeRepository;
+    private final ApplicationRepository applicationRepository;
 
     /**
      * 공통 검증 로직: 사용자 가져오기
@@ -65,7 +64,10 @@ public class MyPageService {
     }
 
     /**
-     * 마이페이지 정보 불러오기 - 내가 작성한 모임 목록
+     * 마이페이지 정보 불러오기 - 내가 작성한 모임 목록 최신 3개
+     *
+     * @param username 사용자명
+     * @return 요약된 모임 정보 리스트
      */
     @Transactional(readOnly = true)
     public List<MeetingSummaryResponseDto> getUserRecentMeetings(String username) {
@@ -82,13 +84,36 @@ public class MyPageService {
     }
 
     /**
-     * 내가 좋아요 누른 모임 목록 (최신 3개)
+     * 마이페이지 정보 불러오기 - 내가 좋아요 누른 모임 목록 최신 3개
+     *
+     * @param username 사용자명
+     * @return 요약된 모임 정보 리스트
      */
     public List<MeetingSummaryResponseDto> getLikedRecentMeetings(String username) {
         UserEntity user = validateAndGetUser(username);
 
         List<MeetingEntity> meetings = likeRepository.findTop3ByUserOrderByCreatedAtDesc(user)
                 .stream().map(LikeEntity::getMeeting).collect(Collectors.toList());
+
+        return meetings.stream().map(meeting -> {
+            List<String> techStacks = getTechStacksForMeeting(meeting);
+            LikeDto likeDto = getLikeDtoForMeeting(meeting, username);
+
+            return MeetingSummaryResponseDto.fromEntity(meeting, techStacks, likeDto);
+        }).collect(Collectors.toList());
+    }
+
+    /**
+     * 마이페이지 정보 불러오기 - 내가 참여한 모임 목록 최신 3개
+     *
+     * @param username 사용자명
+     * @return 요약된 모임 정보 리스트
+     */
+    public List<MeetingSummaryResponseDto> getAppliedRecentMeetings(String username) {
+        UserEntity user = validateAndGetUser(username);
+
+        List<MeetingEntity> meetings = applicationRepository.findTop3ByApplicantOrderByCreatedAtDesc(user)
+                .stream().map(ApplicationEntity::getMeeting).collect(Collectors.toList());
 
         return meetings.stream().map(meeting -> {
             List<String> techStacks = getTechStacksForMeeting(meeting);

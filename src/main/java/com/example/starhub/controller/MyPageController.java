@@ -73,10 +73,11 @@ public class MyPageController {
      * 마이페이지 정보 불러오기 - 내가 참여한 모임 목록 최신 3개
      */
     @GetMapping("/mypage/meetings/applied/recent")
-    public ResponseEntity<ResponseDto> getAppliedRecentMeetings() {
+    public ResponseEntity<ResponseDto<List<MeetingSummaryResponseDto>>> getAppliedRecentMeetings(@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        List<MeetingSummaryResponseDto> res = myPageService.getAppliedRecentMeetings(customUserDetails.getUsername());
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_GET_APPLIED_RECENT_MEETINGS.getStatus().value())
-                .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_APPLIED_RECENT_MEETINGS, null));
+                .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_APPLIED_RECENT_MEETINGS, res));
     }
 
     /**
