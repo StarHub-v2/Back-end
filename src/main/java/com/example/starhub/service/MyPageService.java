@@ -12,6 +12,10 @@ import com.example.starhub.exception.UserNotFoundException;
 import com.example.starhub.repository.*;
 import com.example.starhub.response.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class MyPageService {
 
@@ -43,7 +47,6 @@ public class MyPageService {
      * @param username 사용자명
      * @return 사용자 정보가 담긴 DTO
      */
-    @Transactional(readOnly = true)
     public ProfileResponseDto getUserProfile(String username) {
         UserEntity user = validateAndGetUser(username);
         return ProfileResponseDto.fromEntity(user);
@@ -56,6 +59,7 @@ public class MyPageService {
      * @param updateProfileRequestDto 업데이트할 프로필 정보
      * @return 사용자 정보가 담긴 DTO
      */
+    @Transactional
     public ProfileResponseDto updateUserProfile(String username, UpdateProfileRequestDto updateProfileRequestDto) {
         UserEntity user = validateAndGetUser(username);
         user.updateProfile(updateProfileRequestDto);
@@ -69,7 +73,6 @@ public class MyPageService {
      * @param username 사용자명
      * @return 요약된 모임 정보 리스트
      */
-    @Transactional(readOnly = true)
     public List<MeetingSummaryResponseDto> getUserRecentMeetings(String username) {
         UserEntity user = validateAndGetUser(username);
 
@@ -121,6 +124,54 @@ public class MyPageService {
 
             return MeetingSummaryResponseDto.fromEntity(meeting, techStacks, likeDto);
         }).collect(Collectors.toList());
+    }
+
+    /**
+     * 내가 작성한 모임 목록 (페이지네이션 적용)
+     */
+    public Page<MeetingSummaryResponseDto> getCreatedMeetings(String username, int page, int size) {
+        UserEntity user = validateAndGetUser(username);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        return meetingRepository.findByCreator(user, pageable)
+                .map(meeting -> {
+                    List<String> techStacks = getTechStacksForMeeting(meeting);
+                    LikeDto likeDto = getLikeDtoForMeeting(meeting, username);
+
+                    return MeetingSummaryResponseDto.fromEntity(meeting, techStacks, likeDto);
+                });
+    }
+
+    /**
+     * 내가 좋아요 누른 모임 목록 (페이지네이션 적용)
+     */
+    public Page<MeetingSummaryResponseDto> getLikedMeetings(String username, int page, int size) {
+        UserEntity user = validateAndGetUser(username);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return likeRepository.findByUser(user, pageable)
+                .map(like -> {
+                    MeetingEntity meeting = like.getMeeting();
+                    List<String> techStacks = getTechStacksForMeeting(meeting);
+                    LikeDto likeDto = getLikeDtoForMeeting(meeting, username);
+
+                    return MeetingSummaryResponseDto.fromEntity(meeting, techStacks, likeDto);
+                });
+    }
+
+    /**
+     * 내가 참여한 모임 목록 (페이지네이션 적용)
+     */
+    public Page<MeetingSummaryResponseDto> getAppliedMeetings(String username, int page, int size) {
+        UserEntity user = validateAndGetUser(username);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return applicationRepository.findByApplicant(user, pageable)
+                .map(participation -> {
+                    MeetingEntity meeting = participation.getMeeting();
+                    List<String> techStacks = getTechStacksForMeeting(meeting);
+                    LikeDto likeDto = getLikeDtoForMeeting(meeting, username);
+
+                    return MeetingSummaryResponseDto.fromEntity(meeting, techStacks, likeDto);
+                });
     }
 
     /**
