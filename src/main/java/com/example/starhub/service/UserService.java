@@ -1,10 +1,8 @@
 package com.example.starhub.service;
 
-import com.example.starhub.dto.request.CreateUserRequestDto;
 import com.example.starhub.dto.request.CreateProfileRequestDto;
-import com.example.starhub.dto.request.UpdateProfileRequestDto;
+import com.example.starhub.dto.request.CreateUserRequestDto;
 import com.example.starhub.dto.request.UsernameCheckRequestDto;
-import com.example.starhub.dto.response.ProfileResponseDto;
 import com.example.starhub.dto.response.ProfileSummaryResponseDto;
 import com.example.starhub.dto.response.UserResponseDto;
 import com.example.starhub.dto.response.UsernameCheckResponseDto;
@@ -35,6 +33,14 @@ public class UserService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JWTUtil jwtUtil;
     private final RedisService redisService;
+
+    /**
+     * 공통 검증 로직: 사용자 가져오기
+     */
+    private UserEntity validateAndGetUser(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
+    }
 
     /**
      * 1차 회원가입
@@ -82,8 +88,7 @@ public class UserService {
      * @return ProfileResponseDto 프로필 생성 응답 DTO
      */
     public ProfileSummaryResponseDto createUserProfile(String username, CreateProfileRequestDto createProfileRequestDto) {
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
+        UserEntity user = validateAndGetUser(username);
 
         if(user.getIsProfileComplete()) {
             throw new UserProfileAlreadyExistsException(ErrorCode.USER_PROFILE_ALREADY_EXISTS);
@@ -102,35 +107,6 @@ public class UserService {
         return ProfileSummaryResponseDto.fromEntity(user);
     }
 
-    /**
-     * 마이페이지 - 사용자 정보 불러오기
-     *
-     * @param username 사용자명
-     * @return 사용자 정보가 담긴 DTO
-     */
-    @Transactional(readOnly = true)
-    public ProfileResponseDto getUserProfile(String username) {
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
-
-        return ProfileResponseDto.fromEntity(user);
-    }
-
-    /**
-     * 마이페이지 - 프로필 정보 수정하기
-     *
-     * @param username 사용자명
-     * @param updateProfileRequestDto 업데이트할 프로필 정보
-     * @return 사용자 정보가 담긴 DTO
-     */
-    public ProfileResponseDto updateUserProfile(String username, UpdateProfileRequestDto updateProfileRequestDto) {
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
-
-        user.updateProfile(updateProfileRequestDto);
-
-        return ProfileResponseDto.fromEntity(user);
-    }
     /**
      * 토큰 재발급
      *
