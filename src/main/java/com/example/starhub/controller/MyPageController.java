@@ -39,7 +39,7 @@ public class MyPageController {
      * 마이페이지 - 프로필 정보 수정하기
      */
     @PatchMapping("/mypage/users")
-    public ResponseEntity<ResponseDto> updateUserProfile(@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+    public ResponseEntity<ResponseDto<ProfileResponseDto>> updateUserProfile(@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
                                                          @Valid @RequestBody UpdateProfileRequestDto updateProfileRequestDto) {
         ProfileResponseDto res = myPageService.updateUserProfile(customUserDetails.getUsername(), updateProfileRequestDto);
         return ResponseEntity
@@ -51,7 +51,7 @@ public class MyPageController {
      * 마이페이지 정보 불러오기 - 내가 작성한 모임 목록 최신 3개
      */
     @GetMapping("/mypage/meetings/recent")
-    public ResponseEntity<ResponseDto> getUserRecentMeetings(@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+    public ResponseEntity<ResponseDto<List<MeetingSummaryResponseDto>>> getUserRecentMeetings(@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         List<MeetingSummaryResponseDto> res = myPageService.getUserRecentMeetings(customUserDetails.getUsername());
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_GET_CREATED_RECENT_MEETINGS.getStatus().value())
@@ -62,10 +62,11 @@ public class MyPageController {
      * 마이페이지 정보 불러오기 - 내가 좋아요 누른 모임 목록 최신 3개
      */
     @GetMapping("/mypage/meetings/liked/recent")
-    public ResponseEntity<ResponseDto> getLikedRecentMeetings() {
+    public ResponseEntity<ResponseDto<List<MeetingSummaryResponseDto>>> getLikedRecentMeetings(@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        List<MeetingSummaryResponseDto> res = myPageService.getLikedRecentMeetings(customUserDetails.getUsername());
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_GET_LIKED_RECENT_MEETINGS.getStatus().value())
-                .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_LIKED_RECENT_MEETINGS, null));
+                .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_LIKED_RECENT_MEETINGS, res));
     }
 
     /**

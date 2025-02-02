@@ -18,9 +18,5 @@ public interface LikeRepository extends JpaRepository<LikeEntity, Long> {
     boolean existsByUserAndMeeting(UserEntity user, MeetingEntity meeting);
     Optional<LikeEntity> findByUserAndMeeting(UserEntity user, MeetingEntity meeting);
 
-    @Query("SELECT l FROM LikeEntity l " +
-            "JOIN FETCH l.meeting m " +
-            "WHERE l.user = :user " +
-            "ORDER BY l.createdAt DESC")
-    List<LikeEntity> findTop3ByUserWithMeeting(@Param("user") UserEntity user);
+    List<LikeEntity> findTop3ByUserOrderByCreatedAtDesc(UserEntity user);
 }
