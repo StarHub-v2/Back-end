@@ -45,140 +45,121 @@ public class MyPageService {
      * 마이페이지 - 사용자 정보 불러오기
      *
      * @param username 사용자명
-     * @return 사용자 정보가 담긴 DTO
+     * @return 프로필 정보가 담긴 DTO
      */
     public ProfileResponseDto getUserProfile(String username) {
-        UserEntity user = validateAndGetUser(username);
-        return ProfileResponseDto.fromEntity(user);
+        return ProfileResponseDto.fromEntity(validateAndGetUser(username));
     }
 
     /**
      * 마이페이지 - 프로필 정보 수정하기
      *
      * @param username 사용자명
-     * @param updateProfileRequestDto 업데이트할 프로필 정보
-     * @return 사용자 정보가 담긴 DTO
+     * @param updateProfileRequestDto 업데이트할 프로필 정보 DTO
+     * @return 프로필 정보가 담긴 DTO
      */
     @Transactional
     public ProfileResponseDto updateUserProfile(String username, UpdateProfileRequestDto updateProfileRequestDto) {
         UserEntity user = validateAndGetUser(username);
         user.updateProfile(updateProfileRequestDto);
-
         return ProfileResponseDto.fromEntity(user);
     }
 
     /**
-     * 마이페이지 정보 불러오기 - 내가 작성한 모임 목록 최신 3개
+     * 마이페이지 - 내가 작성한 모임 목록 최신 3개
      *
      * @param username 사용자명
-     * @return 요약된 모임 정보 리스트
+     * @return 모임 요약 정보가 담긴 DTO 리스트
      */
     public List<MeetingSummaryResponseDto> getUserRecentMeetings(String username) {
-        UserEntity user = validateAndGetUser(username);
-
-        List<MeetingEntity> meetings = meetingRepository.findTop3ByCreatorOrderByCreatedAtDesc(user);
-
-        return meetings.stream().map(meeting -> {
-            List<String> techStacks = getTechStacksForMeeting(meeting);
-            LikeDto likeDto = getLikeDtoForMeeting(meeting, username);
-
-            return MeetingSummaryResponseDto.fromEntity(meeting, techStacks, likeDto);
-        }).collect(Collectors.toList());
+        return getRecentMeetings(meetingRepository.findTop3ByCreatorOrderByCreatedAtDesc(validateAndGetUser(username)), username);
     }
 
     /**
-     * 마이페이지 정보 불러오기 - 내가 좋아요 누른 모임 목록 최신 3개
+     * 마이페이지 - 내가 좋아요 누른 모임 목록 최신 3개
      *
      * @param username 사용자명
-     * @return 요약된 모임 정보 리스트
+     * @return 모임 요약 정보가 담긴 DTO 리스트
      */
     public List<MeetingSummaryResponseDto> getLikedRecentMeetings(String username) {
-        UserEntity user = validateAndGetUser(username);
-
-        List<MeetingEntity> meetings = likeRepository.findTop3ByUserOrderByCreatedAtDesc(user)
+        List<MeetingEntity> meetings = likeRepository.findTop3ByUserOrderByCreatedAtDesc(validateAndGetUser(username))
                 .stream().map(LikeEntity::getMeeting).collect(Collectors.toList());
-
-        return meetings.stream().map(meeting -> {
-            List<String> techStacks = getTechStacksForMeeting(meeting);
-            LikeDto likeDto = getLikeDtoForMeeting(meeting, username);
-
-            return MeetingSummaryResponseDto.fromEntity(meeting, techStacks, likeDto);
-        }).collect(Collectors.toList());
+        return getRecentMeetings(meetings, username);
     }
 
     /**
-     * 마이페이지 정보 불러오기 - 내가 참여한 모임 목록 최신 3개
+     * 마이페이지 - 내가 참여한 모임 목록 최신 3개
      *
      * @param username 사용자명
-     * @return 요약된 모임 정보 리스트
+     * @return 모임 요약 정보가 담긴 DTO 리스트
      */
     public List<MeetingSummaryResponseDto> getAppliedRecentMeetings(String username) {
-        UserEntity user = validateAndGetUser(username);
-
-        List<MeetingEntity> meetings = applicationRepository.findTop3ByApplicantOrderByCreatedAtDesc(user)
+        List<MeetingEntity> meetings = applicationRepository.findTop3ByApplicantOrderByCreatedAtDesc(validateAndGetUser(username))
                 .stream().map(ApplicationEntity::getMeeting).collect(Collectors.toList());
-
-        return meetings.stream().map(meeting -> {
-            List<String> techStacks = getTechStacksForMeeting(meeting);
-            LikeDto likeDto = getLikeDtoForMeeting(meeting, username);
-
-            return MeetingSummaryResponseDto.fromEntity(meeting, techStacks, likeDto);
-        }).collect(Collectors.toList());
+        return getRecentMeetings(meetings, username);
     }
 
     /**
      * 내가 작성한 모임 목록 (페이지네이션 적용)
+     *
+     * @param username 사용자명
+     * @param page 페이지 번호
+     * @param size 페이지 크기
+     * @return 모임 요약 정보가 담긴 DTO 리스트 - 페이지네이션 적용
      */
     public Page<MeetingSummaryResponseDto> getCreatedMeetings(String username, int page, int size) {
-        UserEntity user = validateAndGetUser(username);
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-
-        return meetingRepository.findByCreator(user, pageable)
-                .map(meeting -> {
-                    List<String> techStacks = getTechStacksForMeeting(meeting);
-                    LikeDto likeDto = getLikeDtoForMeeting(meeting, username);
-
-                    return MeetingSummaryResponseDto.fromEntity(meeting, techStacks, likeDto);
-                });
+        return getMeetingsPage(meetingRepository.findByCreator(validateAndGetUser(username), pageable), username);
     }
 
     /**
      * 내가 좋아요 누른 모임 목록 (페이지네이션 적용)
+     *
+     * @param username 사용자명
+     * @param page 페이지 번호
+     * @param size 페이지 크기
+     * @return 모임 요약 정보가 담긴 DTO 리스트 - 페이지네이션 적용
      */
     public Page<MeetingSummaryResponseDto> getLikedMeetings(String username, int page, int size) {
-        UserEntity user = validateAndGetUser(username);
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return likeRepository.findByUser(user, pageable)
-                .map(like -> {
-                    MeetingEntity meeting = like.getMeeting();
-                    List<String> techStacks = getTechStacksForMeeting(meeting);
-                    LikeDto likeDto = getLikeDtoForMeeting(meeting, username);
-
-                    return MeetingSummaryResponseDto.fromEntity(meeting, techStacks, likeDto);
-                });
+        Page<LikeEntity> likedMeetingsPage = likeRepository.findByUser(validateAndGetUser(username), pageable);
+        return getMeetingsPage(likedMeetingsPage.map(LikeEntity::getMeeting), username);
     }
 
     /**
      * 내가 참여한 모임 목록 (페이지네이션 적용)
+     *
+     * @param username 사용자명
+     * @param page 페이지 번호
+     * @param size 페이지 크기
+     * @return 모임 요약 정보가 담긴 DTO 리스트 - 페이지네이션 적용
      */
     public Page<MeetingSummaryResponseDto> getAppliedMeetings(String username, int page, int size) {
-        UserEntity user = validateAndGetUser(username);
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return applicationRepository.findByApplicant(user, pageable)
-                .map(participation -> {
-                    MeetingEntity meeting = participation.getMeeting();
-                    List<String> techStacks = getTechStacksForMeeting(meeting);
-                    LikeDto likeDto = getLikeDtoForMeeting(meeting, username);
+        Page<ApplicationEntity> appliedMeetingsPage = applicationRepository.findByApplicant(validateAndGetUser(username), pageable);
+        return getMeetingsPage(appliedMeetingsPage.map(ApplicationEntity::getMeeting), username);
+    }
 
-                    return MeetingSummaryResponseDto.fromEntity(meeting, techStacks, likeDto);
-                });
+    /**
+     * 최근 모임 목록을 가져오는 공통 로직
+     */
+    private List<MeetingSummaryResponseDto> getRecentMeetings(List<MeetingEntity> meetings, String username) {
+        return meetings.stream().map(meeting ->
+                MeetingSummaryResponseDto.fromEntity(meeting, getTechStacksForMeeting(meeting), getLikeDtoForMeeting(meeting, username))
+        ).collect(Collectors.toList());
+    }
+
+    /**
+     * 페이징된 모임 목록을 가져오는 공통 로직
+     */
+    private Page<MeetingSummaryResponseDto> getMeetingsPage(Page<MeetingEntity> meetingsPage, String username) {
+        return meetingsPage.map(meeting ->
+                MeetingSummaryResponseDto.fromEntity(meeting, getTechStacksForMeeting(meeting), getLikeDtoForMeeting(meeting, username))
+        );
     }
 
     /**
      * 모임에 연결된 기술 스택을 반환하는 메서드
-     *
-     * @param meetingEntity 모임 엔티티
-     * @return 기술 스택 이름 리스트
      */
     private List<String> getTechStacksForMeeting(MeetingEntity meetingEntity) {
         return meetingTechStackRepository.findByMeeting(meetingEntity).stream()
@@ -188,19 +169,12 @@ public class MyPageService {
 
     /**
      * 모임에 대한 좋아요 정보 및 내가 좋아요를 눌렀는지 여부를 반환하는 메서드
-     *
-     * @param meetingEntity 모임 엔티티
-     * @param username   사용자명
-     * @return 좋아요 DTO
      */
     private LikeDto getLikeDtoForMeeting(MeetingEntity meetingEntity, String username) {
-        Long likeCount = likeRepository.countByMeeting(meetingEntity);
-
-        Boolean isLiked = likeRepository.existsByMeetingAndUserUsername(meetingEntity, username);
-
         return LikeDto.builder()
-                .likeCount(likeCount)
-                .isLiked(isLiked)
+                .likeCount(likeRepository.countByMeeting(meetingEntity))
+                .isLiked(likeRepository.existsByMeetingAndUserUsername(meetingEntity, username))
                 .build();
     }
 }
+
