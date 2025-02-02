@@ -1,5 +1,7 @@
 package com.example.starhub.entity;
 
+import com.example.starhub.dto.request.CreateProfileRequestDto;
+import com.example.starhub.dto.request.UpdateProfileRequestDto;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -74,7 +76,7 @@ public class UserEntity {
         return user;
     }
 
-    public void updateProfile(String profileImage, String nickname, String name, Integer age, String bio, String email, String phoneNumber) {
+    public void createProfile(String profileImage, String nickname, String name, Integer age, String bio, String email, String phoneNumber) {
         this.profileImage = profileImage;
         this.nickname = nickname;
         this.name = name;
@@ -84,5 +86,21 @@ public class UserEntity {
         this.phoneNumber = phoneNumber;
         this.isProfileComplete = true;
     }
+
+    public void updateProfile(UpdateProfileRequestDto updateProfileRequestDto) {
+        this.profileImage = updateValue(updateProfileRequestDto.getProfileImage(), this.profileImage);
+        this.nickname = updateValue(updateProfileRequestDto.getNickname(), this.nickname);
+        this.name = updateValue(updateProfileRequestDto.getName(), this.name);
+        this.age = updateValue(updateProfileRequestDto.getAge(), this.age);
+        this.bio = updateValue(updateProfileRequestDto.getBio(), this.bio);
+        this.email = updateValue(updateProfileRequestDto.getEmail(), this.email);
+        this.phoneNumber = updateValue(updateProfileRequestDto.getPhoneNumber(), this.phoneNumber);
+    }
+
+    private <T> T updateValue(T newValue, T currentValue) {
+        return newValue != null ? newValue : currentValue;
+    }
+
+
 
 }

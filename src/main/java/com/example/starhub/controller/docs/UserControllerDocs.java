@@ -3,7 +3,7 @@ package com.example.starhub.controller.docs;
 import com.example.starhub.dto.request.CreateProfileRequestDto;
 import com.example.starhub.dto.request.CreateUserRequestDto;
 import com.example.starhub.dto.request.UsernameCheckRequestDto;
-import com.example.starhub.dto.response.ProfileResponseDto;
+import com.example.starhub.dto.response.ProfileSummaryResponseDto;
 import com.example.starhub.dto.response.UserResponseDto;
 import com.example.starhub.dto.response.UsernameCheckResponseDto;
 import com.example.starhub.dto.security.CustomUserDetails;
@@ -47,8 +47,8 @@ public interface UserControllerDocs {
             summary = "프로필 생성하기(2차 회원가입)",
             description = "사용자의 프로필 정보를 이용해 2차 회원가입을 진행합니다."
     )
-    ResponseEntity<ResponseDto<ProfileResponseDto>> createUserProfile(@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                                                      @Valid @RequestBody CreateProfileRequestDto createProfileRequestDto);
+    ResponseEntity<ResponseDto<ProfileSummaryResponseDto>> createUserProfile(@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                                                             @Valid @RequestBody CreateProfileRequestDto createProfileRequestDto);
     /**
      * 토큰 재발급
      */
@@ -57,4 +57,5 @@ public interface UserControllerDocs {
             description = "Access 및 Refresh 토큰을 재발급을 진행합니다."
     )
     ResponseEntity<ResponseDto> reissueToken(HttpServletRequest request, HttpServletResponse response);
+
 }

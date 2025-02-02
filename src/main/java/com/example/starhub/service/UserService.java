@@ -3,7 +3,7 @@ package com.example.starhub.service;
 import com.example.starhub.dto.request.CreateProfileRequestDto;
 import com.example.starhub.dto.request.CreateUserRequestDto;
 import com.example.starhub.dto.request.UsernameCheckRequestDto;
-import com.example.starhub.dto.response.ProfileResponseDto;
+import com.example.starhub.dto.response.ProfileSummaryResponseDto;
 import com.example.starhub.dto.response.UserResponseDto;
 import com.example.starhub.dto.response.UsernameCheckResponseDto;
 import com.example.starhub.entity.UserEntity;
@@ -33,6 +33,14 @@ public class UserService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JWTUtil jwtUtil;
     private final RedisService redisService;
+
+    /**
+     * 공통 검증 로직: 사용자 가져오기
+     */
+    private UserEntity validateAndGetUser(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
+    }
 
     /**
      * 1차 회원가입
@@ -79,15 +87,14 @@ public class UserService {
      * @param createProfileRequestDto 프로필 생성 요청 DTO
      * @return ProfileResponseDto 프로필 생성 응답 DTO
      */
-    public ProfileResponseDto createUserProfile(String username, CreateProfileRequestDto createProfileRequestDto) {
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
+    public ProfileSummaryResponseDto createUserProfile(String username, CreateProfileRequestDto createProfileRequestDto) {
+        UserEntity user = validateAndGetUser(username);
 
         if(user.getIsProfileComplete()) {
             throw new UserProfileAlreadyExistsException(ErrorCode.USER_PROFILE_ALREADY_EXISTS);
         }
 
-        user.updateProfile(
+        user.createProfile(
                 createProfileRequestDto.getProfileImage(),
                 createProfileRequestDto.getNickname(),
                 createProfileRequestDto.getName(),
@@ -97,7 +104,7 @@ public class UserService {
                 createProfileRequestDto.getPhoneNumber()
         );
 
-        return ProfileResponseDto.fromEntity(user);
+        return ProfileSummaryResponseDto.fromEntity(user);
     }
 
     /**

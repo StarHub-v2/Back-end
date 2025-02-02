@@ -4,7 +4,7 @@ import com.example.starhub.controller.docs.UserControllerDocs;
 import com.example.starhub.dto.request.CreateProfileRequestDto;
 import com.example.starhub.dto.request.CreateUserRequestDto;
 import com.example.starhub.dto.request.UsernameCheckRequestDto;
-import com.example.starhub.dto.response.ProfileResponseDto;
+import com.example.starhub.dto.response.ProfileSummaryResponseDto;
 import com.example.starhub.dto.response.UserResponseDto;
 import com.example.starhub.dto.response.UsernameCheckResponseDto;
 import com.example.starhub.dto.security.CustomUserDetails;
@@ -15,11 +15,12 @@ import com.example.starhub.response.dto.ResponseDto;
 import com.example.starhub.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -59,9 +60,9 @@ public class UserController implements UserControllerDocs {
      * 프로필 생성하기(2차 회원가입)
      */
     @PostMapping("/users/profile")
-    public ResponseEntity<ResponseDto<ProfileResponseDto>> createUserProfile(@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                                                             @Valid @RequestBody CreateProfileRequestDto createProfileRequestDto) {
-        ProfileResponseDto res = userService.createUserProfile(customUserDetails.getUsername(), createProfileRequestDto);
+    public ResponseEntity<ResponseDto<ProfileSummaryResponseDto>> createUserProfile(@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                                                                    @Valid @RequestBody CreateProfileRequestDto createProfileRequestDto) {
+        ProfileSummaryResponseDto res = userService.createUserProfile(customUserDetails.getUsername(), createProfileRequestDto);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_CREATE_PROFILE.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_CREATE_PROFILE, res));
@@ -98,8 +99,6 @@ public class UserController implements UserControllerDocs {
                 .status(ResponseCode.SUCCESS_REISSUE_TOKEN.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_REISSUE_TOKEN, null));
     }
-
-
 
     private Cookie createCookie(String key, String value) {
 

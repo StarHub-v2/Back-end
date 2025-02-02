@@ -64,7 +64,7 @@ public interface MeetingControllerDocs {
     ResponseEntity<ResponseDto<MeetingResponseDto>> updateMeeting(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long meetingId,
-            @RequestBody MeetingUpdateRequestDto meetingUpdateRequestDto);
+            @RequestBody UpdateMeetingRequestDto updateMeetingRequestDto);
 
     /**
      * 모임 삭제하기

@@ -2,7 +2,7 @@ package com.example.starhub.service;
 
 import com.example.starhub.dto.request.ConfirmMeetingRequestDto;
 import com.example.starhub.dto.request.CreateMeetingRequestDto;
-import com.example.starhub.dto.request.MeetingUpdateRequestDto;
+import com.example.starhub.dto.request.UpdateMeetingRequestDto;
 import com.example.starhub.dto.response.*;
 import com.example.starhub.entity.*;
 import com.example.starhub.entity.enums.ApplicationStatus;
@@ -10,7 +10,6 @@ import com.example.starhub.entity.enums.TechCategory;
 import com.example.starhub.exception.*;
 import com.example.starhub.repository.*;
 import com.example.starhub.response.code.ErrorCode;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -158,20 +157,20 @@ public class MeetingService {
      *
      * @param username JWT를 통해 인증된 사용자명
      * @param meetingId 수정할 모임 아이디
-     * @param meetingUpdateRequestDto 업데이트할 모임 정보가 담긴 DTO
+     * @param updateMeetingRequestDto 업데이트할 모임 정보가 담긴 DTO
      * @return 모임에 대한 응답 DTO
      */
-    public MeetingResponseDto updateMeeting(String username, Long meetingId, MeetingUpdateRequestDto meetingUpdateRequestDto) {
+    public MeetingResponseDto updateMeeting(String username, Long meetingId, UpdateMeetingRequestDto updateMeetingRequestDto) {
 
         MeetingEntity meetingEntity = validateAndGetMeeting(meetingId);
 
         // 개설자가 아닌 경우 예외 처리
         validateMeetingCreator(meetingEntity, username);
 
-        meetingEntity.updateMeeting(meetingUpdateRequestDto);
+        meetingEntity.updateMeeting(updateMeetingRequestDto);
 
         // 기술 스택 업데이트
-        List<String> techStackNames = updateMeetingTechStacks(meetingEntity, meetingUpdateRequestDto);
+        List<String> techStackNames = updateMeetingTechStacks(meetingEntity, updateMeetingRequestDto);
 
         return MeetingResponseDto.fromEntity(meetingEntity, techStackNames);
     }
@@ -424,23 +423,23 @@ public class MeetingService {
      * 모임 연결된 기술 스택을 업데이트하는 메서드
      *
      * @param meetingEntity 모임 엔티티
-     * @param meetingUpdateRequestDto 업데이트할 모임 정보가 담긴 DTO
+     * @param updateMeetingRequestDto 업데이트할 모임 정보가 담긴 DTO
      */
-    private List<String> updateMeetingTechStacks(MeetingEntity meetingEntity, MeetingUpdateRequestDto meetingUpdateRequestDto) {
-        if (meetingUpdateRequestDto.getTechStackIds() != null || meetingUpdateRequestDto.getOtherTechStacks() != null) {
+    private List<String> updateMeetingTechStacks(MeetingEntity meetingEntity, UpdateMeetingRequestDto updateMeetingRequestDto) {
+        if (updateMeetingRequestDto.getTechStackIds() != null || updateMeetingRequestDto.getOtherTechStacks() != null) {
             meetingTechStackRepository.deleteByMeeting(meetingEntity);
         }
 
         List<String> techStackNames = new ArrayList<>();
 
         // 기존에 있는 기술 스택 처리
-        if (meetingUpdateRequestDto.getTechStackIds() != null) {
-            techStackNames.addAll(processExistingTechStacks(meetingEntity, meetingUpdateRequestDto.getTechStackIds()));
+        if (updateMeetingRequestDto.getTechStackIds() != null) {
+            techStackNames.addAll(processExistingTechStacks(meetingEntity, updateMeetingRequestDto.getTechStackIds()));
         }
 
         // 새로운 기타 기술 스택 처리
-        if (meetingUpdateRequestDto.getOtherTechStacks() != null) {
-            techStackNames.addAll(processOtherTechStacks(meetingEntity, meetingUpdateRequestDto.getOtherTechStacks()));
+        if (updateMeetingRequestDto.getOtherTechStacks() != null) {
+            techStackNames.addAll(processOtherTechStacks(meetingEntity, updateMeetingRequestDto.getOtherTechStacks()));
         }
 
         return techStackNames;

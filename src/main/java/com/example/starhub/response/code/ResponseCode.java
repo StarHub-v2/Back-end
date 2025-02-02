@@ -19,6 +19,20 @@ public enum ResponseCode {
     SUCCESS_REISSUE_TOKEN(HttpStatus.OK, "토큰 재발급을 성공했습니다."),
 
     /**
+     * MYPAGE
+     */
+    SUCCESS_GET_PROFILE(HttpStatus.OK, "마이페이지 사용자 정보를 성공적으로 불러왔습니다."),
+    SUCCESS_UPDATE_PROFILE(HttpStatus.OK, "마이페이지 사용자 정보를 성공적으로 수정했습니다."),
+
+    SUCCESS_GET_CREATED_RECENT_MEETINGS(HttpStatus.OK, "내가 작성한 모임 최신 3개를 성공적으로 불러왔습니다."),
+    SUCCESS_GET_LIKED_RECENT_MEETINGS(HttpStatus.OK, "내가 관심 있는 모임 최신 3개를 성공적으로 불러왔습니다."),
+    SUCCESS_GET_APPLIED_RECENT_MEETINGS(HttpStatus.OK, "내가 참여한 모임 최신 3개를 성공적으로 불러왔습니다."),
+
+    SUCCESS_GET_CREATED_MEETINGS(HttpStatus.OK, "내가 작성한 모임 목록을 성공적으로 불러왔습니다."),
+    SUCCESS_GET_LIKED_MEETINGS(HttpStatus.OK, "내가 관심 있는 모임 목록을 성공적으로 불러왔습니다."),
+    SUCCESS_GET_APPLIED_MEETINGS(HttpStatus.OK, "내가 참여한 모임 목록을 성공적으로 불러왔습니다."),
+
+    /**
      * MEETING
      */
     SUCCESS_CREATE_MEETING(HttpStatus.CREATED, "모임이 성공적으로 생성되었습니다."),
