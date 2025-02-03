@@ -133,6 +133,35 @@ public class MeetingController implements MeetingControllerDocs {
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_CONFIRMED_MEMBERS, res));
     }
 
+    /**
+     * 인기글 페이지 - 프로젝트 인기글 최신 3개
+     *
+     */
+    @GetMapping("/popular/projects")
+    public ResponseEntity<ResponseDto> getPopularProjects() {
+        return ResponseEntity
+                .status(ResponseCode.SUCCESS_GET_POPULAR_PROJECTS.getStatus().value())
+                .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_POPULAR_PROJECTS, null));
+    }
 
+    /**
+     * 인기글 페이지 - 스터디 인기글 최신 3개
+     */
+    @GetMapping("/popular/studies")
+    public ResponseEntity<ResponseDto> getPopularStudies() {
+        return ResponseEntity
+                .status(ResponseCode.SUCCESS_GET_POPULAR_STUDIES.getStatus().value())
+                .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_POPULAR_STUDIES, null));
+    }
+
+    /**
+     * 인기글 페이지 - 마감입박 인기글 3개
+     */
+    @GetMapping("/popular/expiring")
+    public ResponseEntity<ResponseDto> getExpiringPopularPosts() {
+        return ResponseEntity
+                .status(ResponseCode.SUCCESS_GET_POPULAR_EXPIRING.getStatus().value())
+                .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_POPULAR_EXPIRING, null));
+    }
 
 }
