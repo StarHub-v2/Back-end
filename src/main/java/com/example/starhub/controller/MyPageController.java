@@ -88,7 +88,7 @@ public class MyPageController {
     public ResponseEntity<ResponseDto<Page<MeetingSummaryResponseDto>>> getCreatedMeetings(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "9") int size) {
 
         Page<MeetingSummaryResponseDto> res = myPageService.getCreatedMeetings(customUserDetails.getUsername(), page, size);
         return ResponseEntity
@@ -103,7 +103,7 @@ public class MyPageController {
     public ResponseEntity<ResponseDto<Page<MeetingSummaryResponseDto>>> getLikedMeetings(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "9") int size) {
 
         Page<MeetingSummaryResponseDto> res = myPageService.getLikedMeetings(customUserDetails.getUsername(), page, size);
         return ResponseEntity
@@ -118,7 +118,7 @@ public class MyPageController {
     public ResponseEntity<ResponseDto<Page<MeetingSummaryResponseDto>>> getAppliedMeetings(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "9") int size) {
 
         Page<MeetingSummaryResponseDto> res = myPageService.getAppliedMeetings(customUserDetails.getUsername(), page, size);
         return ResponseEntity
