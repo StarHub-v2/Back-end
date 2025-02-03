@@ -6,6 +6,7 @@ import com.example.starhub.dto.request.UpdateMeetingRequestDto;
 import com.example.starhub.dto.response.*;
 import com.example.starhub.entity.*;
 import com.example.starhub.entity.enums.ApplicationStatus;
+import com.example.starhub.entity.enums.RecruitmentType;
 import com.example.starhub.entity.enums.TechCategory;
 import com.example.starhub.exception.*;
 import com.example.starhub.repository.*;
@@ -21,7 +22,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class MeetingService {
 
@@ -78,6 +79,7 @@ public class MeetingService {
      * @param createMeetingRequestDto 모임 생성에 필요한 데이터를 담고 있는 요청 DTO
      * @return 모임에 대한 응답 DTO
      */
+    @Transactional
     public MeetingResponseDto createMeeting(String username, CreateMeetingRequestDto createMeetingRequestDto) {
 
         UserEntity user = userRepository.findByUsername(username)
@@ -102,7 +104,6 @@ public class MeetingService {
      * @param size 페이지 크기
      * @return 모임 목록 응답 DTO
      */
-    @Transactional(readOnly = true)
     public Page<MeetingSummaryResponseDto> getMeetingList(String username, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Order.desc("createdAt")));
         Page<MeetingEntity> meetingPage = meetingRepository.findAll(pageRequest);
@@ -123,7 +124,6 @@ public class MeetingService {
      * @param meetingId 모임의 고유 ID
      * @return 모임의 상세 정보 DTO (MeetingDetailResponseDto)
      */
-    @Transactional(readOnly = true)
     public MeetingDetailResponseDto getMeetingDetail(String username, Long meetingId) {
 
         // 모임 정보와 개설자 정보 같이 가져오기
@@ -160,6 +160,7 @@ public class MeetingService {
      * @param updateMeetingRequestDto 업데이트할 모임 정보가 담긴 DTO
      * @return 모임에 대한 응답 DTO
      */
+    @Transactional
     public MeetingResponseDto updateMeeting(String username, Long meetingId, UpdateMeetingRequestDto updateMeetingRequestDto) {
 
         MeetingEntity meetingEntity = validateAndGetMeeting(meetingId);
@@ -182,6 +183,7 @@ public class MeetingService {
      * @param username JWT를 통해 인증된 사용자명
      * @param meetingId 삭제할 모임 아이디
      */
+    @Transactional
     public void deleteMeeting(String username, Long meetingId) {
 
         MeetingEntity meetingEntity = validateAndGetMeeting(meetingId);
@@ -204,6 +206,7 @@ public class MeetingService {
      * @param confirmMeetingRequestDto 모임원들의 지원서 아이디 리스트
      * @return 모임원들의 정보가 담긴 DTO
      */
+    @Transactional
     public List<ConfirmMeetingResponseDto> confirmMeetingMember(String username, Long meetingId, ConfirmMeetingRequestDto confirmMeetingRequestDto) {
 
         MeetingEntity meetingEntity = validateAndGetMeeting(meetingId);
@@ -232,7 +235,6 @@ public class MeetingService {
      * @param meetingId 삭제할 모임 아이디
      * @return 모임원들의 정보가 담긴 DTO
      */
-    @Transactional(readOnly = true)
     public List<ConfirmMeetingResponseDto> getConfirmedMembers(String username, Long meetingId) {
         // 모임이 확정된 상태인지 확인
         MeetingEntity meetingEntity = validateAndGetConfirmedMeeting(meetingId);
@@ -260,6 +262,22 @@ public class MeetingService {
 
         // 승인된 지원서들 반환
         return getConfirmedMembersForCreator(meetingEntity, creatorInfo);
+    }
+
+    /**
+     * 인기글 페이지 - 최신 스터디 인기글 3개를 반환합니다.
+     *
+     * 조건:
+     * - `RecruitmentType`이 `STUDY`인 모임만 조회
+     * - 좋아요를 많이 받은 순으로 정렬
+     * - 마감되지 않은 모임만 필터링
+     *
+     * @param username 사용자명
+     * @return 모임 요약된 정보가 담긴 DTO
+     */
+    public List<MeetingSummaryResponseDto> getPopularStudies(String username) {
+        List<MeetingEntity> meetings = meetingRepository.findTop3PopularMeeting(RecruitmentType.STUDY);
+        return getPopularMeetings(meetings, username);
     }
 
     /**
@@ -529,6 +547,15 @@ public class MeetingService {
         responseDtos.add(0, creatorInfo);
 
         return responseDtos;
+    }
+
+    /**
+     * 최근 인기 모임 목록을 가져오는 공통 로직
+     */
+    private List<MeetingSummaryResponseDto> getPopularMeetings(List<MeetingEntity> meetings, String username) {
+        return meetings.stream().map(meeting ->
+                MeetingSummaryResponseDto.fromEntity(meeting, getTechStacksForMeeting(meeting), getLikeDtoForMeeting(meeting, username))
+        ).collect(Collectors.toList());
     }
 
 }

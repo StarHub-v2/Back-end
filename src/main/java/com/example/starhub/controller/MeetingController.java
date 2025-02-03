@@ -134,7 +134,7 @@ public class MeetingController implements MeetingControllerDocs {
     }
 
     /**
-     * 인기글 페이지 - 프로젝트 인기글 최신 3개
+     * 인기글 페이지 - 프로젝트 인기글 3개
      *
      */
     @GetMapping("/popular/projects")
@@ -145,13 +145,16 @@ public class MeetingController implements MeetingControllerDocs {
     }
 
     /**
-     * 인기글 페이지 - 스터디 인기글 최신 3개
+     * 인기글 페이지 - 스터디 인기글 3개
      */
     @GetMapping("/popular/studies")
-    public ResponseEntity<ResponseDto> getPopularStudies() {
+    public ResponseEntity<ResponseDto<List<MeetingSummaryResponseDto>>> getPopularStudies(
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        List<MeetingSummaryResponseDto> res = meetingService.getPopularStudies(customUserDetails.getUsername());
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_GET_POPULAR_STUDIES.getStatus().value())
-                .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_POPULAR_STUDIES, null));
+                .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_POPULAR_STUDIES, res));
     }
 
     /**
