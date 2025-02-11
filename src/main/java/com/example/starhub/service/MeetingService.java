@@ -265,7 +265,23 @@ public class MeetingService {
     }
 
     /**
-     * 인기글 페이지 - 최신 스터디 인기글 3개를 반환합니다.
+     * 인기글 페이지 - 프로젝트 인기글 3개를 반환합니다.
+     *
+     * 조건:
+     * - `RecruitmentType`이 `PROJECT`인 모임만 조회
+     * - 좋아요를 많이 받은 순으로 정렬
+     * - 마감되지 않은 모임만 필터링
+     *
+     * @param username 사용자명
+     * @return 모임 요약된 정보가 담긴 DTO
+     */
+    public List<MeetingSummaryResponseDto> getPopularProjects(String username) {
+        List<MeetingEntity> meetings = meetingRepository.findTop3PopularMeeting(RecruitmentType.PROJECT);
+        return getPopularMeetings(meetings, username);
+    }
+
+    /**
+     * 인기글 페이지 - 스터디 인기글 3개를 반환합니다.
      *
      * 조건:
      * - `RecruitmentType`이 `STUDY`인 모임만 조회

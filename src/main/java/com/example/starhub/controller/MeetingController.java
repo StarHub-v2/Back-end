@@ -138,10 +138,16 @@ public class MeetingController implements MeetingControllerDocs {
      *
      */
     @GetMapping("/popular/projects")
-    public ResponseEntity<ResponseDto> getPopularProjects() {
+    public ResponseEntity<ResponseDto> getPopularProjects(
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        // 익명 사용자일 경우 null 전달, 인증된 사용자일 경우 customUserDetails 전달
+        String username = customUserDetails != null ? customUserDetails.getUsername() : null;
+
+        List<MeetingSummaryResponseDto> res = meetingService.getPopularStudies(username);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_GET_POPULAR_PROJECTS.getStatus().value())
-                .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_POPULAR_PROJECTS, null));
+                .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_POPULAR_PROJECTS, res));
     }
 
     /**
