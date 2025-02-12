@@ -138,7 +138,7 @@ public class MeetingController implements MeetingControllerDocs {
      *
      */
     @GetMapping("/popular/projects")
-    public ResponseEntity<ResponseDto> getPopularProjects(
+    public ResponseEntity<ResponseDto<List<MeetingSummaryResponseDto>>> getPopularProjects(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
         // 익명 사용자일 경우 null 전달, 인증된 사용자일 경우 customUserDetails 전달
@@ -168,10 +168,14 @@ public class MeetingController implements MeetingControllerDocs {
      * 인기글 페이지 - 마감입박 인기글 3개
      */
     @GetMapping("/popular/expiring")
-    public ResponseEntity<ResponseDto> getExpiringPopularPosts() {
+    public ResponseEntity<ResponseDto> getExpiringPopularMeetings(
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        String username = customUserDetails != null ? customUserDetails.getUsername() : null;
+        List<MeetingSummaryResponseDto> res = meetingService.getExpiringPopularMeetings(username);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_GET_POPULAR_EXPIRING.getStatus().value())
-                .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_POPULAR_EXPIRING, null));
+                .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_POPULAR_EXPIRING, res));
     }
 
 }

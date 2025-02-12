@@ -276,7 +276,7 @@ public class MeetingService {
      * @return 모임 요약된 정보가 담긴 DTO
      */
     public List<MeetingSummaryResponseDto> getPopularProjects(String username) {
-        List<MeetingEntity> meetings = meetingRepository.findTop3PopularMeeting(RecruitmentType.PROJECT);
+        List<MeetingEntity> meetings = meetingRepository.findTop3PopularMeeting(RecruitmentType.PROJECT, PageRequest.of(0, 3));
         return getPopularMeetings(meetings, username);
     }
 
@@ -292,7 +292,20 @@ public class MeetingService {
      * @return 모임 요약된 정보가 담긴 DTO
      */
     public List<MeetingSummaryResponseDto> getPopularStudies(String username) {
-        List<MeetingEntity> meetings = meetingRepository.findTop3PopularMeeting(RecruitmentType.STUDY);
+        List<MeetingEntity> meetings = meetingRepository.findTop3PopularMeeting(RecruitmentType.STUDY, PageRequest.of(0, 3));
+        return getPopularMeetings(meetings, username);
+    }
+
+    /**
+     * 인기글 페이지 - 마감임박 인기글 3개를 반환합니다.
+     *
+     * 조건:
+     * - `RecruitmentType` 상관없이
+     * - 좋아요를 많이 받은 순으로 정렬
+     * - 마감되지 않은 모임만 필터링
+     */
+    public List<MeetingSummaryResponseDto> getExpiringPopularMeetings(String username) {
+        List<MeetingEntity> meetings = meetingRepository.findTop3ExpiringPopularMeetings(PageRequest.of(0, 3));
         return getPopularMeetings(meetings, username);
     }
 

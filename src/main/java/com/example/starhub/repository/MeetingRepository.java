@@ -20,10 +20,21 @@ public interface MeetingRepository extends JpaRepository<MeetingEntity, Long> {
     Page<MeetingEntity> findByCreator(UserEntity creator, Pageable pageable);
 
     @Query("SELECT m FROM MeetingEntity m " +
-    "JOIN LikeEntity l ON l.meeting = m " +
-    "WHERE m.recruitmentType = :recruitmentType " +
-    "AND m.isConfirmed = false " +
-    "GROUP BY m " +
-    "ORDER BY COUNT(1) DESC")
-    List<MeetingEntity> findTop3PopularMeeting(RecruitmentType recruitmentType);
+            "LEFT JOIN LikeEntity l ON l.meeting = m " +
+            "WHERE m.recruitmentType = :recruitmentType " +
+            "AND m.isConfirmed = false " +
+            "GROUP BY m " +
+            "ORDER BY COUNT(1) DESC")
+    List<MeetingEntity> findTop3PopularMeeting(RecruitmentType recruitmentType, Pageable pageable);
+
+    @Query("SELECT m FROM MeetingEntity m " +
+            "LEFT JOIN LikeEntity l ON l.meeting = m " +
+            "WHERE m.isConfirmed = false " +
+            "AND m.endDate > CURRENT_TIMESTAMP " +
+            "GROUP BY m " +
+            "ORDER BY m.endDate ASC, COUNT(l) DESC")
+    List<MeetingEntity> findTop3ExpiringPopularMeetings(Pageable pageable);
+
+
+
 }

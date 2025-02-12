@@ -88,7 +88,7 @@ public class SecurityConfig {
                         .antMatchers("/swagger-ui/**", "/v3/api-docs/**", "/starhub-api/**").permitAll()
                         .antMatchers(HttpMethod.GET, "/api/v1/meetings", "/api/v1/meetings/{meetingId}").permitAll()
                         .antMatchers(HttpMethod.GET, "/api/v1/techStacks").permitAll()
-                        .antMatchers(HttpMethod.GET, "/api/v1/meetings/popular/projects", "/api/v1/meetings/popular/studies").permitAll()
+                        .antMatchers(HttpMethod.GET, "/api/v1/meetings/popular/projects", "/api/v1/meetings/popular/studies", "/api/v1/meetings/popular/expiring").permitAll()
 
                         // 관리자만 접근 가능 경로
                         .antMatchers(HttpMethod.POST, "/api/v1/techStacks").hasRole("ADMIN")
