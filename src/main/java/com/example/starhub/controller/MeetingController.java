@@ -144,7 +144,7 @@ public class MeetingController implements MeetingControllerDocs {
         // 익명 사용자일 경우 null 전달, 인증된 사용자일 경우 customUserDetails 전달
         String username = customUserDetails != null ? customUserDetails.getUsername() : null;
 
-        List<MeetingSummaryResponseDto> res = meetingService.getPopularStudies(username);
+        List<MeetingSummaryResponseDto> res = meetingService.getPopularProjects(username);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_GET_POPULAR_PROJECTS.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_POPULAR_PROJECTS, res));
@@ -157,7 +157,8 @@ public class MeetingController implements MeetingControllerDocs {
     public ResponseEntity<ResponseDto<List<MeetingSummaryResponseDto>>> getPopularStudies(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        List<MeetingSummaryResponseDto> res = meetingService.getPopularStudies(customUserDetails.getUsername());
+        String username = customUserDetails != null ? customUserDetails.getUsername() : null;
+        List<MeetingSummaryResponseDto> res = meetingService.getPopularStudies(username);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_GET_POPULAR_STUDIES.getStatus().value())
                 .body(new ResponseDto<>(ResponseCode.SUCCESS_GET_POPULAR_STUDIES, res));
