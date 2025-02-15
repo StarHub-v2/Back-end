@@ -19,22 +19,26 @@ public interface MeetingRepository extends JpaRepository<MeetingEntity, Long> {
     List<MeetingEntity> findTop3ByCreatorOrderByCreatedAtDesc(UserEntity creator);
     Page<MeetingEntity> findByCreator(UserEntity creator, Pageable pageable);
 
-    @Query("SELECT m FROM MeetingEntity m " +
-            "LEFT JOIN LikeEntity l ON l.meeting = m " +
-            "WHERE m.recruitmentType = :recruitmentType " +
-            "AND m.isConfirmed = false " +
-            "GROUP BY m " +
-            "ORDER BY COUNT(1) DESC")
-    List<MeetingEntity> findTop3PopularMeeting(RecruitmentType recruitmentType, Pageable pageable);
+    @Query("""
+        SELECT m.id 
+        FROM MeetingEntity m
+        LEFT JOIN LikeEntity l ON l.meeting = m
+        WHERE m.endDate > CURRENT_TIMESTAMP
+            AND m.isConfirmed = false
+        GROUP BY m.id
+        ORDER BY m.endDate ASC, COUNT(l) DESC
+    """)
+    List<Long> findTop3ExpiringPopularMeetingsIds(Pageable pageable);
 
-    @Query("SELECT m FROM MeetingEntity m " +
-            "LEFT JOIN LikeEntity l ON l.meeting = m " +
-            "WHERE m.isConfirmed = false " +
-            "AND m.endDate > CURRENT_TIMESTAMP " +
-            "GROUP BY m " +
-            "ORDER BY m.endDate ASC, COUNT(l) DESC")
-    List<MeetingEntity> findTop3ExpiringPopularMeetings(Pageable pageable);
-
-
+    @Query("""
+        SELECT m.id 
+        FROM MeetingEntity m
+        LEFT JOIN LikeEntity l ON l.meeting = m
+        WHERE m.recruitmentType = :recruitmentType 
+            AND m.isConfirmed = false
+        GROUP BY m.id
+        ORDER BY COUNT(l) DESC
+    """)
+    List<Long> findTop3PopularMeetingIds(@Param("recruitmentType") RecruitmentType recruitmentType, Pageable pageable);
 
 }

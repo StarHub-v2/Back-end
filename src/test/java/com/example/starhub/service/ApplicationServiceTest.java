@@ -61,7 +61,7 @@ class ApplicationServiceTest {
 
         assertNotNull(responseDto);
         assertEquals(requestDto.getContent(), responseDto.getContent());
-        assertEquals(applicant.getUsername(), responseDto.getApplicant().getUsername());
+        assertEquals(applicant.getNickname(), responseDto.getApplicant().getNickname());
     }
 
     @Test
@@ -193,7 +193,7 @@ class ApplicationServiceTest {
         // Then
         assertNotNull(response);
         assertEquals("This is a test application.", response.getContent());
-        assertEquals(applicant.getUsername(), response.getApplicant().getUsername());
+        assertEquals(applicant.getNickname(), response.getApplicant().getNickname());
     }
 
     @Test

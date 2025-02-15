@@ -37,7 +37,7 @@ public enum ErrorCode {
      * 404 NOT_FOUND: 리소스를 찾을 수 없음
      */
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 사용자를 찾을 수 없습니다."),
-    MEETING_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 포스트를 찾을 수 없습니다."),
+    MEETING_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 모임을 찾을 수 없습니다."),
     APPLICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 지원서를 찾을 수 없습니다."),
     LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 좋아요를 찾을 수 없습니다."),
 
