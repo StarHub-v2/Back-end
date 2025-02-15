@@ -44,6 +44,10 @@ public enum ResponseCode {
     SUCCESS_CONFIRM_MEETING_MEMBER(HttpStatus.OK, "모임원이 성공적으로 확정되었습니다."),
     SUCCESS_GET_CONFIRMED_MEMBERS(HttpStatus.OK, "확정된 모임원 목록을 성공적으로 불러왔습니다."),
 
+    SUCCESS_GET_POPULAR_PROJECTS(HttpStatus.OK, "프로젝트 인기글을 성공적으로 불러왔습니다."),
+    SUCCESS_GET_POPULAR_STUDIES(HttpStatus.OK, "스터디 인기글을 성공적으로 불러왔습니다."),
+    SUCCESS_GET_POPULAR_EXPIRING(HttpStatus.OK, "마감임박 인기글을 성공적으로 불러왔습니다."),
+
     /**
      * APPLICANT
      */
