@@ -11,9 +11,7 @@ import com.example.starhub.entity.enums.ApplicationStatus;
 import com.example.starhub.entity.enums.Duration;
 import com.example.starhub.entity.enums.RecruitmentType;
 import com.example.starhub.entity.enums.TechCategory;
-import com.example.starhub.exception.CreatorAuthorizationException;
-import com.example.starhub.exception.MeetingNotFoundException;
-import com.example.starhub.exception.UserNotFoundException;
+import com.example.starhub.exception.*;
 import com.example.starhub.repository.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -251,17 +249,6 @@ class MeetingServiceTest {
         assertTrue(response.getPostInfo().getIsConfirmed());
     }
 
-    private MeetingResponseDto confirmingMeeting() {
-        MeetingResponseDto meetingResponse = saveMeeting();
-        ApplicationResponseDto applicationResponse = saveApplication(meetingResponse, applicant.getUsername());
-
-        ConfirmMeetingRequestDto requestDto = new ConfirmMeetingRequestDto(
-                List.of(applicationResponse.getId())
-        );
-        meetingService.confirmMeetingMember(creator.getUsername(), meetingResponse.getId(), requestDto);
-        return meetingResponse;
-    }
-
     @Test
     void updateMeeting_Success() {
 
@@ -298,6 +285,16 @@ class MeetingServiceTest {
     }
 
     @Test
+    void updateMeeting_shouldThrowStudyConfirmedException() {
+        MeetingResponseDto meetingResponse = confirmingMeeting();
+        UpdateMeetingRequestDto requestDto = buildUpdateMeetingRequestDto();
+
+        assertThrows(StudyConfirmedException.class, () -> {
+            meetingService.updateMeeting(creator .getUsername(), meetingResponse.getId(), requestDto);
+        });
+    }
+
+    @Test
     void deleteMeeting_Success() {
 
         MeetingResponseDto meetingResponse = saveMeeting();
@@ -321,6 +318,15 @@ class MeetingServiceTest {
 
         assertThrows(CreatorAuthorizationException.class, () -> {
             meetingService.deleteMeeting(applicant.getUsername(), meetingResponse.getId());
+        });
+    }
+
+    @Test
+    void deleteMeeting_shouldThrowStudyConfirmedException() {
+        MeetingResponseDto meetingResponse = confirmingMeeting();
+
+        assertThrows(StudyConfirmedException.class, () -> {
+            meetingService.deleteMeeting(creator.getUsername(), meetingResponse.getId());
         });
     }
 
@@ -366,6 +372,79 @@ class MeetingServiceTest {
         });
     }
 
+    @Test
+    void confirmMeetingMember_shouldInvalidApplicationIdException() {
+
+        MeetingResponseDto meetingResponse = saveMeeting();
+        saveApplication(meetingResponse, applicant.getUsername());
+
+        ConfirmMeetingRequestDto requestDto = new ConfirmMeetingRequestDto(List.of(9999L));
+
+        assertThrows(InvalidApplicationIdException.class, () -> {
+            meetingService.confirmMeetingMember(creator.getUsername(), meetingResponse.getId(), requestDto);
+        });
+    }
+
+
+    @Test
+    void getConfirmedMembers_Success_AsCreator() {
+
+        MeetingResponseDto meetingResponse = confirmingMeeting();
+
+        List<ConfirmMeetingResponseDto> response = meetingService.getConfirmedMembers(creator.getUsername(), meetingResponse.getId());
+        assertEquals(2, response.size());
+        assertEquals(creator.getName(), response.get(0).getName());
+        assertEquals(applicant.getName(), response.get(1).getName());
+    }
+
+    @Test
+    void getConfirmedMembers_Success_AsApplicant() {
+
+        MeetingResponseDto meetingResponse = confirmingMeeting();
+
+        List<ConfirmMeetingResponseDto> response = meetingService.getConfirmedMembers(applicant.getUsername(), meetingResponse.getId());
+        assertEquals(2, response.size());
+        assertEquals(creator.getName(), response.get(0).getName());
+        assertEquals(applicant.getName(), response.get(1).getName());
+    }
+
+    @Test
+    void getConfirmedMembers_shouldThrowApplicationNotFoundException() {
+        MeetingResponseDto meetingResponse = confirmingMeeting();
+
+        assertThrows(ApplicationNotFoundException.class, () -> {
+            meetingService.getConfirmedMembers(failedApplicant.getUsername(), meetingResponse.getId());
+        });
+    }
+
+    @Test
+    void getConfirmedMembers_shouldThrowUserNotFoundException() {
+        MeetingResponseDto meetingResponse = confirmingMeeting();
+
+        assertThrows(UserNotFoundException.class, () -> {
+            meetingService.getConfirmedMembers("invalidUser", meetingResponse.getId());
+        });
+    }
+
+    @Test
+    void getConfirmedMembers_shouldThrowStudyNotConfirmedException() {
+        MeetingResponseDto meetingResponse = saveMeeting();
+
+        assertThrows(StudyNotConfirmedException.class, () -> {
+            meetingService.getConfirmedMembers(creator.getUsername(), meetingResponse.getId());
+        });
+    }
+
+    @Test
+    void getConfirmedMembers_WhenApplicantIsNotConfirmed() {
+        MeetingResponseDto meetingResponse = saveMeeting();
+        saveApplication(meetingResponse, applicant.getUsername());
+
+        assertThrows(StudyNotConfirmedException.class, () -> {
+            meetingService.getConfirmedMembers(creator.getUsername(), meetingResponse.getId());
+        });
+    }
+
     private ApplicationResponseDto saveApplication(MeetingResponseDto meetingResponse, String applicant) {
         ApplicationRequestDto applicationRequestDto = buildApplicationRequestDto();
         ApplicationResponseDto responseDto = applicationService.createApplication(applicant, meetingResponse.getId(), applicationRequestDto);
@@ -384,7 +463,7 @@ class MeetingServiceTest {
                 LocalDate.now().plusMonths(4), "서울 마포구",
                 37.5555, 126.9999, "업데이트된 모임",
                 "업데이트된 설명", "새로운 목표", "업데이트된 기타 정보",
-                null, null
+                List.of(techStackList.get(1).getId()), List.of("GIT")
         );
         return requestDto;
     }
@@ -417,4 +496,16 @@ class MeetingServiceTest {
                 .build();
         return requestDto;
     }
+
+    private MeetingResponseDto confirmingMeeting() {
+        MeetingResponseDto meetingResponse = saveMeeting();
+        ApplicationResponseDto applicationResponse = saveApplication(meetingResponse, applicant.getUsername());
+
+        ConfirmMeetingRequestDto requestDto = new ConfirmMeetingRequestDto(
+                List.of(applicationResponse.getId())
+        );
+        meetingService.confirmMeetingMember(creator.getUsername(), meetingResponse.getId(), requestDto);
+        return meetingResponse;
+    }
+
 }

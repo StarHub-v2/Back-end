@@ -232,7 +232,7 @@ public class MeetingService {
      * 확정된 모임원 불러오기
      *
      * @param username JWT를 통해 인증된 사용자명
-     * @param meetingId 삭제할 모임 아이디
+     * @param meetingId 모임 아이디
      * @return 모임원들의 정보가 담긴 DTO
      */
     public List<ConfirmMeetingResponseDto> getConfirmedMembers(String username, Long meetingId) {
@@ -255,10 +255,6 @@ public class MeetingService {
         // 개설자가 아니고, 지원자가 승인되지 않은 경우 예외 처리
         ApplicationEntity applicant = applicationRepository.findByApplicantAndMeeting(user, meetingEntity)
                 .orElseThrow(() -> new ApplicationNotFoundException(ErrorCode.APPLICATION_NOT_FOUND));
-
-        if (applicant.getStatus() != ApplicationStatus.APPROVED) {
-            throw new StudyNotConfirmedException(ErrorCode.STUDY_NOT_CONFIRMED);
-        }
 
         // 승인된 지원서들 반환
         return getConfirmedMembersForCreator(meetingEntity, creatorInfo);
