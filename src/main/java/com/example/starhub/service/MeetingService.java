@@ -202,7 +202,7 @@ public class MeetingService {
      * 모임원 확정하기
      *
      * @param username JWT를 통해 인증된 사용자명
-     * @param meetingId 삭제할 모임 아이디
+     * @param meetingId 확정할 모임 아이디
      * @param confirmMeetingRequestDto 모임원들의 지원서 아이디 리스트
      * @return 모임원들의 정보가 담긴 DTO
      */

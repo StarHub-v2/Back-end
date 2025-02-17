@@ -34,7 +34,7 @@ class TechStackServiceTest {
         // 기본 데이터 추가
         saveTechStack("React", TechCategory.FRONTEND);
         saveTechStack("Spring", TechCategory.BACKEND);
-        saveTechStack("React  ", TechCategory.MOBILE);
+        saveTechStack("React Native", TechCategory.MOBILE);
         saveTechStack("OtherTool", TechCategory.OTHER);
 
     }
