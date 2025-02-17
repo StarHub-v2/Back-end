@@ -1,7 +1,6 @@
 package com.example.starhub.entity;
 
 import com.example.starhub.dto.request.ApplicationRequestDto;
-import com.example.starhub.dto.request.CreateMeetingRequestDto;
 import com.example.starhub.entity.enums.ApplicationStatus;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;

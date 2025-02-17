@@ -2,11 +2,13 @@ package com.example.starhub.dto.request;
 
 import com.example.starhub.entity.enums.Duration;
 import com.example.starhub.entity.enums.RecruitmentType;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDate;
 import java.util.List;
 
+@AllArgsConstructor
 @Getter
 public class UpdateMeetingRequestDto {
 

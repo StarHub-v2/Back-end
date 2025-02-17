@@ -1,6 +1,5 @@
 package com.example.starhub.entity;
 
-import com.example.starhub.dto.request.CreateProfileRequestDto;
 import com.example.starhub.dto.request.UpdateProfileRequestDto;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
