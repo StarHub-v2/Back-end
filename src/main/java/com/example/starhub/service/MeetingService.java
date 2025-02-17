@@ -265,27 +265,6 @@ public class MeetingService {
     }
 
     /**
-     * 인기글 페이지 - 프로젝트 인기글 3개를 반환합니다.
-     */
-    public List<MeetingSummaryResponseDto> getPopularProjects(String username) {
-        return getPopularMeetings(RecruitmentType.PROJECT, username, false);
-    }
-
-    /**
-     * 인기글 페이지 - 스터디 인기글 3개를 반환합니다.
-     */
-    public List<MeetingSummaryResponseDto> getPopularStudies(String username) {
-        return getPopularMeetings(RecruitmentType.STUDY, username, false);
-    }
-
-    /**
-     * 인기글 페이지 - 마감임박 인기글 3개를 반환합니다.
-     */
-    public List<MeetingSummaryResponseDto> getExpiringPopularMeetings(String username) {
-        return getPopularMeetings(null, username, true);
-    }
-
-    /**
      * 모임에 연결된 기술 스택을 저장하는 메서드
      *
      * @param meetingEntity 생성된 모임 엔티티
@@ -551,68 +530,6 @@ public class MeetingService {
         responseDtos.add(0, creatorInfo);
 
         return responseDtos;
-    }
-
-    /**
-     * 인기글 페이지 - 프로젝트, 스터디, 마감임박 인기글을 반환합니다.
-     *
-     * @param recruitmentType 모집 유형 (`PROJECT`, `STUDY`, 등)
-     * @param username 사용자명
-     * @param isExpiring 마감임박 여부
-     * @return 모임 요약된 정보가 담긴 DTO
-     */
-    private List<MeetingSummaryResponseDto> getPopularMeetings(RecruitmentType recruitmentType, String username, boolean isExpiring) {
-        List<Long> meetingIds = getMeetingIds(recruitmentType, isExpiring);
-
-        if (meetingIds.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        Map<Long, Set<String>> meetingTechStacksMap = getTechStacksMap(meetingIds);
-
-        return meetingIds.stream()
-                .map(meetingId -> createMeetingSummaryResponseDto(meetingId, username, meetingTechStacksMap))
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * 모집 유형과 마감임박 여부에 따라 모임 ID 리스트를 가져옵니다.
-     */
-    private List<Long> getMeetingIds(RecruitmentType recruitmentType, boolean isExpiring) {
-        if (isExpiring) {
-            return meetingRepository.findTop3ExpiringPopularMeetingsIds(PageRequest.of(0, 3));
-        } else {
-            return meetingRepository.findTop3PopularMeetingIds(recruitmentType, PageRequest.of(0, 3));
-        }
-    }
-
-    /**
-     * 모임 ID 리스트에 해당하는 기술 스택 정보를 가져옵니다.
-     */
-    private Map<Long, Set<String>> getTechStacksMap(List<Long> meetingIds) {
-        List<MeetingTechStackEntity> meetingTechStacks = meetingTechStackRepository.findMeetingTechStacksByMeetingIds(meetingIds);
-        return meetingTechStacks.stream()
-                .collect(Collectors.groupingBy(
-                        mts -> mts.getMeeting().getId(),
-                        Collectors.mapping(mts -> mts.getTechStack().getName(), Collectors.toSet())
-                ));
-    }
-
-    /**
-     * 해당 모임 ID에 대해 DTO를 생성합니다.
-     */
-    private MeetingSummaryResponseDto createMeetingSummaryResponseDto(Long meetingId, String username, Map<Long, Set<String>> meetingTechStacksMap) {
-        Set<String> techStacksSet = meetingTechStacksMap.getOrDefault(meetingId, Collections.emptySet());
-        List<String> techStacks = new ArrayList<>(techStacksSet);
-
-        // 해당 meetingId에 대한 MeetingEntity를 가져오기
-        MeetingEntity meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new MeetingNotFoundException(ErrorCode.MEETING_NOT_FOUND));
-
-        // 좋아요 관련 정보를 가져오기
-        LikeDto likeDto = getLikeDtoForMeeting(meeting, username);
-
-        return MeetingSummaryResponseDto.fromEntity(meeting, techStacks, likeDto);
     }
 
 }
