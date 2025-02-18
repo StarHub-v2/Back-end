@@ -1,9 +1,11 @@
 package com.example.starhub.dto.request;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import javax.validation.constraints.*;
 
+@AllArgsConstructor
 @Getter
 public class CreateProfileRequestDto {
 
