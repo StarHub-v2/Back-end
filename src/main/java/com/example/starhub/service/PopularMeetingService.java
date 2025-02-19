@@ -25,7 +25,6 @@ public class PopularMeetingService {
     private final MeetingTechStackRepository meetingTechStackRepository;
     private final LikeRepository likeRepository;
 
-
     /**
      * 인기글 페이지 - 프로젝트 인기글 3개를 반환합니다.
      */
