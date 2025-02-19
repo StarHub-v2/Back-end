@@ -50,7 +50,6 @@ class MyPageServiceTest {
 
     @BeforeEach
     void setUp() {
-        // 테스트용 사용자 생성
         creator = userRepository.save(UserEntity.createUser("creatorUser", "creatorPassword"));
         applicant = userRepository.save(UserEntity.createUser("applicantUser", "applicantPassword"));
 
